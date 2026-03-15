@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block title %}ポートフォリオ - DPA{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-100">ポートフォリオ</h2>
+
+  <p class="text-slate-400 text-sm">保有銘柄の株数・平均取得単価を編集し、保存してください。</p>
+
+  <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+    <div class="w-full">
+      <table class="w-full text-left text-xs md:text-sm">
+        <thead class="bg-slate-700/50 text-slate-300 text-[11px] md:text-sm">
+          <tr>
+            <th class="px-2 py-1 md:px-4 md:py-2">ティッカー</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">銘柄名</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">保有株数</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">平均取得単価（円）</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">直近株価（参考）</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-200" id="positions-tbody">
+          {% for p in positions %}
+          <tr class="border-t border-slate-700 hover:bg-slate-700/30" data-ticker="{{ p.ticker }}">
+            <td class="px-2 py-1 md:px-4 md:py-2 font-mono">{{ p.ticker }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2 break-words">{{ p.name }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              <input type="number" min="0" step="1" value="{{ p.shares }}" class="shares-input w-24 px-2 py-1 rounded bg-slate-700 border border-slate-600 text-slate-100" />
+            </td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              <input type="number" min="0" step="0.01" placeholder="未入力" value="{{ p.avg_price if p.avg_price is not none else '' }}" class="avg-price-input w-28 px-2 py-1 rounded bg-slate-700 border border-slate-600 text-slate-100" />
+            </td>
+            <td class="px-2 py-1 md:px-4 md:py-2 text-slate-400">{{ p.last_price|int if p.last_price is not none else '-' }} 円</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if not positions %}
+    <p class="px-4 py-6 text-slate-500">保有銘柄はありません。ウォッチリストで HOLDING の銘柄がここに反映されます。</p>
+    {% else %}
+    <div class="px-4 py-4 border-t border-slate-700">
+      <button type="button" id="btn-save-positions" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition">保存</button>
+      <span id="positions-msg" class="ml-3 text-sm text-slate-400"></span>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- 新規保有銘柄の追加（テーブルの下に表示） -->
+  <div class="bg-slate-800 rounded-xl border border-slate-700 p-4 space-y-3">
+    <h3 class="font-semibold text-amber-300 text-sm">保有銘柄を追加</h3>
+    <p class="text-xs text-slate-400">4桁ティッカーと初期の株数・平均取得単価を入力して追加します。</p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <label class="text-xs text-slate-400 flex flex-col gap-1">
+        ティッカー（4桁、例: 7203）
+        <input
+          id="add-position-ticker"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="4"
+          class="mt-1 w-full px-2 py-1 rounded bg-slate-900 border border-slate-600 text-slate-100 text-sm"
+          placeholder="7203"
+        />
+      </label>
+      <label class="text-xs text-slate-400 flex flex-col gap-1">
+        初期保有株数
+        <input
+          id="add-position-shares"
+          type="number"
+          min="0"
+          step="1"
+          class="mt-1 w-full px-2 py-1 rounded bg-slate-900 border border-slate-600 text-slate-100 text-sm"
+          placeholder="100"
+        />
+      </label>
+      <label class="text-xs text-slate-400 flex flex-col gap-1">
+        平均取得単価（任意）
+        <input
+          id="add-position-avg"
+          type="number"
+          min="0"
+          step="0.01"
+          class="mt-1 w-full px-2 py-1 rounded bg-slate-900 border border-slate-600 text-slate-100 text-sm"
+          placeholder="例: 2000"
+        />
+      </label>
+    </div>
+    <div class="flex items-center gap-3 pt-2">
+      <button
+        type="button"
+        id="btn-add-position"
+        class="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 text-sm rounded-lg text-slate-100 border border-slate-500"
+      >
+        行を追加
+      </button>
+      <span id="add-position-msg" class="text-xs text-slate-400"></span>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  const btnSave = document.getElementById('btn-save-positions');
+  const saveMsg = document.getElementById('positions-msg');
+  const tbody = document.getElementById('positions-tbody');
+  const addBtn = document.getElementById('btn-add-position');
+  const addInput = document.getElementById('add-position-ticker');
+  const addSharesInput = document.getElementById('add-position-shares');
+  const addAvgInput = document.getElementById('add-position-avg');
+  const addMsg = document.getElementById('add-position-msg');
+
+  if (!tbody) return;
+
+  function normalizeDigits(str) {
+    const toHalf = str.replace(/[０-９]/g, function(c) {
+      return String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
+    });
+    return toHalf.replace(/[^0-9]/g, '');
+  }
+
+  // 保有銘柄の追加（ティッカーは4桁数字のみ許容し、内部的には .T を付与）
+  if (addBtn && addInput && addSharesInput && addAvgInput && addMsg) {
+    addBtn.addEventListener('click', function() {
+      const raw = (addInput.value || '').trim();
+      const tickerDigits = normalizeDigits(raw);
+      if (!tickerDigits || !/^[0-9]{4}$/.test(tickerDigits)) {
+        addMsg.textContent = 'ティッカーは 4 桁の数字で入力してください（例: 7203）。';
+        addMsg.className = 'text-xs text-red-400';
+        return;
+      }
+      const sharesRaw = (addSharesInput.value || '').trim();
+      const sharesVal = sharesRaw ? parseInt(sharesRaw, 10) : 0;
+      const shares = Number.isFinite(sharesVal) && sharesVal > 0 ? sharesVal : 0;
+      const avgRaw = (addAvgInput.value || '').trim();
+      const avg = avgRaw ? parseFloat(avgRaw) : null;
+
+      const fullTicker = tickerDigits + '.T';
+      // 既に存在していれば追加しない
+      if (tbody.querySelector('tr[data-ticker="' + fullTicker + '"]')) {
+        addMsg.textContent = fullTicker + ' はすでに一覧にあります。';
+        addMsg.className = 'text-xs text-slate-400';
+        return;
+      }
+      // 新しい行を追加（初期 shares/avg_price は入力値、last_price は不明）
+      const tr = document.createElement('tr');
+      tr.className = 'border-t border-slate-700 hover:bg-slate-700/30';
+      tr.setAttribute('data-ticker', fullTicker);
+      tr.innerHTML = ''
+        + '<td class="px-2 py-1 md:px-4 md:py-2 font-mono">' + fullTicker + '</td>'
+        + '<td class="px-2 py-1 md:px-4 md:py-2 break-words">-</td>'
+        + '<td class="px-2 py-1 md:px-4 md:py-2">'
+        + '  <input type="number" min="0" step="1" value="' + (shares || 0) + '"'
+        + '    class="shares-input w-24 px-2 py-1 rounded bg-slate-700 border border-slate-600 text-slate-100" />'
+        + '</td>'
+        + '<td class="px-2 py-1 md:px-4 md:py-2">'
+        + '  <input type="number" min="0" step="0.01" placeholder="未入力" value="' + (avg != null && !isNaN(avg) ? avg : '') + '"'
+        + '    class="avg-price-input w-28 px-2 py-1 rounded bg-slate-700 border border-slate-600 text-slate-100" />'
+        + '</td>'
+        + '<td class="px-2 py-1 md:px-4 md:py-2 text-slate-400">- 円</td>';
+      tbody.appendChild(tr);
+
+      addInput.value = '';
+      addSharesInput.value = '';
+      addAvgInput.value = '';
+      addMsg.textContent = fullTicker + ' を追加しました。上の表を確認してから保存してください。';
+      addMsg.className = 'text-xs text-green-400';
+    });
+  }
+
+  if (!btnSave) return;
+
+  btnSave.addEventListener('click', function() {
+    const positions = {};
+    tbody.querySelectorAll('tr[data-ticker]').forEach(tr => {
+      const ticker = tr.getAttribute('data-ticker');
+      const shares = parseInt(tr.querySelector('.shares-input').value, 10) || 0;
+      const avgPriceRaw = tr.querySelector('.avg-price-input').value.trim();
+      const avg_price = avgPriceRaw ? parseFloat(avgPriceRaw) : null;
+      positions[ticker] = { shares: shares };
+      if (avg_price != null && !isNaN(avg_price)) positions[ticker].avg_price = avg_price;
+    });
+    saveMsg.textContent = '保存中…';
+    saveMsg.className = 'ml-3 text-sm text-slate-400';
+    fetch('/api/positions/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ positions: positions })
+    }).then(r => r.json()).then(() => {
+      saveMsg.textContent = '保存しました。';
+      saveMsg.className = 'ml-3 text-sm text-green-500';
+    }).catch(() => {
+      saveMsg.textContent = '保存に失敗しました。';
+      saveMsg.className = 'ml-3 text-sm text-red-400';
+    });
+  });
+})();
+</script>
+{% endblock %}

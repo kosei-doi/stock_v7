@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}企業分析 - DPA{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-100">企業分析＆自動追加</h2>
+  <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
+    <label class="block text-slate-400 text-sm mb-2">ティッカー（4桁の数字のみ、例: 7203）</label>
+    <div class="flex gap-2">
+      <input
+        type="text"
+        id="ticker-input"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        maxlength="4"
+        placeholder="7203"
+        class="flex-1 px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+      />
+      <button type="button" id="btn-analyze" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition">分析実行</button>
+    </div>
+    <p id="analyze-msg" class="mt-3 text-sm text-slate-400"></p>
+    <div id="analyze-loading" class="mt-4 hidden items-center gap-2">
+      <i class="fas fa-spinner fa-spin text-amber-400"></i>
+      <span class="text-slate-400">分析中…</span>
+    </div>
+    <div id="analyze-result" class="mt-4 hidden space-y-2">
+      <p class="text-green-500 font-medium" id="result-message"></p>
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Value:</span> <span id="result-value" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Safety:</span> <span id="result-safety" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Momentum:</span> <span id="result-momentum" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Total:</span> <span id="result-total" class="text-amber-400 font-semibold"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  const input = document.getElementById('ticker-input');
+  const btn = document.getElementById('btn-analyze');
+  const msg = document.getElementById('analyze-msg');
+  const loading = document.getElementById('analyze-loading');
+  const result = document.getElementById('analyze-result');
+  const resultMessage = document.getElementById('result-message');
+  const resultValue = document.getElementById('result-value');
+  const resultSafety = document.getElementById('result-safety');
+  const resultMomentum = document.getElementById('result-momentum');
+  const resultTotal = document.getElementById('result-total');
+
+  function normalizeDigits(str) {
+    // 全角数字を半角に変換したうえで数字以外を除去
+    const toHalf = str.replace(/[０-９]/g, function(c) {
+      return String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
+    });
+    return toHalf.replace(/[^0-9]/g, '');
+  }
+
+  btn.addEventListener('click', function() {
+    const raw = (input.value || '').trim();
+    const digits = normalizeDigits(raw);
+    if (!digits || !/^[0-9]{4}$/.test(digits)) {
+      msg.textContent = 'ティッカーは 4 桁の数字で入力してください（例: 7203）。';
+      msg.className = 'mt-3 text-sm text-amber-400';
+      return;
+    }
+    const ticker = digits;  // API 側で .T を付与
+    msg.textContent = '';
+    result.classList.add('hidden');
+    loading.classList.remove('hidden');
+    loading.classList.add('flex');
+    btn.disabled = true;
+    fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ticker: ticker })
+    }).then(r => {
+      if (!r.ok) return r.json().then(d => { throw new Error(d.detail || r.statusText); });
+      return r.json();
+    }).then(data => {
+      loading.classList.add('hidden');
+      result.classList.remove('hidden');
+      resultMessage.textContent = data.message || 'ウォッチリストに自動追加されました。';
+      resultValue.textContent = data.value_score != null ? data.value_score.toFixed(1) : '-';
+      resultSafety.textContent = data.safety_score != null ? data.safety_score.toFixed(1) : '-';
+      resultMomentum.textContent = data.momentum_score != null ? data.momentum_score.toFixed(1) : '-';
+      resultTotal.textContent = data.total_score != null ? data.total_score.toFixed(1) : '-';
+      msg.textContent = '';
+    }).catch(e => {
+      loading.classList.add('hidden');
+      msg.textContent = 'エラー: ' + (e.message || '分析に失敗しました');
+      msg.className = 'mt-3 text-sm text-red-400';
+    }).finally(() => { btn.disabled = false; });
+  });
+})();
+</script>
+{% endblock %}

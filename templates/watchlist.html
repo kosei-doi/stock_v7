@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}ウォッチリスト - DPA{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-100">ウォッチリスト</h2>
+  <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+    <div class="w-full">
+      <table class="w-full text-left text-xs md:text-sm">
+        <thead class="bg-slate-700/50 text-slate-300 text-[11px] md:text-sm">
+          <tr>
+            <th class="px-2 py-1 md:px-4 md:py-2">ティッカー</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">銘柄名</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">ステータス</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">株価（参考）</th>
+            <th class="px-2 py-1 md:px-4 md:py-2 w-24">操作</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-200">
+          {% for w in watchlist %}
+          <tr class="border-t border-slate-700 hover:bg-slate-700/30" data-ticker="{{ w.ticker }}">
+            <td class="px-2 py-1 md:px-4 md:py-2 font-mono">{{ w.ticker }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2 break-words">{{ w.name }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2">{{ w.status }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2">{{ w.price|int if w.price is not none else '-' }} 円</td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              <button type="button" class="delete-btn px-2 py-1 text-sm bg-red-600/80 hover:bg-red-600 text-white rounded" data-ticker="{{ w.ticker }}">削除</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if not watchlist %}
+    <p class="px-4 py-6 text-slate-500">ウォッチリストは空です。企業分析から銘柄を追加してください。</p>
+    {% endif %}
+  </div>
+</div>
+<script>
+(function() {
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const ticker = this.getAttribute('data-ticker');
+      if (!ticker || !confirm('「' + ticker + '」をウォッチリストから削除しますか？')) return;
+      fetch('/api/watchlist/' + encodeURIComponent(ticker), { method: 'DELETE' })
+        .then(r => r.json())
+        .then(() => { document.querySelector('tr[data-ticker="' + ticker + '"]').remove(); })
+        .catch(() => alert('削除に失敗しました。'));
+    });
+  });
+})();
+</script>
+{% endblock %}

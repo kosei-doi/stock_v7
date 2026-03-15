@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block title %}ダッシュボード - DPA{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex items-center justify-between gap-4">
+    <h2 class="text-2xl font-bold text-slate-100">ダッシュボード</h2>
+    <div class="flex flex-col items-end gap-1">
+      <button id="btn-run-batch" type="button" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg text-sm shadow">
+        日次バッチ実行
+      </button>
+      <p id="batch-msg" class="text-xs text-slate-400 text-right"></p>
+    </div>
+  </div>
+
+  <!-- KPI Cards: fetch from merged report -->
+  <div id="kpi-cards" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="bg-slate-800 rounded-lg border border-slate-700 p-4">
+      <p class="text-slate-400 text-xs md:text-sm">マクロフェーズ</p>
+      <p id="kpi-phase" class="text-lg font-semibold text-amber-400">-</p>
+    </div>
+    <div class="bg-slate-800 rounded-lg border border-slate-700 p-4">
+      <p class="text-slate-400 text-xs md:text-sm">目標現金比率</p>
+      <p id="kpi-cash-ratio" class="text-lg font-semibold">-</p>
+    </div>
+    <div class="bg-slate-800 rounded-lg border border-slate-700 p-4">
+      <p class="text-slate-400 text-xs md:text-sm">総資産</p>
+      <p id="kpi-total" class="text-lg font-semibold">-</p>
+    </div>
+    <div class="bg-slate-800 rounded-lg border border-slate-700 p-4">
+      <p class="text-slate-400 text-xs md:text-sm">評価損益合計</p>
+      <p id="kpi-pnl" class="text-lg font-semibold">-</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+    <!-- 左: 保有サマリ -->
+    <section class="bg-slate-800 rounded-xl border border-slate-700 p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-sm text-slate-100">保有サマリ（上位 5 件）</h3>
+        <a href="/positions" class="text-xs text-amber-400 hover:text-amber-300">ポートフォリオへ</a>
+      </div>
+      <p class="text-xs text-slate-400" id="holdings-summary">保有銘柄情報を読み込み中…</p>
+      <div class="overflow-hidden rounded-lg border border-slate-700/60">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-700/60 text-slate-300">
+            <tr>
+              <th class="px-3 py-2">ティッカー</th>
+              <th class="px-3 py-2">銘柄名</th>
+              <th class="px-3 py-2 text-right">% 現在 / 目標</th>
+              <th class="px-3 py-2 text-right">評価損益</th>
+            </tr>
+          </thead>
+          <tbody id="holdings-top5" class="text-slate-200">
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 右: ウォッチリスト優先度 -->
+    <section class="bg-slate-800 rounded-xl border border-slate-700 p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-sm text-slate-100">ウォッチリスト優先度（上位 5 件）</h3>
+        <a href="/watchlist" class="text-xs text-amber-400 hover:text-amber-300">ウォッチリストへ</a>
+      </div>
+      <p class="text-xs text-slate-400" id="watchlist-summary">ウォッチリスト情報を読み込み中…</p>
+      <div class="overflow-hidden rounded-lg border border-slate-700/60">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-700/60 text-slate-300">
+            <tr>
+              <th class="px-3 py-2">順位</th>
+              <th class="px-3 py-2">ティッカー</th>
+              <th class="px-3 py-2">銘柄名</th>
+              <th class="px-3 py-2 text-right">スコア</th>
+            </tr>
+          </thead>
+          <tbody id="watchlist-top5" class="text-slate-200">
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- バッチの進捗 -->
+  <div id="progress-area" class="bg-slate-800 rounded-xl border border-slate-700 p-4 space-y-2 hidden">
+    <div class="flex justify-between text-xs text-slate-400 mb-1">
+      <span id="progress-text">準備中…</span>
+      <span id="progress-step">0/7</span>
+    </div>
+    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+      <div id="progress-bar" class="h-full bg-amber-500 transition-all duration-300" style="width: 0%"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const btn = document.getElementById('btn-run-batch');
+  const msg = document.getElementById('batch-msg');
+  const progressArea = document.getElementById('progress-area');
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  const progressStep = document.getElementById('progress-step');
+  const holdingsBody = document.getElementById('holdings-top5');
+  const holdingsSummary = document.getElementById('holdings-summary');
+  const watchlistBody = document.getElementById('watchlist-top5');
+  const watchlistSummary = document.getElementById('watchlist-summary');
+
+  function renderHoldings(holdings) {
+    if (!holdingsBody || !holdingsSummary) return;
+    holdingsBody.innerHTML = '';
+    if (!holdings || holdings.length === 0) {
+      holdingsSummary.textContent = '保有銘柄はありません。';
+      return;
+    }
+    const top = holdings.slice(0, 5);
+    let totalVal = 0;
+    top.forEach(h => {
+      const price = h.price != null ? Number(h.price) : null;
+      const shares = h.shares != null ? Number(h.shares) : 0;
+      if (price != null && shares) totalVal += price * shares;
+      const cw = h.current_weight != null ? (h.current_weight * 100).toFixed(1) + '%' : '-';
+      const tw = h.target_weight != null ? (h.target_weight * 100).toFixed(1) + '%' : '-';
+      const pnl = h.unrealized_pnl != null ? h.unrealized_pnl : 0;
+      const pnlClass = pnl > 0 ? 'text-red-500' : pnl < 0 ? 'text-green-500' : 'text-slate-200';
+      const tr = document.createElement('tr');
+      tr.className = 'border-t border-slate-700/80';
+      tr.innerHTML =
+        '<td class="px-3 py-2 font-mono">' + (h.ticker || '-') + '</td>' +
+        '<td class="px-3 py-2 truncate max-w-[8rem]">' + (h.name || '-') + '</td>' +
+        '<td class="px-3 py-2 text-right text-slate-300">' + cw + ' / ' + tw + '</td>' +
+        '<td class="px-3 py-2 text-right ' + pnlClass + '">' +
+          (pnl >= 0 ? '+' : '') + pnl.toLocaleString() + ' 円' +
+        '</td>';
+      holdingsBody.appendChild(tr);
+    });
+    holdingsSummary.textContent = '表示中: ' + top.length + ' 件（評価額合計: ' + totalVal.toLocaleString() + ' 円 前後）';
+  }
+
+  function renderWatchlist(list) {
+    if (!watchlistBody || !watchlistSummary) return;
+    watchlistBody.innerHTML = '';
+    if (!list || list.length === 0) {
+      watchlistSummary.textContent = 'ウォッチリストは空です。';
+      return;
+    }
+    const top = list.slice(0, 5);
+    top.forEach((w, idx) => {
+      const score = w.score != null ? Number(w.score) : null;
+      const tr = document.createElement('tr');
+      tr.className = 'border-t border-slate-700/80';
+      tr.innerHTML =
+        '<td class="px-3 py-2 text-slate-400">' + (w.rank || idx + 1) + '</td>' +
+        '<td class="px-3 py-2 font-mono">' + (w.ticker || '-') + '</td>' +
+        '<td class="px-3 py-2 truncate max-w-[8rem]">' + (w.name || '-') + '</td>' +
+        '<td class="px-3 py-2 text-right">' + (score != null ? score.toFixed(1) : '-') + '</td>';
+      watchlistBody.appendChild(tr);
+    });
+    watchlistSummary.textContent = '表示中: ' + top.length + ' 件（ポートフォリオ優先度の高い順）';
+  }
+
+  function loadKpiAndLists() {
+    fetch('/api/report/merged').then(r => r.json()).then(data => {
+      const r = data.report;
+      if (!r) return;
+      document.getElementById('kpi-phase').textContent = r.phase_name_ja || '-';
+      const ratio = r.target_cash_ratio != null ? (r.target_cash_ratio * 100).toFixed(0) + '%' : '-';
+      document.getElementById('kpi-cash-ratio').textContent = ratio;
+      const total = r.total_capital_yen != null ? r.total_capital_yen.toLocaleString() + ' 円' : '-';
+      document.getElementById('kpi-total').textContent = total;
+      let pnlSum = 0;
+      const holdings = data.holdings_merged || [];
+      holdings.forEach(h => { if (h.unrealized_pnl != null) pnlSum += h.unrealized_pnl; });
+      const pnlEl = document.getElementById('kpi-pnl');
+      pnlEl.textContent = (pnlSum >= 0 ? '+' : '') + pnlSum.toLocaleString() + ' 円';
+      pnlEl.className = 'text-lg font-semibold ' + (pnlSum > 0 ? 'text-red-500' : pnlSum < 0 ? 'text-green-500' : '');
+
+      renderHoldings(holdings);
+      renderWatchlist(data.watchlist_merged || []);
+    }).catch(() => {
+      if (holdingsSummary) holdingsSummary.textContent = 'レポートがまだありません。';
+      if (watchlistSummary) watchlistSummary.textContent = 'レポートがまだありません。';
+    });
+  }
+  loadKpiAndLists();
+
+  let pollTimer = null;
+  function pollStatus() {
+    fetch('/api/status').then(r => r.json()).then(s => {
+      if (s.status === 'running') {
+        progressArea.classList.remove('hidden');
+        const step = s.step != null ? s.step : 0;
+        const total = s.total_steps || 7;
+        const pct = total ? (step / total) * 100 : 0;
+        progressBar.style.width = pct + '%';
+        progressStep.textContent = step + '/' + total;
+        progressText.textContent = s.message || '処理中…';
+        btn.disabled = true;
+      } else if (s.status === 'completed' || s.status === 'failed') {
+        progressArea.classList.add('hidden');
+        btn.disabled = false;
+        msg.textContent = s.message || (s.status === 'completed' ? '完了しました。' : 'エラーが発生しました。');
+        if (s.status === 'completed') loadKpiAndLists();
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = null;
+        return;
+      }
+    }).catch(() => {});
+  }
+
+  btn.addEventListener('click', function() {
+    msg.textContent = '';
+    fetch('/api/run_batch', { method: 'POST' }).then(r => r.json()).then(() => {
+      progressArea.classList.remove('hidden');
+      progressBar.style.width = '0%';
+      progressStep.textContent = '0/7';
+      progressText.textContent = '開始しています…';
+      btn.disabled = true;
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(pollStatus, 2000);
+      pollStatus();
+    }).catch(e => {
+      msg.textContent = 'エラー: ' + (e.message || '実行に失敗しました');
+    });
+  });
+})();
+</script>
+{% endblock %}

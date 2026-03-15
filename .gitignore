@@ -1,0 +1,36 @@
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 環境・機密
+.env
+.env.*
+*.pem
+*-key*.json
+*credentials*.json
+*secret*
+config.yaml
+
+# ローカルデータ（再生成可能・個人情報の可能性）
+data/
+output/
+portfolio_state.json
+
+# OS・IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# その他
+terminals/
+agent-transcripts/

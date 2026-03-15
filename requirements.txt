@@ -1,0 +1,11 @@
+numpy>=1.26
+pandas>=2.2
+scipy>=1.13
+yfinance>=0.2.40
+pydantic>=2.8
+pyyaml>=6.0
+requests>=2.32
+pytest>=7.0
+# LLM 利用時（ai_agent で catalyst_summary / stop_loss を生成する場合）
+openai>=1.0
+

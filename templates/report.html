@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}日次レポート - DPA{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-100">日次レポート</h2>
+  {% if report %}
+  <div class="flex gap-4 text-sm text-slate-400">
+    <span><strong class="text-slate-300">作成日時:</strong> {{ report.created_at or '-' }}</span>
+    <span><strong class="text-slate-300">データ基準日:</strong> {{ report.data_date or '-' }}</span>
+  </div>
+
+  <!-- ① 保有銘柄の状況 -->
+  <section class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+    <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">保有銘柄の状況</h3>
+    <div class="w-full">
+      <table class="w-full text-left text-xs md:text-sm">
+        <thead class="bg-slate-700/50 text-slate-300 text-[11px] md:text-sm">
+          <tr>
+            <th class="px-2 py-1 md:px-4 md:py-2">ティッカー</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">銘柄名</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">現在比率</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">目標比率</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">スコア</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">トレンド</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">株価</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">評価損益</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-200">
+          {% for h in holdings_merged %}
+          <tr class="border-t border-slate-700 hover:bg-slate-700/30">
+            <td class="px-2 py-1 md:px-4 md:py-2 font-mono">{{ h.ticker }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2 break-words">{{ h.name }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              {% if h.current_weight is not none %}
+              <span class="{% if h.prev_current_weight is not none %}{% if h.current_weight > h.prev_current_weight %}text-red-500{% elif h.current_weight < h.prev_current_weight %}text-green-500{% endif %}{% endif %}">{{ (h.current_weight * 100)|round(1) }}%</span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              {% if h.target_weight is not none %}
+              <span class="{% if h.prev_target_weight is not none %}{% if h.target_weight > h.prev_target_weight %}text-red-500{% elif h.target_weight < h.prev_target_weight %}text-green-500{% endif %}{% endif %}">{{ (h.target_weight * 100)|round(1) }}%</span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              {% if h.score is not none %}
+              <span class="{% if h.prev_score is not none %}{% if h.score > h.prev_score %}text-red-500{% elif h.score < h.prev_score %}text-green-500{% endif %}{% endif %}">{{ h.score|round(1) }}</span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              {% if h.trend is not none %}
+              <span class="{% if h.prev_trend is not none %}{% if h.trend > h.prev_trend %}text-red-500{% elif h.trend < h.prev_trend %}text-green-500{% endif %}{% endif %}">{{ h.trend|round(2) }}</span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              {% if h.price is not none %}
+              <span class="{% if h.prev_price is not none %}{% if h.price > h.prev_price %}text-red-500{% elif h.price < h.prev_price %}text-green-500{% endif %}{% endif %}">{{ h.price|int }} 円</span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              {% if h.unrealized_pnl is not none %}
+              <span class="{% if h.unrealized_pnl > 0 %}text-red-500{% elif h.unrealized_pnl < 0 %}text-green-500{% endif %}">{% if h.unrealized_pnl >= 0 %}+{% endif %}{{ h.unrealized_pnl|int }} 円</span>
+              {% else %}-
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if not holdings_merged %}
+    <p class="px-4 py-4 text-slate-500">保有銘柄はありません。</p>
+    {% endif %}
+  </section>
+
+  <!-- ② ウォッチリスト優先度 -->
+  <section class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+    <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">ウォッチリスト優先度</h3>
+    <div class="w-full">
+      <table class="w-full text-left text-xs md:text-sm">
+        <thead class="bg-slate-700/50 text-slate-300 text-[11px] md:text-sm">
+          <tr>
+            <th class="px-2 py-1 md:px-4 md:py-2">順位</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">推移</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">ティッカー</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">企業名</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">ステータス</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">スコア</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">トレンド</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">株価</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">前日比</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-200">
+          {% for w in watchlist_merged %}
+          <tr class="border-t border-slate-700 hover:bg-slate-700/30">
+            <td class="px-2 py-1 md:px-4 md:py-2">{{ w.rank }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              {% if w.rank_change == 'up' %}<span class="text-red-500"><i class="fas fa-arrow-up"></i></span>
+              {% elif w.rank_change == 'down' %}<span class="text-green-500"><i class="fas fa-arrow-down"></i></span>
+              {% else %}<span class="text-slate-500">-</span>{% endif %}
+            </td>
+            <td class="px-2 py-1 md:px-4 md:py-2 font-mono">{{ w.ticker }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2 break-words">{{ w.name or '-' }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2">{{ w.status }}</td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              {% if w.score is not none %}
+              <span class="{% if w.prev_score is not none %}{% if w.score > w.prev_score %}text-red-500{% elif w.score < w.prev_score %}text-green-500{% endif %}{% endif %}">{{ w.score|round(1) }}</span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              {% if w.trend is not none %}
+              <span class="{% if w.prev_trend is not none %}{% if w.trend > w.prev_trend %}text-red-500{% elif w.trend < w.prev_trend %}text-green-500{% endif %}{% endif %}">{{ w.trend|round(2) }}</span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="px-2 py-1 md:px-4 md:py-2">
+              {% if w.price is not none %}
+              <span class="{% if w.price_change is not none %}{% if w.price_change > 0 %}text-red-500{% elif w.price_change < 0 %}text-green-500{% endif %}{% endif %}">{{ w.price|int }} 円</span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="px-4 py-2">
+              {% if w.price_change is not none %}
+              <span class="{% if w.price_change > 0 %}text-red-500{% elif w.price_change < 0 %}text-green-500{% endif %}">{% if w.price_change >= 0 %}+{% endif %}{{ w.price_change|round(0) }} 円</span>
+              {% else %}-{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ③ 新規購入推奨 & 売却指示 -->
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">新規購入推奨</h3>
+      <div class="p-4">
+        {% if draft and draft.get('recommendations') %}
+        <p class="text-slate-400 text-sm mb-2">空き予算: {{ draft.get('available_budget', 0)|int }} 円</p>
+        <ul class="space-y-2">
+          {% for rec in draft.get('recommendations') %}
+          <li class="text-slate-200">{{ rec.ticker }} ({{ rec.name or '-' }}): {{ rec.shares }} 株 — 予算 {{ rec.budget_used|int }} 円</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-slate-500">（なし）</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">売却指示</h3>
+      <div class="p-4">
+        {% if purge and purge.get('items') %}
+        <ul class="space-y-2">
+          {% for it in purge.get('items') %}
+          <li class="text-slate-200">{{ it.ticker }}: {{ it.reason_ja }} (現在価格: {{ it.current_price }})</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-slate-500">（なし）</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  {% else %}
+  <p class="text-slate-500">レポートがありません。日次バッチを実行してください。</p>
+  {% endif %}
+</div>
+{% endblock %}

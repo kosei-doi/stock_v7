@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}DPA 資産運用{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    .nav-link.active { @apply bg-slate-700 text-amber-400 border-l-2 border-amber-400; }
+    .nav-link:hover:not(.active) { @apply bg-slate-700/70; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen overflow-x-hidden">
+  <div class="flex flex-col md:flex-row min-h-screen w-full">
+    <!-- Mobile header -->
+    <header class="md:hidden sticky top-0 z-30 bg-slate-900/95 border-b border-slate-800 backdrop-blur">
+      <div class="flex items-center justify-between px-4 py-3">
+        <div>
+          <h1 class="text-base font-bold text-amber-400">DPA</h1>
+          <p class="text-[11px] text-slate-400">資産運用</p>
+        </div>
+        <button id="mobile-menu-toggle" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-700 text-slate-200">
+          <i class="fas fa-bars text-lg" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside
+      id="sidebar"
+      class="w-56 bg-slate-800 border-r border-slate-700 flex flex-col
+             fixed inset-y-0 left-0 z-40 transform -translate-x-full md:translate-x-0
+             md:static md:min-h-screen transition-transform duration-200 ease-out">
+      <div class="hidden md:block p-4 border-b border-slate-700">
+        <h1 class="text-lg font-bold text-amber-400">DPA</h1>
+        <p class="text-xs text-slate-400">資産運用</p>
+      </div>
+      <nav class="flex-1 py-2 overflow-y-auto">
+        <a href="/dashboard" class="nav-link flex items-center gap-3 px-4 py-3 text-slate-300 {% if request.url.path == '/' or request.url.path == '/dashboard' %}active{% endif %}">
+          <i class="fas fa-chart-line w-5"></i>
+          <span>ダッシュボード</span>
+        </a>
+        <a href="/report" class="nav-link flex items-center gap-3 px-4 py-3 text-slate-300 {% if request.url.path == '/report' %}active{% endif %}">
+          <i class="fas fa-file-alt w-5"></i>
+          <span>日次レポート</span>
+        </a>
+        <a href="/analyze" class="nav-link flex items-center gap-3 px-4 py-3 text-slate-300 {% if request.url.path == '/analyze' %}active{% endif %}">
+          <i class="fas fa-search-dollar w-5"></i>
+          <span>企業分析</span>
+        </a>
+        <a href="/watchlist" class="nav-link flex items-center gap-3 px-4 py-3 text-slate-300 {% if request.url.path == '/watchlist' %}active{% endif %}">
+          <i class="fas fa-list w-5"></i>
+          <span>ウォッチリスト</span>
+        </a>
+        <a href="/positions" class="nav-link flex items-center gap-3 px-4 py-3 text-slate-300 {% if request.url.path == '/positions' %}active{% endif %}">
+          <i class="fas fa-briefcase w-5"></i>
+          <span>ポートフォリオ</span>
+        </a>
+        <a href="/settings" class="nav-link flex items-center gap-3 px-4 py-3 text-slate-300 {% if request.url.path == '/settings' %}active{% endif %}">
+          <i class="fas fa-wallet w-5"></i>
+          <span>資金設定</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- overlay for mobile menu -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden"></div>
+
+    <!-- Main -->
+    <main class="flex-1 w-full px-4 py-4 md:px-6 md:py-6">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  {% block scripts %}{% endblock %}
+
+  <script>
+    (function () {
+      const btn = document.getElementById('mobile-menu-toggle');
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (!btn || !sidebar || !backdrop) return;
+
+      function openMenu() {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      }
+      function closeMenu() {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+      btn.addEventListener('click', function () {
+        const isOpen = !sidebar.classList.contains('-translate-x-full');
+        if (isOpen) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      });
+      backdrop.addEventListener('click', closeMenu);
+    })();
+  </script>
+</body>
+</html>

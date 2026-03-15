@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}資金設定 - DPA{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-100">資金管理</h2>
+  <div class="max-w-md">
+    <div class="bg-slate-800 rounded-xl border border-slate-700 p-6">
+      <label class="block text-slate-400 text-sm mb-2">現金残高（円）</label>
+      <input type="number" id="cash-yen-input" min="0" step="1" value="{{ cash_yen if cash_yen is not none else 5000000 }}" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 text-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+      <p class="mt-2 text-slate-500 text-sm">portfolio_state.json の cash_yen を更新します。</p>
+      <div class="mt-4 flex items-center gap-3">
+        <button type="button" id="btn-save-settings" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition">保存</button>
+        <span id="settings-msg" class="text-sm text-slate-400"></span>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  const input = document.getElementById('cash-yen-input');
+  const btn = document.getElementById('btn-save-settings');
+  const msg = document.getElementById('settings-msg');
+  btn.addEventListener('click', function() {
+    const v = parseFloat(input.value);
+    if (isNaN(v) || v < 0) { msg.textContent = '0以上の数値を入力してください。'; msg.className = 'text-sm text-amber-400'; return; }
+    msg.textContent = '保存中…';
+    fetch('/api/settings/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cash_yen: v })
+    }).then(r => r.json()).then(() => {
+      msg.textContent = '保存しました。';
+      msg.className = 'text-sm text-green-500';
+    }).catch(() => {
+      msg.textContent = '保存に失敗しました。';
+      msg.className = 'text-sm text-red-400';
+    });
+  });
+})();
+</script>
+{% endblock %}
