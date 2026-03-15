@@ -76,6 +76,55 @@ bash /opt/dpa_app/scripts/setup_conoha.sh
 
 ---
 
+## VPS から GitHub に接続できないとき（git clone / git pull が失敗する）
+
+ConoHa の **セキュリティグループ** で「送信（OUT）」が許可されていないと、VPS から GitHub（HTTPS 443）へ出られません。
+
+### やること：送信（OUT）で HTTPS を許可する
+
+1. ConoHa コントロールパネル → **ネットワーク** → **セキュリティグループ**
+2. 対象 VPS に紐づいているセキュリティグループを開く
+3. **ルールを追加**（＋ボタン）
+4. 次のように設定して保存：
+   - **方向**: **送信（OUT）**
+   - **プロトコル**: **TCP**
+   - **ポート**: **443**
+   - **送信先**: **0.0.0.0/0**（すべての宛先へ HTTPS を許可）
+
+これで `git clone` / `git pull` で GitHub（https://github.com）へ接続できるようになります。
+
+### 動作確認（VPS コンソールで）
+
+```bash
+curl -I https://github.com
+```
+
+`HTTP/2 200` や `HTTP/1.1 301` などが返れば OK。タイムアウトや「Connection refused」の場合は、上記ルールが反映されているか・別のファイアウォールがないか確認してください。
+
+---
+
+## 日次レポートメール（cron）
+
+毎朝 7 時に `send_daily_report.py` で Gmail 自分宛てに DPA レポートを送るには、本番 VPS（Ubuntu）で cron を設定します。
+
+### 設定方法
+
+1. VPS にログインし、`crontab -e` を実行する（編集するユーザーで実行。アプリを動かしているユーザーか root で）。
+2. 次の 1 行を追加して保存する。
+
+```cron
+0 7 * * * cd /opt/dpa_app && /opt/dpa_app/venv/bin/python send_daily_report.py
+```
+
+- `0 7 * * *` ＝ 毎日 7 時 0 分（サーバーのタイムゾーン。JST なら 7:00 JST）。
+- アプリのパスが違う場合は `cd` と `venv` のパスを実際のディレクトリに合わせる。
+
+### 初回だけ
+
+- **初回実行時**は OAuth のためブラウザ認証が必要です。VPS ではブラウザを開けないので、**Mac などローカルで一度** `python send_daily_report.py` を実行し、認証して `token.json` を生成してから、その `token.json` をリポジトリにコミットして VPS にデプロイするか、手動で VPS の `/opt/dpa_app/` に置いてください。その後は cron からその `token.json` で送信されます。
+
+---
+
 ## 補足：.gitignore で除外しているもの
 
 次のものだけ GitHub に上げません（それ以外は Push されます）。
