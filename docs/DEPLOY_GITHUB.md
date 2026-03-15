@@ -14,7 +14,6 @@
 cd /Users/user/Library/CloudStorage/Box-Box/Personal/dev/stock_v7
 
 git add .
-git status          # 変更ファイルの確認（任意）
 git commit -m "メッセージ（例: ダッシュボード修正）"
 git push origin main
 ```
