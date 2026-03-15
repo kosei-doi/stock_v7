@@ -41,7 +41,7 @@ def load_credentials():
         except ValueError as e:
             if "refresh_token" in str(e).lower() or "expected format" in str(e).lower():
                 print("token.json が無効です（refresh_token なし）。再認証のためブラウザを開きます。", file=sys.stderr)
-                TOKEN_FILE.unlink()
+                creds = None  # 削除せず次で上書きする
             else:
                 raise
     if not creds or not creds.valid:
@@ -53,12 +53,13 @@ def load_credentials():
                 sys.exit(1)
             flow = InstalledAppFlow.from_client_secrets_file(str(CREDENTIALS_FILE), SCOPES)
             try:
-                creds = flow.run_local_server(port=8080)
+                # prompt='consent' で refresh_token を確実に取得（2回目以降ブラウザが開かなくなる）
+                creds = flow.run_local_server(port=8080, prompt="consent")
             except webbrowser.Error:
                 print("", file=sys.stderr)
-                print("この環境ではブラウザを開けません（VPS・cron 等）。", file=sys.stderr)
-                print("Mac などローカルで python send_daily_report.py を実行し、", file=sys.stderr)
-                print("認証してできた token.json をこのサーバーの " + str(ROOT) + " に置いてください。", file=sys.stderr)
+                print("Cannot open browser on this machine (VPS/cron).", file=sys.stderr)
+                print("On your Mac: run  python send_daily_report.py  then copy  token.json  to this server.", file=sys.stderr)
+                print("Path on server: " + str(ROOT), file=sys.stderr)
                 sys.exit(1)
         with open(TOKEN_FILE, "w") as f:
             f.write(creds.to_json())
