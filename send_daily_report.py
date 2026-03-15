@@ -8,6 +8,7 @@ import base64
 import json
 import os
 import sys
+import webbrowser
 from email.mime.text import MIMEText
 from typing import Optional
 from pathlib import Path
@@ -51,7 +52,14 @@ def load_credentials():
                 print(f"credentials.json が見つかりません: {CREDENTIALS_FILE}", file=sys.stderr)
                 sys.exit(1)
             flow = InstalledAppFlow.from_client_secrets_file(str(CREDENTIALS_FILE), SCOPES)
-            creds = flow.run_local_server(port=8080)
+            try:
+                creds = flow.run_local_server(port=8080)
+            except webbrowser.Error:
+                print("", file=sys.stderr)
+                print("この環境ではブラウザを開けません（VPS・cron 等）。", file=sys.stderr)
+                print("Mac などローカルで python send_daily_report.py を実行し、", file=sys.stderr)
+                print("認証してできた token.json をこのサーバーの " + str(ROOT) + " に置いてください。", file=sys.stderr)
+                sys.exit(1)
         with open(TOKEN_FILE, "w") as f:
             f.write(creds.to_json())
     return creds
@@ -91,19 +99,19 @@ def _diff(cur: Optional[float], prev: Optional[float]) -> int:
 
 
 def _table(headers: list[str], rows: list[list[str]], change_matrix: Optional[list[list[int]]] = None) -> str:
-    """HTML テーブルを生成。change_matrix[i][j]: 1=増(赤文字), -1=減(緑文字), 0=色なし。"""
-    h = "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" style=\"border-collapse:collapse; font-size:14px;\">"
-    h += "<thead><tr>" + "".join(f"<th style=\"background:#e0e0e0;\">{_esc(x)}</th>" for x in headers) + "</tr></thead><tbody>"
+    """HTML テーブルを生成。change_matrix[i][j]: 1=増(赤文字), -1=減(緑文字), 0=色なし。枠線は常にグレー。"""
+    h = "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" style=\"border-collapse:collapse; font-size:14px; border-color:#ccc;\">"
+    h += "<thead><tr>" + "".join(f"<th style=\"background:#e0e0e0; border-color:#ccc;\">{_esc(x)}</th>" for x in headers) + "</tr></thead><tbody>"
     for ri, row in enumerate(rows):
         cells = []
         for i, x in enumerate(row):
-            style = ""
+            style = " border-color:#ccc;"
             if change_matrix and ri < len(change_matrix) and i < len(change_matrix[ri]):
                 d = change_matrix[ri][i]
                 if d == 1:
-                    style = " color:#c62828;"   # 増＝赤文字
+                    style += " color:#c62828;"   # 増＝赤文字
                 elif d == -1:
-                    style = " color:#2e7d32;"   # 減＝緑文字
+                    style += " color:#2e7d32;"   # 減＝緑文字
             cells.append(f"<td style=\"{style}\">{_esc(str(x))}</td>")
         h += "<tr>" + "".join(cells) + "</tr>"
     h += "</tbody></table>"
