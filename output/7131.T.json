@@ -1,0 +1,96 @@
+{
+  "ticker": "7131.T",
+  "name": "Nomura Corporation",
+  "sector": "Consumer Cyclical",
+  "scores": {
+    "value_score": 24.453782200788503,
+    "safety_score": 100.0,
+    "momentum_score": 26.473177543613865,
+    "total_score": 55.07614838903818
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.3945144988242583,
+    "r_squared": 0.03863917529319219,
+    "alpha": 0.0013791060130840965
+  },
+  "risk_metrics": {
+    "atr_percent": 6.007509386733417
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1046,
+      "date_min": "2021-12-02 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3995.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 1322268.0,
+      "book_value_per_share": 1790.106,
+      "eps_ttm": 384.32,
+      "sector": "Consumer Cyclical",
+      "long_name": "Nomura Corporation"
+    },
+    "sector_peers": {
+      "resolved_sector": "Consumer Cyclical",
+      "peer_count": 16,
+      "peer_tickers": [
+        "7203.T",
+        "7267.T",
+        "7269.T",
+        "7201.T",
+        "7270.T",
+        "9983.T",
+        "3382.T",
+        "9843.T",
+        "8267.T",
+        "7532.T",
+        "7550.T",
+        "3197.T",
+        "3397.T",
+        "9861.T",
+        "2702.T",
+        "3563.T"
+      ],
+      "peer_pb_count": 16,
+      "peer_pe_count": 16
+    },
+    "value_inputs": {
+      "target_pb": 2.2317114182065194,
+      "target_pe": 10.394983347210658,
+      "time_z_pb": 3.2266497562467347,
+      "time_z_pe": 3.2266497562467347,
+      "space_z_pb": -0.41270723568492174,
+      "space_z_pe": -0.700738314512203
+    }
+  }
+}

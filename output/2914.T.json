@@ -1,0 +1,85 @@
+{
+  "ticker": "2914.T",
+  "name": "Japan Tobacco Inc.",
+  "sector": "Consumer Defensive",
+  "scores": {
+    "value_score": 26.85505946971346,
+    "safety_score": 100.0,
+    "momentum_score": 35.50998917986186,
+    "total_score": 57.844021623857756
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.6081458274505965,
+    "r_squared": 0.3213192291726982,
+    "alpha": 0.0005804696512569133
+  },
+  "risk_metrics": {
+    "atr_percent": 2.0499287090076797
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 5711.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 1775388334.0,
+      "book_value_per_share": 2301.994,
+      "eps_ttm": 280.98,
+      "sector": "Consumer Defensive",
+      "long_name": "Japan Tobacco Inc."
+    },
+    "sector_peers": {
+      "resolved_sector": "Consumer Defensive",
+      "peer_count": 5,
+      "peer_tickers": [
+        "2502.T",
+        "2503.T",
+        "2802.T",
+        "2914.T",
+        "2801.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 2.4808926521963133,
+      "target_pe": 20.325290056231758,
+      "time_z_pb": 2.0915853836084777,
+      "time_z_pe": 2.0915853836084763,
+      "space_z_pb": -0.061845066195534655,
+      "space_z_pe": -0.42667595205826175
+    }
+  }
+}

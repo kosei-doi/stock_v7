@@ -1,0 +1,79 @@
+{
+  "ticker": "3023.T",
+  "name": "Rasa Corporation",
+  "sector": "Basic Materials",
+  "scores": {
+    "value_score": 13.404644124768089,
+    "safety_score": 100.0,
+    "momentum_score": 19.657119354038024,
+    "total_score": 49.29328152071484
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.6556563240850084,
+    "r_squared": 0.22741286466461288,
+    "alpha": 0.0003813876507522919
+  },
+  "risk_metrics": {
+    "atr_percent": 5.005680204487361
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 2012.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 10567591.0,
+      "book_value_per_share": 2122.227,
+      "eps_ttm": 201.4,
+      "sector": "Basic Materials",
+      "long_name": "Rasa Corporation"
+    },
+    "sector_peers": {
+      "resolved_sector": null,
+      "peer_count": 0,
+      "peer_tickers": [],
+      "peer_pb_count": 0,
+      "peer_pe_count": 0
+    },
+    "value_inputs": {
+      "target_pb": 0.9480606928476549,
+      "target_pe": 9.990069513406157,
+      "time_z_pb": 1.8297677937615957,
+      "time_z_pe": 1.8297677937615955,
+      "space_z_pb": null,
+      "space_z_pe": null
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "ticker": "4765.T",
+  "name": "SBI Global Asset Management Co., Ltd.",
+  "sector": "Financial Services",
+  "scores": {
+    "value_score": 27.351837363322705,
+    "safety_score": 100.0,
+    "momentum_score": 36.192288864657286,
+    "total_score": 58.17919271826054
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.7874246665424142,
+    "r_squared": 0.35682238948648864,
+    "alpha": -0.0002028040762717682
+  },
+  "risk_metrics": {
+    "atr_percent": 2.421307506053269
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 590.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 137970974.0,
+      "book_value_per_share": 221.789,
+      "eps_ttm": 19.88,
+      "sector": "Financial Services",
+      "long_name": "SBI Global Asset Management Co., Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": "Financial Services",
+      "peer_count": 5,
+      "peer_tickers": [
+        "8306.T",
+        "8316.T",
+        "8411.T",
+        "8308.T",
+        "8309.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 2.660186032670692,
+      "target_pe": 29.678068410462778,
+      "time_z_pb": 0.2206802197231074,
+      "time_z_pe": 0.22068021972310842,
+      "space_z_pb": 10.413561047044693,
+      "space_z_pe": 9.03301522924601
+    }
+  }
+}

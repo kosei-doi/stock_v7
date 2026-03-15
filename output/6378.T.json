@@ -1,0 +1,90 @@
+{
+  "ticker": "6378.T",
+  "name": "Kimura Chemical Plants Co., Ltd.",
+  "sector": "Industrials",
+  "scores": {
+    "value_score": 28.014036791648625,
+    "safety_score": 100.0,
+    "momentum_score": 61.95886809609007,
+    "total_score": 63.59738833587747
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 1.085536543808406,
+    "r_squared": 0.222287624171179,
+    "alpha": 0.00033146533743571975
+  },
+  "risk_metrics": {
+    "atr_percent": 8.179406563175478
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1454.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 19806297.0,
+      "book_value_per_share": 982.347,
+      "eps_ttm": 106.14,
+      "sector": "Industrials",
+      "long_name": "Kimura Chemical Plants Co., Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": "Industrials",
+      "peer_count": 10,
+      "peer_tickers": [
+        "8058.T",
+        "8001.T",
+        "8031.T",
+        "8053.T",
+        "8002.T",
+        "1801.T",
+        "1802.T",
+        "1803.T",
+        "1812.T",
+        "1925.T"
+      ],
+      "peer_pb_count": 10,
+      "peer_pe_count": 10
+    },
+    "value_inputs": {
+      "target_pb": 1.4801287121556843,
+      "target_pe": 13.698888260787639,
+      "time_z_pb": 3.9815316242321477,
+      "time_z_pe": 3.9815316242321477,
+      "space_z_pb": -1.2286579990168642,
+      "space_z_pe": -0.7748511988952922
+    }
+  }
+}

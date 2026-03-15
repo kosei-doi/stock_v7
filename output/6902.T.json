@@ -1,0 +1,96 @@
+{
+  "ticker": "6902.T",
+  "name": "DENSO Corporation",
+  "sector": "Consumer Cyclical",
+  "scores": {
+    "value_score": 62.860198402777385,
+    "safety_score": 100.0,
+    "momentum_score": 53.3035878795482,
+    "total_score": 75.8047969370206
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 1.2140953412125026,
+    "r_squared": 0.5302596356190628,
+    "alpha": -0.0004795405200368649
+  },
+  "risk_metrics": {
+    "atr_percent": 3.27741935483871
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1937.5,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 2689424320.0,
+      "book_value_per_share": 1964.915,
+      "eps_ttm": 127.1,
+      "sector": "Consumer Cyclical",
+      "long_name": "DENSO Corporation"
+    },
+    "sector_peers": {
+      "resolved_sector": "Consumer Cyclical",
+      "peer_count": 16,
+      "peer_tickers": [
+        "7203.T",
+        "7267.T",
+        "7269.T",
+        "7201.T",
+        "7270.T",
+        "9983.T",
+        "3382.T",
+        "9843.T",
+        "8267.T",
+        "7532.T",
+        "7550.T",
+        "3197.T",
+        "3397.T",
+        "9861.T",
+        "2702.T",
+        "3563.T"
+      ],
+      "peer_pb_count": 16,
+      "peer_pe_count": 16
+    },
+    "value_inputs": {
+      "target_pb": 0.9860477425232135,
+      "target_pe": 15.24390243902439,
+      "time_z_pb": -0.5880619377017071,
+      "time_z_pe": -0.5880619377017056,
+      "space_z_pb": -0.8672399858740601,
+      "space_z_pe": -0.5836238017151676
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "ticker": "6347.T",
+  "name": "Placo Co., Ltd.",
+  "sector": "Industrials",
+  "scores": {
+    "value_score": 58.228831751694024,
+    "safety_score": 100.0,
+    "momentum_score": 14.61027582980727,
+    "total_score": 66.21358786663906
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.4390804345743387,
+    "r_squared": 0.027780469353548283,
+    "alpha": 0.00011529182275683516
+  },
+  "risk_metrics": {
+    "atr_percent": 6.694091249065072
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-12 00:00:00",
+      "date_max": "2026-03-12 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 382.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-12 00:00:00",
+      "date_max": "2026-03-12 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3811.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 9624342.0,
+      "book_value_per_share": 163.027,
+      "eps_ttm": -2.65,
+      "sector": "Industrials",
+      "long_name": "Placo Co., Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": "Industrials",
+      "peer_count": 10,
+      "peer_tickers": [
+        "8058.T",
+        "8001.T",
+        "8031.T",
+        "8053.T",
+        "8002.T",
+        "1801.T",
+        "1802.T",
+        "1803.T",
+        "1812.T",
+        "1925.T"
+      ],
+      "peer_pb_count": 10,
+      "peer_pe_count": 10
+    },
+    "value_inputs": {
+      "target_pb": 2.3431701497297994,
+      "target_pe": -144.1509433962264,
+      "time_z_pb": 0.9155994995470441,
+      "time_z_pe": -0.9155994995470439,
+      "space_z_pb": 0.4427920620764917,
+      "space_z_pe": -31.475701612971385
+    }
+  }
+}

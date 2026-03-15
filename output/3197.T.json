@@ -1,0 +1,96 @@
+{
+  "ticker": "3197.T",
+  "name": "Skylark Holdings Co., Ltd.",
+  "sector": "Consumer Cyclical",
+  "scores": {
+    "value_score": 22.660089921558686,
+    "safety_score": 100.0,
+    "momentum_score": 23.68008965700748,
+    "total_score": 53.80005390002497
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.4460554388462724,
+    "r_squared": 0.12812213829059182,
+    "alpha": 0.00043375016605150523
+  },
+  "risk_metrics": {
+    "atr_percent": 2.8306644811499178
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-11 00:00:00",
+      "date_max": "2026-03-11 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3399.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-10 00:00:00",
+      "date_max": "2026-03-10 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3847.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 227502080.0,
+      "book_value_per_share": 824.463,
+      "eps_ttm": 73.51,
+      "sector": "Consumer Cyclical",
+      "long_name": "Skylark Holdings Co., Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": "Consumer Cyclical",
+      "peer_count": 16,
+      "peer_tickers": [
+        "7203.T",
+        "7267.T",
+        "7269.T",
+        "7201.T",
+        "7270.T",
+        "9983.T",
+        "3382.T",
+        "9843.T",
+        "8267.T",
+        "7532.T",
+        "7550.T",
+        "3197.T",
+        "3397.T",
+        "9861.T",
+        "2702.T",
+        "3563.T"
+      ],
+      "peer_pb_count": 16,
+      "peer_pe_count": 16
+    },
+    "value_inputs": {
+      "target_pb": 4.122683492163991,
+      "target_pe": 46.23860699224595,
+      "time_z_pb": 2.1266475618176752,
+      "time_z_pe": 2.126647561817675,
+      "space_z_pb": 0.2911527422661775,
+      "space_z_pe": 0.16388209189112507
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "ticker": "8750.T",
+  "name": "Dai-ichi Life Holdings, Inc.",
+  "sector": "Financial Services",
+  "scores": {
+    "value_score": 26.39004353920531,
+    "safety_score": 100.0,
+    "momentum_score": 18.51008254188184,
+    "total_score": 54.25803392405849
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 1.134467960987113,
+    "r_squared": 0.40722742314489174,
+    "alpha": 0.00045079360505077696
+  },
+  "risk_metrics": {
+    "atr_percent": 4.390771086759828
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1421.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 3624533913.0,
+      "book_value_per_share": 1124.032,
+      "eps_ttm": 110.7,
+      "sector": "Financial Services",
+      "long_name": "Dai-ichi Life Holdings, Inc."
+    },
+    "sector_peers": {
+      "resolved_sector": "Financial Services",
+      "peer_count": 5,
+      "peer_tickers": [
+        "8306.T",
+        "8316.T",
+        "8411.T",
+        "8308.T",
+        "8309.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 1.2641988840175369,
+      "target_pe": 12.836495031616982,
+      "time_z_pb": 2.329446423369005,
+      "time_z_pe": 2.3294464233690055,
+      "space_z_pb": -0.13147167306555738,
+      "space_z_pe": -0.9543784818427854
+    }
+  }
+}

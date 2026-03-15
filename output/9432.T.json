@@ -1,0 +1,85 @@
+{
+  "ticker": "9432.T",
+  "name": "NTT, Inc.",
+  "sector": "Communication Services",
+  "scores": {
+    "value_score": 53.35942820267623,
+    "safety_score": 100.0,
+    "momentum_score": 72.33342785577985,
+    "total_score": 75.81045685222645
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.4286635723091127,
+    "r_squared": 0.21708207042460925,
+    "alpha": 6.141287438802954e-05
+  },
+  "risk_metrics": {
+    "atr_percent": 1.2882087433948035
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 154.6999969482422,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 81423625237.0,
+      "book_value_per_share": 116.373,
+      "eps_ttm": 12.56,
+      "sector": "Communication Services",
+      "long_name": "NTT, Inc."
+    },
+    "sector_peers": {
+      "resolved_sector": "Communication Services",
+      "peer_count": 5,
+      "peer_tickers": [
+        "9432.T",
+        "9433.T",
+        "9434.T",
+        "9984.T",
+        "4307.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 1.3293461279527226,
+      "target_pe": 12.31687873791737,
+      "time_z_pb": 0.19827046000212042,
+      "time_z_pe": 0.19827046000211848,
+      "space_z_pb": -0.9244183798175138,
+      "space_z_pe": -0.5102500508579026
+    }
+  }
+}

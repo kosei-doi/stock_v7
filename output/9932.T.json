@@ -1,0 +1,90 @@
+{
+  "ticker": "9932.T",
+  "name": "Sugimoto & Co., Ltd.",
+  "sector": "Industrials",
+  "scores": {
+    "value_score": 59.562048190995924,
+    "safety_score": 100.0,
+    "momentum_score": 35.33946911861559,
+    "total_score": 70.89271310012148
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 1.0491017079907925,
+    "r_squared": 0.3508596084542875,
+    "alpha": -0.00030122869751643774
+  },
+  "risk_metrics": {
+    "atr_percent": 2.6594582787243337
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1308.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 17478265.0,
+      "book_value_per_share": 1909.716,
+      "eps_ttm": 96.27,
+      "sector": "Industrials",
+      "long_name": "Sugimoto & Co., Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": "Industrials",
+      "peer_count": 10,
+      "peer_tickers": [
+        "8058.T",
+        "8001.T",
+        "8031.T",
+        "8053.T",
+        "8002.T",
+        "1801.T",
+        "1802.T",
+        "1803.T",
+        "1812.T",
+        "1925.T"
+      ],
+      "peer_pb_count": 10,
+      "peer_pe_count": 10
+    },
+    "value_inputs": {
+      "target_pb": 0.6849185952256776,
+      "target_pe": 13.586787161109381,
+      "time_z_pb": 0.30192009278260473,
+      "time_z_pe": 0.30192009278260545,
+      "space_z_pb": -2.7377913056302536,
+      "space_z_pe": -0.7962723260967975
+    }
+  }
+}

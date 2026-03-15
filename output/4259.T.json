@@ -1,0 +1,85 @@
+{
+  "ticker": "4259.T",
+  "name": "ExaWizards Inc.",
+  "sector": "Technology",
+  "scores": {
+    "value_score": 50.0,
+    "safety_score": 100.0,
+    "momentum_score": 34.60031177540179,
+    "total_score": 66.92006235508036
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 1.3756607518192192,
+    "r_squared": 0.16059911795726003,
+    "alpha": -0.0004970394591709861
+  },
+  "risk_metrics": {
+    "atr_percent": 6.745450742522485
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1031,
+      "date_min": "2021-12-23 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 683.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 84785538.0,
+      "book_value_per_share": 44.208,
+      "eps_ttm": -21.58,
+      "sector": "Technology",
+      "long_name": "ExaWizards Inc."
+    },
+    "sector_peers": {
+      "resolved_sector": "Technology",
+      "peer_count": 5,
+      "peer_tickers": [
+        "6501.T",
+        "6758.T",
+        "8035.T",
+        "6503.T",
+        "6981.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 15.449692363373146,
+      "target_pe": -31.649675625579242,
+      "time_z_pb": 1.508615337943786,
+      "time_z_pe": -1.5086153379437865,
+      "space_z_pb": 4.755056955676775,
+      "space_z_pe": -9.466895435504673
+    }
+  }
+}

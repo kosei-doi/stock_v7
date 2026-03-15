@@ -1,0 +1,85 @@
+{
+  "ticker": "2502.T",
+  "name": "Asahi Group Holdings, Ltd.",
+  "sector": "Consumer Defensive",
+  "scores": {
+    "value_score": 64.54933453343163,
+    "safety_score": 100.0,
+    "momentum_score": 23.913561406253297,
+    "total_score": 70.6024460946233
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.6290748804526841,
+    "r_squared": 0.23481563633887506,
+    "alpha": -0.0002491833412152909
+  },
+  "risk_metrics": {
+    "atr_percent": 1.9977678571428574
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1600.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 1462866952.0,
+      "book_value_per_share": 1870.335,
+      "eps_ttm": 115.52,
+      "sector": "Consumer Defensive",
+      "long_name": "Asahi Group Holdings, Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": "Consumer Defensive",
+      "peer_count": 5,
+      "peer_tickers": [
+        "2502.T",
+        "2503.T",
+        "2802.T",
+        "2914.T",
+        "2801.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 0.8554617220979129,
+      "target_pe": 13.850415512465375,
+      "time_z_pb": -0.6696114949276433,
+      "time_z_pe": -0.6696114949276439,
+      "space_z_pb": -1.0407662996227909,
+      "space_z_pe": -0.5877328489521852
+    }
+  }
+}

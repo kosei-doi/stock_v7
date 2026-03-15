@@ -10,19 +10,9 @@ __pycache__/
 .coverage
 htmlcov/
 
-# 環境・機密
+# 環境・機密（APIキー等を .env に書く想定）
 .env
 .env.*
-*.pem
-*-key*.json
-*credentials*.json
-*secret*
-config.yaml
-
-# ローカルデータ（再生成可能・個人情報の可能性）
-data/
-output/
-portfolio_state.json
 
 # OS・IDE
 .DS_Store

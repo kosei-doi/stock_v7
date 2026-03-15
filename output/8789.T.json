@@ -1,0 +1,85 @@
+{
+  "ticker": "8789.T",
+  "name": "FinTech Global Incorporated",
+  "sector": "Financial Services",
+  "scores": {
+    "value_score": 21.774188878772378,
+    "safety_score": 100.0,
+    "momentum_score": 30.722038798118923,
+    "total_score": 54.85408331113274
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 1.0173120209915794,
+    "r_squared": 0.1540082223211184,
+    "alpha": 0.0003990778747868922
+  },
+  "risk_metrics": {
+    "atr_percent": 3.784648187633262
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 134.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 191855380.0,
+      "book_value_per_share": 59.917,
+      "eps_ttm": 10.83,
+      "sector": "Financial Services",
+      "long_name": "FinTech Global Incorporated"
+    },
+    "sector_peers": {
+      "resolved_sector": "Financial Services",
+      "peer_count": 5,
+      "peer_tickers": [
+        "8306.T",
+        "8316.T",
+        "8411.T",
+        "8308.T",
+        "8309.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 2.236427057429444,
+      "target_pe": 12.3730378578024,
+      "time_z_pb": 1.928556913917109,
+      "time_z_pe": 1.9285569139171088,
+      "space_z_pb": 7.212562912018451,
+      "space_z_pe": -1.2292179614444214
+    }
+  }
+}

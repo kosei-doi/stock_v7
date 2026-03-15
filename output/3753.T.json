@@ -1,0 +1,85 @@
+{
+  "ticker": "3753.T",
+  "name": "FLIGHT SOLUTIONS Inc.",
+  "sector": "Technology",
+  "scores": {
+    "value_score": 61.6082349380958,
+    "safety_score": 100.0,
+    "momentum_score": 58.48902889240807,
+    "total_score": 76.34109975371993
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.8125094949619152,
+    "r_squared": 0.07932541787017854,
+    "alpha": -0.0010931445249057735
+  },
+  "risk_metrics": {
+    "atr_percent": 4.975369458128079
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 145.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 12331075.0,
+      "book_value_per_share": 47.909,
+      "eps_ttm": -29.49,
+      "sector": "Technology",
+      "long_name": "FLIGHT SOLUTIONS Inc."
+    },
+    "sector_peers": {
+      "resolved_sector": "Technology",
+      "peer_count": 5,
+      "peer_tickers": [
+        "6501.T",
+        "6758.T",
+        "8035.T",
+        "6503.T",
+        "6981.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 3.026571207915006,
+      "target_pe": -4.916920990166158,
+      "time_z_pb": -1.5239988184961972,
+      "time_z_pe": 1.523998818496198,
+      "space_z_pb": -0.4020587345239499,
+      "space_z_pe": -5.2578050356734325
+    }
+  }
+}

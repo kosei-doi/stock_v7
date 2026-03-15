@@ -1,0 +1,90 @@
+{
+  "ticker": "6998.T",
+  "name": "Nippon Tungsten Co., Ltd.",
+  "sector": "Industrials",
+  "scores": {
+    "value_score": 29.9649989476405,
+    "safety_score": 100.0,
+    "momentum_score": 55.27056379481451,
+    "total_score": 63.0401123380191
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.5144744664603647,
+    "r_squared": 0.13764797728364825,
+    "alpha": 0.0005738947575097367
+  },
+  "risk_metrics": {
+    "atr_percent": 8.599873577749683
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 2260.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 4857181.0,
+      "book_value_per_share": 2703.439,
+      "eps_ttm": 128.82,
+      "sector": "Industrials",
+      "long_name": "Nippon Tungsten Co., Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": "Industrials",
+      "peer_count": 10,
+      "peer_tickers": [
+        "8058.T",
+        "8001.T",
+        "8031.T",
+        "8053.T",
+        "8002.T",
+        "1801.T",
+        "1802.T",
+        "1803.T",
+        "1812.T",
+        "1925.T"
+      ],
+      "peer_pb_count": 10,
+      "peer_pe_count": 10
+    },
+    "value_inputs": {
+      "target_pb": 0.8359722560782766,
+      "target_pe": 17.54385964912281,
+      "time_z_pb": 5.178380843379252,
+      "time_z_pe": 5.178380843379252,
+      "space_z_pb": -2.4511247934402367,
+      "space_z_pe": -0.040124943469888555
+    }
+  }
+}

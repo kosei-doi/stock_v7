@@ -18,7 +18,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 deactivate
 
-echo "===> Creating data/output dirs and config..."
+echo "===> Ensuring data/output dirs and config..."
 mkdir -p data output
 [[ ! -f config.yaml ]] && cp config_example.yaml config.yaml
 

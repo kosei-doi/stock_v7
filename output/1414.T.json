@@ -1,0 +1,90 @@
+{
+  "ticker": "1414.T",
+  "name": "SHO-BOND Holdings Co.,Ltd.",
+  "sector": "Industrials",
+  "scores": {
+    "value_score": 38.806168420972384,
+    "safety_score": 100.0,
+    "momentum_score": 21.796849032007295,
+    "total_score": 59.88183717479041
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.5080379444755534,
+    "r_squared": 0.24318516612469915,
+    "alpha": -7.500581966480275e-05
+  },
+  "risk_metrics": {
+    "atr_percent": 2.2379774940707473
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-11 00:00:00",
+      "date_max": "2026-03-11 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1415.5,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-10 00:00:00",
+      "date_max": "2026-03-10 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3847.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 203088740.0,
+      "book_value_per_share": 514.508,
+      "eps_ttm": 72.04,
+      "sector": "Industrials",
+      "long_name": "SHO-BOND Holdings Co.,Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": "Industrials",
+      "peer_count": 10,
+      "peer_tickers": [
+        "8058.T",
+        "8001.T",
+        "8031.T",
+        "8053.T",
+        "8002.T",
+        "1801.T",
+        "1802.T",
+        "1803.T",
+        "1812.T",
+        "1925.T"
+      ],
+      "peer_pb_count": 10,
+      "peer_pe_count": 10
+    },
+    "value_inputs": {
+      "target_pb": 2.7511719934383914,
+      "target_pe": 19.64880621876735,
+      "time_z_pb": 0.42673664436878245,
+      "time_z_pe": 0.42673664436878284,
+      "space_z_pb": 1.1734866940203517,
+      "space_z_pe": 0.3447612676302047
+    }
+  }
+}

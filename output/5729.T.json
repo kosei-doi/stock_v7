@@ -1,0 +1,79 @@
+{
+  "ticker": "5729.T",
+  "name": "Nihon Seiko Co., Ltd.",
+  "sector": "Basic Materials",
+  "scores": {
+    "value_score": 0.0,
+    "safety_score": 100.0,
+    "momentum_score": 72.3748889894526,
+    "total_score": 54.47497779789052
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.6539590440275831,
+    "r_squared": 0.06765321269128473,
+    "alpha": 0.0012262961600787423
+  },
+  "risk_metrics": {
+    "atr_percent": 6.506482692993934
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-11 00:00:00",
+      "date_max": "2026-03-11 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 12010.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-10 00:00:00",
+      "date_max": "2026-03-10 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3847.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 2450915.0,
+      "book_value_per_share": 6342.204,
+      "eps_ttm": 2104.89,
+      "sector": "Basic Materials",
+      "long_name": "Nihon Seiko Co., Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": null,
+      "peer_count": 0,
+      "peer_tickers": [],
+      "peer_pb_count": 0,
+      "peer_pe_count": 0
+    },
+    "value_inputs": {
+      "target_pb": 1.8936634646252313,
+      "target_pe": 5.705761346198614,
+      "time_z_pb": 2.6998229398712,
+      "time_z_pe": 2.6998229398711997,
+      "space_z_pb": null,
+      "space_z_pe": null
+    }
+  }
+}

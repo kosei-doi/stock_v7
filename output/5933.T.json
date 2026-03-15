@@ -1,0 +1,85 @@
+{
+  "ticker": "5933.T",
+  "name": "Alinco Incorporated",
+  "sector": "Technology",
+  "scores": {
+    "value_score": 48.29772026687573,
+    "safety_score": 100.0,
+    "momentum_score": 49.61027091368635,
+    "total_score": 69.24114228948756
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.6352342958459247,
+    "r_squared": 0.3228024745837813,
+    "alpha": -0.00021883149746079793
+  },
+  "risk_metrics": {
+    "atr_percent": 2.7606177606177607
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-11 00:00:00",
+      "date_max": "2026-03-11 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1110.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-10 00:00:00",
+      "date_max": "2026-03-10 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3847.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 19973254.0,
+      "book_value_per_share": 1624.769,
+      "eps_ttm": 92.96,
+      "sector": "Technology",
+      "long_name": "Alinco Incorporated"
+    },
+    "sector_peers": {
+      "resolved_sector": "Technology",
+      "peer_count": 5,
+      "peer_tickers": [
+        "6501.T",
+        "6758.T",
+        "8035.T",
+        "6503.T",
+        "6981.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 0.6831740388941443,
+      "target_pe": 11.940619621342513,
+      "time_z_pb": 1.4160164263676165,
+      "time_z_pe": 1.4160164263676167,
+      "space_z_pb": -1.3224793458217814,
+      "space_z_pe": -2.5082290364587725
+    }
+  }
+}

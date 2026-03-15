@@ -1,0 +1,90 @@
+{
+  "ticker": "3696.T",
+  "name": "Ceres Inc.",
+  "sector": "Industrials",
+  "scores": {
+    "value_score": 68.71387752288662,
+    "safety_score": 100.0,
+    "momentum_score": 44.894524636080305,
+    "total_score": 76.46445593637071
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 1.4126261922679069,
+    "r_squared": 0.16798525690745233,
+    "alpha": -0.0009115305334955954
+  },
+  "risk_metrics": {
+    "atr_percent": 3.7511520737327193
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1550.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 11540396.0,
+      "book_value_per_share": 1152.564,
+      "eps_ttm": 216.54,
+      "sector": "Industrials",
+      "long_name": "Ceres Inc."
+    },
+    "sector_peers": {
+      "resolved_sector": "Industrials",
+      "peer_count": 10,
+      "peer_tickers": [
+        "8058.T",
+        "8001.T",
+        "8031.T",
+        "8053.T",
+        "8002.T",
+        "1801.T",
+        "1802.T",
+        "1803.T",
+        "1812.T",
+        "1925.T"
+      ],
+      "peer_pb_count": 10,
+      "peer_pe_count": 10
+    },
+    "value_inputs": {
+      "target_pb": 1.3448277058801072,
+      "target_pe": 7.158030848803916,
+      "time_z_pb": -0.38943738552312057,
+      "time_z_pe": -0.38943738552312007,
+      "space_z_pb": -1.4854294492809368,
+      "space_z_pe": -2.024727774871357
+    }
+  }
+}

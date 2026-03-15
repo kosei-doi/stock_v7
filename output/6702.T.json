@@ -1,0 +1,85 @@
+{
+  "ticker": "6702.T",
+  "name": "Fujitsu Limited",
+  "sector": "Technology",
+  "scores": {
+    "value_score": 36.303039778398755,
+    "safety_score": 100.0,
+    "momentum_score": 45.34104406639199,
+    "total_score": 63.5894247246379
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 1.0068595535017382,
+    "r_squared": 0.33348801318796684,
+    "alpha": 0.0002846898348246756
+  },
+  "risk_metrics": {
+    "atr_percent": 3.9880119880119884
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3575.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 1747077665.0,
+      "book_value_per_share": 1138.321,
+      "eps_ttm": 162.66,
+      "sector": "Technology",
+      "long_name": "Fujitsu Limited"
+    },
+    "sector_peers": {
+      "resolved_sector": "Technology",
+      "peer_count": 5,
+      "peer_tickers": [
+        "6501.T",
+        "6758.T",
+        "8035.T",
+        "6503.T",
+        "6981.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 3.140590395854948,
+      "target_pe": 21.978359768842985,
+      "time_z_pb": 1.6006972199217386,
+      "time_z_pe": 1.600697219921739,
+      "space_z_pb": -0.3547268172262846,
+      "space_z_pe": -1.0231247871386195
+    }
+  }
+}

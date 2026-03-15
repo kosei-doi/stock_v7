@@ -1,0 +1,85 @@
+{
+  "ticker": "5838.T",
+  "name": "Rakuten Bank, Ltd.",
+  "sector": "Financial Services",
+  "scores": {
+    "value_score": 24.294471439496764,
+    "safety_score": 100.0,
+    "momentum_score": 19.11144566258878,
+    "total_score": 53.54007770831646
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 1.0711767339350575,
+    "r_squared": 0.16940685595497756,
+    "alpha": 0.0012420078957739095
+  },
+  "risk_metrics": {
+    "atr_percent": 7.432857375789056
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 707,
+      "date_min": "2023-04-21 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 6133.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 174498536.0,
+      "book_value_per_share": 2028.916,
+      "eps_ttm": 358.78,
+      "sector": "Financial Services",
+      "long_name": "Rakuten Bank, Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": "Financial Services",
+      "peer_count": 5,
+      "peer_tickers": [
+        "8306.T",
+        "8316.T",
+        "8411.T",
+        "8308.T",
+        "8309.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 3.022796409511286,
+      "target_pe": 17.094040916439045,
+      "time_z_pb": 0.7853165946787278,
+      "time_z_pe": 0.7853165946787277,
+      "space_z_pb": 13.152653804542284,
+      "space_z_pe": 1.570432356089626
+    }
+  }
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "ticker": "7272.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "8750.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "6702.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "7532.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "9028.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "4613.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "9432.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "7131.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "7267.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "4765.T",
+    "status": "HOLDING"
+  },
+  {
+    "ticker": "8789.T",
+    "status": "HOLDING"
+  },
+  {
+    "ticker": "3753.T",
+    "status": "HOLDING"
+  },
+  {
+    "ticker": "4259.T",
+    "status": "HOLDING"
+  },
+  {
+    "ticker": "5838.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "5958.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "9932.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "3696.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "6902.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "6378.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "4619.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "6998.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "8111.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "2726.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "2502.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "7172.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "3023.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "4262.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "9264.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "2914.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "4028.T",
+    "status": "WATCHING"
+  }
+]

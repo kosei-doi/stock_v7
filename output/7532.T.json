@@ -1,0 +1,85 @@
+{
+  "ticker": "7532.T",
+  "name": "Pan Pacific International Holdings Corporation",
+  "sector": "Consumer Defensive",
+  "scores": {
+    "value_score": 24.707218443409264,
+    "safety_score": 100.0,
+    "momentum_score": 22.44183601422087,
+    "total_score": 54.37125458020788
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.7058816600386327,
+    "r_squared": 0.17662092778996472,
+    "alpha": 0.0003407716273606453
+  },
+  "risk_metrics": {
+    "atr_percent": 3.72206497731944
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1010.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 2988513375.0,
+      "book_value_per_share": 220.167,
+      "eps_ttm": 33.43,
+      "sector": "Consumer Defensive",
+      "long_name": "Pan Pacific International Holdings Corporation"
+    },
+    "sector_peers": {
+      "resolved_sector": "Consumer Defensive",
+      "peer_count": 5,
+      "peer_tickers": [
+        "2502.T",
+        "2503.T",
+        "2802.T",
+        "2914.T",
+        "2801.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 4.58742681691625,
+      "target_pe": 30.212384086150166,
+      "time_z_pb": 1.7657054115132893,
+      "time_z_pe": 1.7657054115132897,
+      "space_z_pb": 1.2068222051104556,
+      "space_z_pe": -0.1807430505026405
+    }
+  }
+}

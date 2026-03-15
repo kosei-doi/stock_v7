@@ -1,0 +1,90 @@
+{
+  "ticker": "5958.T",
+  "name": "Sanyo Industries, Ltd.",
+  "sector": "Industrials",
+  "scores": {
+    "value_score": 35.395369834178624,
+    "safety_score": 100.0,
+    "momentum_score": 57.90154851258631,
+    "total_score": 65.73845763618871
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.5787079512963866,
+    "r_squared": 0.14406856571261442,
+    "alpha": 0.0006573341834464075
+  },
+  "risk_metrics": {
+    "atr_percent": 4.518240044555834
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 5130.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-15 00:00:00",
+      "date_max": "2026-03-13 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3809.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 2804027.0,
+      "book_value_per_share": 7221.168,
+      "eps_ttm": 479.66,
+      "sector": "Industrials",
+      "long_name": "Sanyo Industries, Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": "Industrials",
+      "peer_count": 10,
+      "peer_tickers": [
+        "8058.T",
+        "8001.T",
+        "8031.T",
+        "8053.T",
+        "8002.T",
+        "1801.T",
+        "1802.T",
+        "1803.T",
+        "1812.T",
+        "1925.T"
+      ],
+      "peer_pb_count": 10,
+      "peer_pe_count": 10
+    },
+    "value_inputs": {
+      "target_pb": 0.7104113905118951,
+      "target_pe": 10.69507567860568,
+      "time_z_pb": 2.734207600037224,
+      "time_z_pe": 2.734207600037224,
+      "space_z_pb": -2.6894116061947977,
+      "space_z_pe": -1.348842458544655
+    }
+  }
+}
