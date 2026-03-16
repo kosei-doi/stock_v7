@@ -12,10 +12,14 @@ import sys
 from pathlib import Path
 from typing import Any, Optional
 
+import yaml
+
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
+CONFIG_PATH = PROJECT_ROOT / "config.yaml"
+CONFIG_EXAMPLE_PATH = PROJECT_ROOT / "config_example.yaml"
 LAST_REPORT_PATH = DATA_DIR / "last_report.json"
 PREVIOUS_REPORT_PATH = DATA_DIR / "previous_report.json"
 POSITIONS_PATH = DATA_DIR / "positions.json"
@@ -281,11 +285,15 @@ def analyze_ticker(body: dict) -> dict:
     raw = (body.get("ticker") or "").strip()
     if not raw:
         raise HTTPException(status_code=400, detail="ticker を指定してください。")
-    # 7203 のような 4桁数字のみを受け付ける（内部的には .T を付ける）
-    digits = re.sub(r"[^0-9]", "", raw)
-    if not digits or len(digits) != 4 or not digits.isdigit():
-        raise HTTPException(status_code=400, detail="ticker は 4 桁の数字で指定してください（例: 7203）。")
-    ticker = f"{digits}.T"
+    # 英数字とドットのみ許可（例: 7203, AAPL, 7203.T）
+    normalized = re.sub(r"[^A-Za-z0-9.]", "", raw)
+    if not normalized or len(normalized) < 2 or len(normalized) > 20:
+        raise HTTPException(status_code=400, detail="ticker は 2〜20 文字の英数字で指定してください（例: 7203, AAPL）。")
+    # 4桁数字のみの場合は日本株として .T を付与
+    if re.fullmatch(r"[0-9]{4}", normalized):
+        ticker = f"{normalized}.T"
+    else:
+        ticker = normalized
     try:
         from core.utils.config_loader import get_validated_config, load_config
         from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data
@@ -324,10 +332,11 @@ def analyze_ticker(body: dict) -> dict:
     output_dir = Path(cfg.get("output_dir", "output"))
     output_dir.mkdir(parents=True, exist_ok=True)
     save_output_json(result, str(output_dir / f"{ticker}.json"))
+    max_items = int(cfg.get("watchlist_max_items", 30))
     before_count = len(load_watchlist(WATCHLIST_PATH))
-    add_to_watchlist(ticker, path=WATCHLIST_PATH, scores_by_ticker={ticker: result})
+    add_to_watchlist(ticker, path=WATCHLIST_PATH, scores_by_ticker={ticker: result}, max_items=max_items)
     after_count = len(load_watchlist(WATCHLIST_PATH))
-    evicted = before_count >= 30 and after_count == 30
+    evicted = before_count >= max_items and after_count == max_items
     scores = result.scores
     return {
         "ok": True,
@@ -367,22 +376,36 @@ def update_positions(body: dict) -> dict:
     return {"ok": True, "positions": positions}
 
 
+CONFIG_KEYS = {
+    "benchmark_ticker", "years", "output_dir", "llm_enabled",
+    "vi_ticker", "mu_cash", "a_vi", "b_macd", "daily_report_email_enabled",
+    "watchlist_max_items",
+}
+
+
 @router.post("/settings/update")
 def update_settings(body: dict) -> dict:
-    """Update portfolio_state.json cash_yen."""
-    cash = body.get("cash_yen")
-    if cash is None:
-        raise HTTPException(status_code=400, detail="cash_yen を指定してください。")
-    try:
-        cash_yen = float(cash)
-    except (TypeError, ValueError):
-        raise HTTPException(status_code=400, detail="cash_yen は数値で指定してください。")
-    state = _read_json(PORTFOLIO_STATE_PATH) or {}
-    if not isinstance(state, dict):
-        state = {}
-    state["cash_yen"] = cash_yen
-    _write_json(PORTFOLIO_STATE_PATH, state)
-    return {"ok": True, "cash_yen": cash_yen}
+    """Update portfolio_state.json (cash_yen) と config.yaml。"""
+    result: dict = {}
+    if "cash_yen" in body:
+        try:
+            cash_yen = float(body["cash_yen"])
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="cash_yen は数値で指定してください。")
+        state = _read_json(PORTFOLIO_STATE_PATH) or {}
+        if not isinstance(state, dict):
+            state = {}
+        state["cash_yen"] = cash_yen
+        _write_json(PORTFOLIO_STATE_PATH, state)
+        result["cash_yen"] = cash_yen
+    flat = {k: v for k, v in body.items() if k in CONFIG_KEYS}
+    if flat:
+        cfg = _flat_to_config(flat)
+        _save_config(cfg)
+        result["config"] = _config_to_flat(cfg)
+    if not result:
+        raise HTTPException(status_code=400, detail="更新する項目を指定してください。")
+    return {"ok": True, **result}
 
 
 @router.get("/report/merged")
@@ -412,10 +435,110 @@ def remove_watchlist_ticker(ticker: str) -> dict:
     return {"ok": True, "ticker": ticker}
 
 
+def _load_config_raw() -> dict:
+    """config.yaml を config_example とマージして返す。"""
+    base: dict = {}
+    if CONFIG_EXAMPLE_PATH.exists():
+        try:
+            base = yaml.safe_load(CONFIG_EXAMPLE_PATH.read_text(encoding="utf-8")) or {}
+        except Exception:
+            base = {}
+    if CONFIG_PATH.exists():
+        try:
+            override = yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8")) or {}
+            _deep_merge(base, override)
+        except Exception:
+            pass
+    return base
+
+
+def _deep_merge(base: dict, override: dict) -> None:
+    """base に override を再帰的にマージ（破壊的）。"""
+    for k, v in override.items():
+        if k in base and isinstance(base[k], dict) and isinstance(v, dict):
+            _deep_merge(base[k], v)
+        else:
+            base[k] = v
+
+
+def _config_to_flat(cfg: dict) -> dict:
+    """設定をフラット形式（UI用）に変換。"""
+    dpa = cfg.get("dpa") or {}
+    llm = cfg.get("llm") or {}
+    email_cfg = cfg.get("daily_report") or {}
+    wl_cfg = cfg.get("watchlist") or {}
+    return {
+        "benchmark_ticker": cfg.get("benchmark_ticker", "1306.T"),
+        "years": int(cfg.get("years", 5)),
+        "output_dir": cfg.get("output_dir", "output"),
+        "llm_enabled": bool(llm.get("enabled", False)),
+        "watchlist_max_items": int(wl_cfg.get("max_items", 30)),
+        "vi_ticker": dpa.get("vi_ticker") or "^VIX",
+        "mu_cash": float(dpa.get("mu_cash", 0.4)),
+        "a_vi": float(dpa.get("a_vi", 0.2)),
+        "b_macd": float(dpa.get("b_macd", 0.2)),
+        "daily_report_email_enabled": bool(email_cfg.get("enabled", True)),
+    }
+
+
+def _flat_to_config(flat: dict) -> dict:
+    """フラット形式を config のネスト形式に変換。"""
+    cfg = _load_config_raw()
+    if "benchmark_ticker" in flat:
+        cfg["benchmark_ticker"] = str(flat["benchmark_ticker"]).strip()
+    if "years" in flat:
+        try:
+            cfg["years"] = int(flat["years"])
+        except (TypeError, ValueError):
+            pass
+    if "output_dir" in flat:
+        cfg["output_dir"] = str(flat["output_dir"]).strip()
+    if "watchlist_max_items" in flat:
+        try:
+            v = int(flat["watchlist_max_items"])
+            if 5 <= v <= 100:
+                cfg.setdefault("watchlist", {})["max_items"] = v
+        except (TypeError, ValueError):
+            pass
+    if "llm_enabled" in flat:
+        cfg.setdefault("llm", {})["enabled"] = bool(flat["llm_enabled"])
+    dpa = cfg.setdefault("dpa", {})
+    if "vi_ticker" in flat:
+        v = str(flat["vi_ticker"]).strip()
+        dpa["vi_ticker"] = v if v else "^VIX"
+    if "mu_cash" in flat:
+        try:
+            dpa["mu_cash"] = float(flat["mu_cash"])
+        except (TypeError, ValueError):
+            pass
+    if "a_vi" in flat:
+        try:
+            dpa["a_vi"] = float(flat["a_vi"])
+        except (TypeError, ValueError):
+            pass
+    if "b_macd" in flat:
+        try:
+            dpa["b_macd"] = float(flat["b_macd"])
+        except (TypeError, ValueError):
+            pass
+    if "daily_report_email_enabled" in flat:
+        cfg.setdefault("daily_report", {})["enabled"] = bool(flat["daily_report_email_enabled"])
+    return cfg
+
+
+def _save_config(cfg: dict) -> None:
+    """config.yaml に保存。"""
+    CONFIG_PATH.write_text(
+        yaml.dump(cfg, allow_unicode=True, default_flow_style=False, sort_keys=False),
+        encoding="utf-8",
+    )
+
+
 @router.get("/settings")
 def get_settings() -> dict:
-    """Portfolio state (cash_yen) for settings page."""
+    """Portfolio state と config を返す（設定画面用）。"""
     state = _read_json(PORTFOLIO_STATE_PATH)
     if not isinstance(state, dict):
         state = {}
-    return {"cash_yen": state.get("cash_yen")}
+    cfg = _config_to_flat(_load_config_raw())
+    return {"cash_yen": state.get("cash_yen"), "config": cfg}

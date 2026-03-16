@@ -3,19 +3,19 @@
   "name": "ZERO Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 32.31563191132262,
+    "value_score": 33.6215551951929,
     "safety_score": 100.0,
-    "momentum_score": 31.831780571131514,
-    "total_score": 59.292608878755345
+    "momentum_score": 35.69515957813259,
+    "total_score": 60.587653993703675
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.6379444033533856,
-    "r_squared": 0.13459671130952222,
-    "alpha": 0.0008325148499311009
+    "beta": 0.6386805993141312,
+    "r_squared": 0.13474305855287255,
+    "alpha": 0.000814812120801487
   },
   "risk_metrics": {
-    "atr_percent": 2.8591778591778594
+    "atr_percent": 3.034410844629823
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3510.0,
+      "last_close": 3425.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 1.326349655243559,
-      "target_pe": 8.86520344505342,
-      "time_z_pb": 1.9672817296149048,
-      "time_z_pe": 1.9672817296149052,
-      "space_z_pb": -0.743066529344107,
-      "space_z_pe": -0.737686637331264
+      "target_pb": 1.2942300766977748,
+      "target_pe": 8.650519031141869,
+      "time_z_pb": 1.8647251903264765,
+      "time_z_pe": 1.8647251903264772,
+      "space_z_pb": -0.750620070759539,
+      "space_z_pe": -0.7489442990181158
     }
   }
 }

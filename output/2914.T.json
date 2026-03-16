@@ -3,19 +3,19 @@
   "name": "Japan Tobacco Inc.",
   "sector": "Consumer Defensive",
   "scores": {
-    "value_score": 26.85505946971346,
+    "value_score": 25.834981871002952,
     "safety_score": 100.0,
-    "momentum_score": 35.50998917986186,
-    "total_score": 57.844021623857756
+    "momentum_score": 32.29392842780115,
+    "total_score": 56.79277843396141
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.6081458274505965,
-    "r_squared": 0.3213192291726982,
-    "alpha": 0.0005804696512569133
+    "beta": 0.6073169486228762,
+    "r_squared": 0.3202067913498098,
+    "alpha": 0.0005911135136500264
   },
   "risk_metrics": {
-    "atr_percent": 2.0499287090076797
+    "atr_percent": 2.048373603661237
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 5711.0,
+      "last_close": 5806.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.4808926521963133,
-      "target_pe": 20.325290056231758,
-      "time_z_pb": 2.0915853836084777,
-      "time_z_pe": 2.0915853836084763,
-      "space_z_pb": -0.061845066195534655,
-      "space_z_pe": -0.42667595205826175
+      "target_pb": 2.522161221966695,
+      "target_pe": 20.663392412271335,
+      "time_z_pb": 2.1731220972603666,
+      "time_z_pe": 2.173122097260367,
+      "space_z_pb": -0.05525729405496597,
+      "space_z_pe": -0.422854465476873
     }
   }
 }

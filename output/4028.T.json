@@ -5,17 +5,17 @@
   "scores": {
     "value_score": 0.0,
     "safety_score": 100.0,
-    "momentum_score": 39.94593228951223,
-    "total_score": 47.98918645790245
+    "momentum_score": 32.908049916518834,
+    "total_score": 46.581609983303764
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.2563066299026262,
-    "r_squared": 0.4294130369385703,
-    "alpha": 0.0005055885876563537
+    "beta": 1.256490384014472,
+    "r_squared": 0.4294949918960568,
+    "alpha": 0.0005067230268536808
   },
   "risk_metrics": {
-    "atr_percent": 5.97875226039783
+    "atr_percent": 5.855547960811119
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3160.0,
+      "last_close": 3135.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -68,10 +68,10 @@
       "peer_pe_count": 0
     },
     "value_inputs": {
-      "target_pb": 1.0009255393753338,
-      "target_pe": 9.066131114617702,
-      "time_z_pb": 3.0279476951077995,
-      "time_z_pe": 3.0279476951077995,
+      "target_pb": 0.9930068246650859,
+      "target_pe": 8.994405393774207,
+      "time_z_pb": 2.9695436876431685,
+      "time_z_pe": 2.969543687643167,
       "space_z_pb": null,
       "space_z_pe": null
     }

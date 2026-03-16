@@ -3,19 +3,19 @@
   "name": "Pan Pacific International Holdings Corporation",
   "sector": "Consumer Defensive",
   "scores": {
-    "value_score": 24.707218443409264,
+    "value_score": 25.42485670599926,
     "safety_score": 100.0,
-    "momentum_score": 22.44183601422087,
-    "total_score": 54.37125458020788
+    "momentum_score": 16.192053074418535,
+    "total_score": 53.40835329728341
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.7058816600386327,
-    "r_squared": 0.17662092778996472,
-    "alpha": 0.0003407716273606453
+    "beta": 0.705947119200712,
+    "r_squared": 0.17664717037100033,
+    "alpha": 0.0003369965490556415
   },
   "risk_metrics": {
-    "atr_percent": 3.72206497731944
+    "atr_percent": 3.689230463328129
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1010.0,
+      "last_close": 1003.5,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 4.58742681691625,
-      "target_pe": 30.212384086150166,
-      "time_z_pb": 1.7657054115132893,
-      "time_z_pe": 1.7657054115132897,
-      "space_z_pb": 1.2068222051104556,
-      "space_z_pe": -0.1807430505026405
+      "target_pb": 4.557903773045006,
+      "target_pe": 30.01794795094227,
+      "time_z_pb": 1.7308394414620065,
+      "time_z_pe": 1.7308394414620072,
+      "space_z_pb": 1.1456186567337705,
+      "space_z_pe": -0.19435115761960667
     }
   }
 }

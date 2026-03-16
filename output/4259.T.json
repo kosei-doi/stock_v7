@@ -3,19 +3,19 @@
   "name": "ExaWizards Inc.",
   "sector": "Technology",
   "scores": {
-    "value_score": 50.0,
+    "value_score": 50.00000000000001,
     "safety_score": 100.0,
-    "momentum_score": 34.60031177540179,
-    "total_score": 66.92006235508036
+    "momentum_score": 16.789608001037504,
+    "total_score": 63.357921600207504
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.3756607518192192,
-    "r_squared": 0.16059911795726003,
-    "alpha": -0.0004970394591709861
+    "beta": 1.3762090366228024,
+    "r_squared": 0.16071592152780217,
+    "alpha": -0.0005115796953803606
   },
   "risk_metrics": {
-    "atr_percent": 6.745450742522485
+    "atr_percent": 6.640290846877672
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1031,
+      "rows": 1032,
       "date_min": "2021-12-23 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 683.0,
+      "last_close": 668.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 15.449692363373146,
-      "target_pe": -31.649675625579242,
-      "time_z_pb": 1.508615337943786,
-      "time_z_pe": -1.5086153379437865,
-      "space_z_pb": 4.755056955676775,
-      "space_z_pe": -9.466895435504673
+      "target_pb": 15.110387260224394,
+      "target_pe": -30.95458758109361,
+      "time_z_pb": 1.397681002431155,
+      "time_z_pe": -1.3976810024311557,
+      "space_z_pb": 4.445643118500903,
+      "space_z_pe": -9.131566053544615
     }
   }
 }

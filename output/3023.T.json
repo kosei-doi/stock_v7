@@ -3,19 +3,19 @@
   "name": "Rasa Corporation",
   "sector": "Basic Materials",
   "scores": {
-    "value_score": 13.404644124768089,
+    "value_score": 13.7066298901805,
     "safety_score": 100.0,
-    "momentum_score": 19.657119354038024,
-    "total_score": 49.29328152071484
+    "momentum_score": 26.546792064348253,
+    "total_score": 50.79201036894185
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.6556563240850084,
-    "r_squared": 0.22741286466461288,
-    "alpha": 0.0003813876507522919
+    "beta": 0.6556252341843963,
+    "r_squared": 0.22739868250370415,
+    "alpha": 0.00038209768787656715
   },
   "risk_metrics": {
-    "atr_percent": 5.005680204487361
+    "atr_percent": 5.004980079681275
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 2012.0,
+      "last_close": 2008.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -68,10 +68,10 @@
       "peer_pe_count": 0
     },
     "value_inputs": {
-      "target_pb": 0.9480606928476549,
-      "target_pe": 9.990069513406157,
-      "time_z_pb": 1.8297677937615957,
-      "time_z_pe": 1.8297677937615955,
+      "target_pb": 0.9461758803370234,
+      "target_pe": 9.97020854021847,
+      "time_z_pb": 1.8146685054909746,
+      "time_z_pe": 1.8146685054909752,
       "space_z_pb": null,
       "space_z_pe": null
     }

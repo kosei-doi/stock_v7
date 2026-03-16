@@ -3,19 +3,19 @@
   "name": "FinTech Global Incorporated",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 21.774188878772378,
+    "value_score": 22.859840286161287,
     "safety_score": 100.0,
-    "momentum_score": 30.722038798118923,
-    "total_score": 54.85408331113274
+    "momentum_score": 24.987667322656705,
+    "total_score": 54.14146957899586
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.0173120209915794,
-    "r_squared": 0.1540082223211184,
-    "alpha": 0.0003990778747868922
+    "beta": 1.0182806496167405,
+    "r_squared": 0.15430081014322142,
+    "alpha": 0.0004068793823279244
   },
   "risk_metrics": {
-    "atr_percent": 3.784648187633262
+    "atr_percent": 3.8419913419913416
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 134.0,
+      "last_close": 132.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.236427057429444,
-      "target_pe": 12.3730378578024,
-      "time_z_pb": 1.928556913917109,
-      "time_z_pe": 1.9285569139171088,
-      "space_z_pb": 7.212562912018451,
-      "space_z_pe": -1.2292179614444214
+      "target_pb": 2.2030475491096015,
+      "target_pe": 12.188365650969528,
+      "time_z_pb": 1.8581839874251194,
+      "time_z_pe": 1.858183987425119,
+      "space_z_pb": 7.086544177583602,
+      "space_z_pe": -1.2895120338156782
     }
   }
 }

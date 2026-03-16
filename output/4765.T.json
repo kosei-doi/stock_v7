@@ -3,19 +3,19 @@
   "name": "SBI Global Asset Management Co., Ltd.",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 27.351837363322705,
+    "value_score": 26.617530535981363,
     "safety_score": 100.0,
-    "momentum_score": 36.192288864657286,
-    "total_score": 58.17919271826054
+    "momentum_score": 20.638210553848324,
+    "total_score": 54.77465432516221
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.7874246665424142,
-    "r_squared": 0.35682238948648864,
-    "alpha": -0.0002028040762717682
+    "beta": 0.7869659001699747,
+    "r_squared": 0.3563708790598364,
+    "alpha": -0.00019348708126235698
   },
   "risk_metrics": {
-    "atr_percent": 2.421307506053269
+    "atr_percent": 2.1848739495798317
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 590.0,
+      "last_close": 595.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.660186032670692,
-      "target_pe": 29.678068410462778,
-      "time_z_pb": 0.2206802197231074,
-      "time_z_pe": 0.22068021972310842,
-      "space_z_pb": 10.413561047044693,
-      "space_z_pe": 9.03301522924601
+      "target_pb": 2.6827299821001045,
+      "target_pe": 29.929577464788736,
+      "time_z_pb": 0.2818724553348865,
+      "time_z_pe": 0.2818724553348861,
+      "space_z_pb": 10.739760765056651,
+      "space_z_pe": 9.325002678327804
     }
   }
 }

@@ -3,19 +3,19 @@
   "name": "Sugimoto & Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 59.562048190995924,
+    "value_score": 59.67439764257647,
     "safety_score": 100.0,
-    "momentum_score": 35.33946911861559,
-    "total_score": 70.89271310012148
+    "momentum_score": 28.957640783975265,
+    "total_score": 69.66128721382564
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.0491017079907925,
-    "r_squared": 0.3508596084542875,
-    "alpha": -0.00030122869751643774
+    "beta": 1.0490201913824242,
+    "r_squared": 0.3508216861758884,
+    "alpha": -0.00029789269279735547
   },
   "risk_metrics": {
-    "atr_percent": 2.6594582787243337
+    "atr_percent": 2.5834701696770663
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1308.0,
+      "last_close": 1305.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 0.6849185952256776,
-      "target_pe": 13.586787161109381,
-      "time_z_pb": 0.30192009278260473,
-      "time_z_pe": 0.30192009278260545,
-      "space_z_pb": -2.7377913056302536,
-      "space_z_pe": -0.7962723260967975
+      "target_pb": 0.6833476810164444,
+      "target_pe": 13.555624805235276,
+      "time_z_pb": 0.2891606151067309,
+      "time_z_pe": 0.28916061510673097,
+      "space_z_pb": -2.85317153997988,
+      "space_z_pe": -0.7860812559643101
     }
   }
 }

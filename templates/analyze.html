@@ -4,15 +4,12 @@
 <div class="space-y-6">
   <h2 class="text-2xl font-bold text-slate-100">企業分析＆自動追加</h2>
   <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
-    <label class="block text-slate-400 text-sm mb-2">ティッカー（4桁の数字のみ、例: 7203）</label>
+    <label class="block text-slate-400 text-sm mb-2">ティッカー（例: 7203 日本株 / AAPL 米国株）</label>
     <div class="flex gap-2">
       <input
         type="text"
         id="ticker-input"
-        inputmode="numeric"
-        pattern="[0-9]*"
-        maxlength="4"
-        placeholder="7203"
+        placeholder="7203 または AAPL"
         class="flex-1 px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
       />
       <button type="button" id="btn-analyze" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition">分析実行</button>
@@ -46,23 +43,26 @@
   const resultMomentum = document.getElementById('result-momentum');
   const resultTotal = document.getElementById('result-total');
 
-  function normalizeDigits(str) {
-    // 全角数字を半角に変換したうえで数字以外を除去
-    const toHalf = str.replace(/[０-９]/g, function(c) {
-      return String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
+  function normalizeTicker(str) {
+    // 全角英数字を半角に変換
+    const toHalf = str.replace(/[０-９Ａ-Ｚａ-ｚ]/g, function(c) {
+      const code = c.charCodeAt(0);
+      if (code >= 0xFF10 && code <= 0xFF19) return String.fromCharCode(code - 0xFEE0);
+      if (code >= 0xFF21 && code <= 0xFF3A) return String.fromCharCode(code - 0xFEE0);
+      if (code >= 0xFF41 && code <= 0xFF5A) return String.fromCharCode(code - 0xFEE0);
+      return c;
     });
-    return toHalf.replace(/[^0-9]/g, '');
+    return toHalf.replace(/[^A-Za-z0-9.]/g, '').toUpperCase();
   }
 
   btn.addEventListener('click', function() {
     const raw = (input.value || '').trim();
-    const digits = normalizeDigits(raw);
-    if (!digits || !/^[0-9]{4}$/.test(digits)) {
-      msg.textContent = 'ティッカーは 4 桁の数字で入力してください（例: 7203）。';
+    const ticker = normalizeTicker(raw);
+    if (!ticker || ticker.length < 2 || ticker.length > 20) {
+      msg.textContent = 'ティッカーは 2〜20 文字の英数字で入力してください（例: 7203, AAPL）。';
       msg.className = 'mt-3 text-sm text-amber-400';
       return;
     }
-    const ticker = digits;  // API 側で .T を付与
     msg.textContent = '';
     result.classList.add('hidden');
     loading.classList.remove('hidden');

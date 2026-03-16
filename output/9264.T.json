@@ -3,19 +3,19 @@
   "name": "Puequ CO.,LTD.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 48.67585353381983,
+    "value_score": 49.460481210064785,
     "safety_score": 100.0,
-    "momentum_score": 55.34289626143787,
-    "total_score": 70.53892066581551
+    "momentum_score": 53.08353015497219,
+    "total_score": 70.40089851502036
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.7991946435331625,
-    "r_squared": 0.07076263906629417,
-    "alpha": -0.00028945612039175305
+    "beta": 0.799373581351014,
+    "r_squared": 0.07078984089771886,
+    "alpha": -0.0003010015634561511
   },
   "risk_metrics": {
-    "atr_percent": 2.975500744909783
+    "atr_percent": 3.0384421688769514
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1726.0,
+      "last_close": 1702.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 1.9103634449851852,
-      "target_pe": 18.65744243865528,
-      "time_z_pb": 0.19017905030981394,
-      "time_z_pe": 0.19017905030981377,
-      "space_z_pb": -0.41216742482556334,
-      "space_z_pe": 0.1726668904411646
+      "target_pb": 1.8837998744871294,
+      "target_pe": 18.398011025835043,
+      "time_z_pb": 0.13946180377374054,
+      "time_z_pe": 0.1394618037737402,
+      "space_z_pb": -0.4431879671093396,
+      "space_z_pe": 0.1596822532719229
     }
   }
 }

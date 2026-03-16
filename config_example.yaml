@@ -17,8 +17,8 @@ llm:
 #   market_tz: "Asia/Tokyo"
 
 # DPA（ポートフォリオ最適化）関連
+# 総資産は portfolio_state.json の現金残高＋株式評価額で自動計算（設定不要）
 dpa:
-  total_capital_jpy: 5000000   # 総資金（円）
   # パス（省略時はデフォルトを使用）
   # sector_peers_path: "data/sector_peers.json"
   # portfolio_path: "portfolio_state.json"
@@ -34,4 +34,12 @@ dpa:
   # max_cash_ratio: 0.8        # 目標現金比率の上限
   # momentum_threshold: 50.0   # 購入着火点（モメンタムスコアがこの値以上で陽転とみなす）
   # lot_size: 100              # 売買単位（日本株: 100株単位）
+
+# ウォッチリスト
+watchlist:
+  max_items: 30               # 登録上限数。超過時はスコア最下位の WATCHING を自動削除
+
+# 毎朝メール送信（cron で send_daily_report.py 実行時）
+daily_report:
+  enabled: true               # false にするとバッチは実行するがメールは送らない
 

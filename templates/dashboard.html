@@ -12,15 +12,51 @@
     </div>
   </div>
 
-  <!-- KPI Cards: fetch from merged report -->
-  <div id="kpi-cards" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-    <div class="bg-slate-800 rounded-lg border border-slate-700 p-4">
-      <p class="text-slate-400 text-xs md:text-sm">マクロフェーズ</p>
-      <p id="kpi-phase" class="text-lg font-semibold text-amber-400">-</p>
+  <!-- バッチの進捗（ダッシュボードと実行ボタンの直下に表示） -->
+  <div id="progress-area" class="bg-slate-800 rounded-xl border border-slate-700 p-4 space-y-2 hidden">
+    <div class="flex justify-between text-xs text-slate-400 mb-1">
+      <span id="progress-text">準備中…</span>
+      <span id="progress-step">0/7</span>
     </div>
+    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+      <div id="progress-bar" class="h-full bg-amber-500 transition-all duration-300" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <!-- フェーズ一覧（上から2番め） -->
+  <section class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+    <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">フェーズ一覧</h3>
+    <div class="p-4">
+      <p class="text-slate-400 text-xs mb-3">目標現金比率に応じたマクロフェーズ。現在のフェーズをハイライト表示します。</p>
+      <div id="phase-list" class="space-y-2">
+        <div class="phase-row border border-slate-600 rounded-lg px-3 py-2 text-sm" data-phase="cruise">
+          <span class="font-mono text-slate-400 inline-block min-w-[5rem]">〜30%</span>
+          <span class="text-slate-200">巡航モード【オフェンス】</span>
+        </div>
+        <div class="phase-row border border-slate-600 rounded-lg px-3 py-2 text-sm" data-phase="caution">
+          <span class="font-mono text-slate-400 inline-block min-w-[5rem]">30%〜50%</span>
+          <span class="text-slate-200">警戒モード【ロー・ベータ・シフト】</span>
+        </div>
+        <div class="phase-row border border-slate-600 rounded-lg px-3 py-2 text-sm" data-phase="reversal">
+          <span class="font-mono text-slate-400 inline-block min-w-[5rem]">50%〜70%</span>
+          <span class="text-slate-200">反転狙撃モード【バリュー・スナイプ】</span>
+        </div>
+        <div class="phase-row border border-slate-600 rounded-lg px-3 py-2 text-sm" data-phase="panic">
+          <span class="font-mono text-slate-400 inline-block min-w-[5rem]">70%〜</span>
+          <span class="text-slate-200">パニック防衛モード【キャッシュ・イズ・キング】</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPI Cards -->
+  <div id="kpi-cards" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <div class="bg-slate-800 rounded-lg border border-slate-700 p-4">
-      <p class="text-slate-400 text-xs md:text-sm">目標現金比率</p>
-      <p id="kpi-cash-ratio" class="text-lg font-semibold">-</p>
+      <p class="text-slate-400 text-xs md:text-sm mb-2">現金比率</p>
+      <div class="flex gap-4 text-sm">
+        <span><span class="text-slate-500">目標</span> <span id="kpi-cash-ratio" class="font-semibold text-slate-200">-</span></span>
+        <span><span class="text-slate-500">現在</span> <span id="kpi-current-cash-ratio" class="font-semibold text-amber-400">-</span></span>
+      </div>
     </div>
     <div class="bg-slate-800 rounded-lg border border-slate-700 p-4">
       <p class="text-slate-400 text-xs md:text-sm">総資産</p>
@@ -31,6 +67,28 @@
       <p id="kpi-pnl" class="text-lg font-semibold">-</p>
     </div>
   </div>
+
+  <!-- 新規購入推奨 & 売却指示 -->
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-700 flex items-center justify-between">
+        <h3 class="font-semibold text-amber-400">新規購入推奨</h3>
+        <a href="/report" class="text-xs text-amber-400 hover:text-amber-300">レポートへ</a>
+      </div>
+      <div class="p-4" id="dashboard-draft">
+        <p class="text-slate-500 text-sm">読み込み中…</p>
+      </div>
+    </div>
+    <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-700 flex items-center justify-between">
+        <h3 class="font-semibold text-amber-400">売却指示</h3>
+        <a href="/report" class="text-xs text-amber-400 hover:text-amber-300">レポートへ</a>
+      </div>
+      <div class="p-4" id="dashboard-purge">
+        <p class="text-slate-500 text-sm">読み込み中…</p>
+      </div>
+    </div>
+  </section>
 
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
     <!-- 左: 保有サマリ -->
@@ -78,17 +136,6 @@
         </table>
       </div>
     </section>
-  </div>
-
-  <!-- バッチの進捗 -->
-  <div id="progress-area" class="bg-slate-800 rounded-xl border border-slate-700 p-4 space-y-2 hidden">
-    <div class="flex justify-between text-xs text-slate-400 mb-1">
-      <span id="progress-text">準備中…</span>
-      <span id="progress-step">0/7</span>
-    </div>
-    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-      <div id="progress-bar" class="h-full bg-amber-500 transition-all duration-300" style="width: 0%"></div>
-    </div>
   </div>
 </div>
 
@@ -158,15 +205,85 @@
     watchlistSummary.textContent = '表示中: ' + top.length + ' 件（ポートフォリオ優先度の高い順）';
   }
 
+  function phaseFromTargetRatio(ratio) {
+    if (ratio == null) return null;
+    if (ratio <= 0.3) return 'cruise';
+    if (ratio <= 0.5) return 'caution';
+    if (ratio >= 0.7) return 'panic';
+    return 'reversal';
+  }
+
+  function highlightCurrentPhase(currentPhase) {
+    document.querySelectorAll('.phase-row').forEach(row => {
+      const isActive = row.dataset.phase === currentPhase;
+      row.classList.toggle('bg-amber-500/20', isActive);
+      row.classList.toggle('border-amber-500', isActive);
+      row.classList.toggle('border-slate-600', !isActive);
+      const label = row.querySelector('span:last-child');
+      if (label) label.classList.toggle('text-amber-400', isActive);
+      const badge = row.querySelector('.phase-current-badge');
+      if (badge) badge.remove();
+      if (isActive) {
+        const badge = document.createElement('span');
+        badge.className = 'phase-current-badge ml-2 text-xs text-amber-400 font-medium';
+        badge.textContent = '← 現在';
+        row.querySelector('span:last-child').after(badge);
+      }
+    });
+  }
+
+  function renderDraft(draft, tickerNames) {
+    const el = document.getElementById('dashboard-draft');
+    if (!el) return;
+    const recs = (draft && draft.recommendations) || [];
+    if (!recs.length) {
+      el.innerHTML = '<p class="text-slate-500">（なし）</p>';
+      return;
+    }
+    const budget = ((draft.available_budget || 0) | 0).toLocaleString();
+    let html = '<p class="text-slate-400 text-xs mb-3">空き予算: <span class="text-amber-400 font-semibold">' + budget + ' 円</span></p>';
+    html += '<table class="w-full text-left text-xs"><thead class="text-slate-400 border-b border-slate-600"><tr><th class="py-1.5 pr-2">銘柄</th><th class="py-1.5 pr-2 w-14 text-right">株数</th><th class="py-1.5 text-right">予算（円）</th></tr></thead><tbody>';
+    recs.forEach((r) => {
+      const name = (r.name || (tickerNames && tickerNames[r.ticker]) || '-').substring(0, 18);
+      const b = (r.budget_used || 0) | 0;
+      html += '<tr class="border-b border-slate-700/60"><td class="py-1.5 pr-2"><span class="font-mono text-slate-200">' + (r.ticker || '') + '</span> <span class="text-slate-400 truncate" title="' + (r.name || '').replace(/"/g, '&quot;') + '">' + name + '</span></td><td class="py-1.5 pr-2 text-right text-slate-300">' + (r.shares || 0) + ' 株</td><td class="py-1.5 text-right font-mono text-slate-200">' + b.toLocaleString() + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    el.innerHTML = html;
+  }
+
+  function renderPurge(purge, tickerNames) {
+    const el = document.getElementById('dashboard-purge');
+    if (!el) return;
+    const items = (purge && purge.items) || [];
+    if (!items.length) {
+      el.innerHTML = '<p class="text-slate-500">（なし）</p>';
+      return;
+    }
+    let html = '<ul class="space-y-1 text-sm text-slate-200">';
+    items.forEach(it => {
+      const name = (tickerNames && tickerNames[it.ticker]) || it.ticker || '-';
+      html += '<li class="truncate">' + (it.ticker || '') + ': ' + (it.reason_ja || it.reason || '-') + ' <span class="text-slate-500">(' + (it.current_price != null ? Math.round(it.current_price).toLocaleString() : '-') + ' 円)</span></li>';
+    });
+    html += '</ul>';
+    el.innerHTML = html;
+  }
+
   function loadKpiAndLists() {
     fetch('/api/report/merged').then(r => r.json()).then(data => {
       const r = data.report;
       if (!r) return;
-      document.getElementById('kpi-phase').textContent = r.phase_name_ja || '-';
-      const ratio = r.target_cash_ratio != null ? (r.target_cash_ratio * 100).toFixed(0) + '%' : '-';
-      document.getElementById('kpi-cash-ratio').textContent = ratio;
-      const total = r.total_capital_yen != null ? r.total_capital_yen.toLocaleString() + ' 円' : '-';
-      document.getElementById('kpi-total').textContent = total;
+      const targetRatio = r.target_cash_ratio != null ? (r.target_cash_ratio * 100).toFixed(1) + '%' : '-';
+      document.getElementById('kpi-cash-ratio').textContent = targetRatio;
+      let currentRatio = '-';
+      const cash = r.cash_yen;
+      const total = r.total_capital_yen;
+      if (cash != null && total != null && total > 0) {
+        currentRatio = ((cash / total) * 100).toFixed(1) + '%';
+      }
+      document.getElementById('kpi-current-cash-ratio').textContent = currentRatio;
+      const totalEl = document.getElementById('kpi-total');
+      totalEl.textContent = total != null ? total.toLocaleString() + ' 円' : '-';
       let pnlSum = 0;
       const holdings = data.holdings_merged || [];
       holdings.forEach(h => { if (h.unrealized_pnl != null) pnlSum += h.unrealized_pnl; });
@@ -174,11 +291,22 @@
       pnlEl.textContent = (pnlSum >= 0 ? '+' : '') + pnlSum.toLocaleString() + ' 円';
       pnlEl.className = 'text-lg font-semibold ' + (pnlSum > 0 ? 'text-red-500' : pnlSum < 0 ? 'text-green-500' : '');
 
+      const phase = phaseFromTargetRatio(r.target_cash_ratio);
+      highlightCurrentPhase(phase);
+
+      const tickerNames = r.ticker_names || {};
+      renderDraft(data.draft, tickerNames);
+      renderPurge(data.purge, tickerNames);
+
       renderHoldings(holdings);
       renderWatchlist(data.watchlist_merged || []);
     }).catch(() => {
       if (holdingsSummary) holdingsSummary.textContent = 'レポートがまだありません。';
       if (watchlistSummary) watchlistSummary.textContent = 'レポートがまだありません。';
+      const draftEl = document.getElementById('dashboard-draft');
+      const purgeEl = document.getElementById('dashboard-purge');
+      if (draftEl) draftEl.innerHTML = '<p class="text-slate-500">レポートがありません。</p>';
+      if (purgeEl) purgeEl.innerHTML = '<p class="text-slate-500">レポートがありません。</p>';
     });
   }
   loadKpiAndLists();
@@ -195,6 +323,7 @@
         progressStep.textContent = step + '/' + total;
         progressText.textContent = s.message || '処理中…';
         btn.disabled = true;
+        if (!pollTimer) pollTimer = setInterval(pollStatus, 2000);
       } else if (s.status === 'completed' || s.status === 'failed') {
         progressArea.classList.add('hidden');
         btn.disabled = false;
@@ -206,6 +335,11 @@
       }
     }).catch(() => {});
   }
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') pollStatus();
+  });
+  pollStatus();
 
   btn.addEventListener('click', function() {
     msg.textContent = '';

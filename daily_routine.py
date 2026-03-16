@@ -242,7 +242,6 @@ def run_daily_routine(
     cache_path: str = DEFAULT_CACHE_PATH,
     portfolio_path: str = PORTFOLIO_STATE_PATH,
     positions_path: str = "data/positions.json",
-    total_capital: Optional[float] = None,
     vi_value_override: Optional[float] = None,
     vi_ticker: Optional[str] = None,
     mu_cash: float = 0.4,
@@ -304,7 +303,7 @@ def run_daily_routine(
     holdings = build_holdings_list(watchlist, positions)
     holdings_val = holdings_value(holdings, positions, current_prices)
     current_w, total_cap_now = current_weights(holdings, positions, current_prices, cash_current)
-    total_cap = total_capital if total_capital is not None else total_cap_now
+    total_cap = total_cap_now  # 常に現金＋株式の実値を使用（config の total_capital は廃止）
     print(f"        → 保有 {len(holdings)} 銘柄, 総資産 {total_cap:,.0f} 円", file=sys.stderr)
 
     _progress(3, total_steps, "マクロ判定（ベンチマーク・VI・MACD → 目標現金比率）…", verbose=verbose)
@@ -375,6 +374,9 @@ def run_daily_routine(
     _progress(7, total_steps, "レポート生成…", verbose=verbose)
     ticker_names = {t: results[t].name for t in results.keys()}
 
+    # 総資産は常に「現金＋株式評価額」の実値（config の target ではない）
+    total_actual = cash_current + holdings_val
+
     report = DpaDailyReport(
         created_at=created_at,
         data_date=data_date,
@@ -384,7 +386,7 @@ def run_daily_routine(
         vi_z=macro.vi_z,
         macd_trend=macro.macd_trend,
         cash_yen=cash_current,
-        total_capital_yen=total_cap,
+        total_capital_yen=total_actual,
         equity_value_yen=holdings_val,
         current_weights=current_w,
         target_weights=target_weights,
@@ -406,7 +408,6 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--config", help="設定ファイル（YAML）")
     parser.add_argument("--watchlist", default=WATCHLIST_PATH, help="ウォッチリストJSON")
     parser.add_argument("--output-dir", default="output", help="DVC 出力先")
-    parser.add_argument("--total-capital", type=float, help="総資金（円）")
     parser.add_argument("--vi", type=float, help="日経VI などVIの直近値（未指定時はヒストリのみで判定）")
     parser.add_argument("--no-llm", action="store_true", help="LLM を使わない")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -417,10 +418,6 @@ def main(argv: list[str] | None = None) -> int:
         print(f"指定した設定ファイルがありません: {cfg_path}", file=sys.stderr)
     raw_cfg = load_config(cfg_path, use_example_as_base=True)
     cfg = get_validated_config(raw_cfg)
-
-    total_cap = args.total_capital
-    if total_cap is None:
-        total_cap = cfg.get("total_capital_jpy")
 
     sector_peers_path = _resolve_path(cfg.get("sector_peers_path", "data/sector_peers.json"))
     if not Path(sector_peers_path).exists():
@@ -444,7 +441,6 @@ def main(argv: list[str] | None = None) -> int:
         cache_path=_resolve_path(cfg.get("cache_path", "data/daily_cache.json")),
         portfolio_path=_resolve_path(cfg.get("portfolio_path", PORTFOLIO_STATE_PATH)),
         positions_path=_resolve_path(cfg.get("positions_path", "data/positions.json")),
-        total_capital=total_cap,
         vi_value_override=args.vi,
         vi_ticker=cfg.get("vi_ticker"),
         mu_cash=float(cfg.get("mu_cash", 0.4)),

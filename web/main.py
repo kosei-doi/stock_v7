@@ -73,10 +73,9 @@ def create_app():
 
     @app.get("/settings", response_class=HTMLResponse)
     async def settings(request: Request):
-        from web.api import _read_json
-        state = _read_json(PROJECT_ROOT / "portfolio_state.json") or {}
-        cash = state.get("cash_yen")
-        return templates.TemplateResponse("settings.html", {"request": request, "cash_yen": cash})
+        from web.api import get_settings
+        data = get_settings()
+        return templates.TemplateResponse("settings.html", {"request": request, **data})
     return app
 
 

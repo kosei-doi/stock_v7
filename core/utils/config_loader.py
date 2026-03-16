@@ -30,6 +30,7 @@ DEFAULT_MAX_CASH_RATIO = 0.8
 DEFAULT_MOMENTUM_THRESHOLD = 50.0
 DEFAULT_LOT_SIZE = 100
 DEFAULT_SCORES_HISTORY_PATH = "data/scores_history.json"
+DEFAULT_WATCHLIST_MAX_ITEMS = 30
 
 
 def _project_root() -> Path:
@@ -131,6 +132,9 @@ def get_validated_config(cfg: dict[str, Any]) -> dict[str, Any]:
     llm_cfg = cfg.get("llm") or {}
     out["llm_enabled"] = bool(llm_cfg.get("enabled", False))
     out["llm_model"] = _coerce_str(llm_cfg.get("model"), "gpt-4.1-mini")
+
+    wl_cfg = cfg.get("watchlist") or {}
+    out["watchlist_max_items"] = _coerce_int(wl_cfg.get("max_items"), DEFAULT_WATCHLIST_MAX_ITEMS)
 
     out["total_capital_jpy"] = _coerce_float(dpa_cfg.get("total_capital_jpy"), DEFAULT_TOTAL_CAPITAL_JPY)
     out["portfolio_path"] = _coerce_str(dpa_cfg.get("portfolio_path"), DEFAULT_PORTFOLIO_PATH)

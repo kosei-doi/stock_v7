@@ -3,19 +3,19 @@
   "name": "Yamaha Motor Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 58.783454786956284,
+    "value_score": 59.35543681583515,
     "safety_score": 100.0,
-    "momentum_score": 27.64203956012439,
-    "total_score": 69.04178982680739
+    "momentum_score": 24.771465850811662,
+    "total_score": 68.69646789649639
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.1271433083940574,
-    "r_squared": 0.4326667832274301,
-    "alpha": -0.00026546417450166695
+    "beta": 1.126903516558592,
+    "r_squared": 0.43263716993193463,
+    "alpha": -0.0002739032147406827
   },
   "risk_metrics": {
-    "atr_percent": 2.8423022325461353
+    "atr_percent": 2.7849993500584946
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1107.0,
+      "last_close": 1099.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 0.9487479013130774,
-      "target_pe": 6.891614268816535,
-      "time_z_pb": -0.1765530471135988,
-      "time_z_pe": -0.17655304711359948,
-      "space_z_pb": -0.8808504007378968,
-      "space_z_pe": -0.7853541546603745
+      "target_pb": 0.9418915479160543,
+      "target_pe": 6.841810371661583,
+      "time_z_pb": -0.22155519935076895,
+      "time_z_pe": -0.22155519935076848,
+      "space_z_pb": -0.8805388896042077,
+      "space_z_pe": -0.7936547163022738
     }
   }
 }

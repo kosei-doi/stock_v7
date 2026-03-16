@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 """
 DPA 日次レポートを Gmail で自分宛てに送信するスクリプト。
+
+動き:
+- 1) daily_routine（日次バッチ）を実行し、成功/失敗に応じて last_report.json / run_status.json を更新
+- 2) 成功時: 更新されたレポート内容を HTML メールで送信
+- 3) 失敗時: エラー内容のサマリを HTML メールで送信
+
 初回実行時は credentials.json を読み込み、ブラウザで OAuth 認証後に token.json を保存する。
 """
 
 import base64
 import json
 import os
+import subprocess
 import sys
 import webbrowser
 from email.mime.text import MIMEText
@@ -204,7 +211,36 @@ def build_report_html() -> str:
     if not purge_items:
         html_parts.append("<p>（なし）</p>")
     else:
-        html_parts.append(_table(["銘柄", "理由"], [[_esc(str(x.get("ticker", ""))), _esc(str(x.get("reason", "")))] for x in purge_items]))
+        purge_rows = []
+        for x in purge_items:
+            ticker = str(x.get("ticker", ""))
+            name = (ticker_names.get(ticker) or "-")[:32]
+            reason = str(x.get("reason_ja") or x.get("reason") or "-")
+            price = x.get("current_price")
+            stop = x.get("stop_loss_price")
+            price_str = f"{float(price):,.0f}" if price is not None else "-"
+            stop_str = f"{float(stop):,.0f}" if stop is not None else "-"
+            purge_rows.append([ticker, name, reason, price_str, stop_str])
+        html_parts.append(_table(["ティッカー", "銘柄名", "理由", "現在価格", "損切り目安"], [[_esc(str(c)) for c in row] for row in purge_rows]))
+    html_parts.append("")
+
+    recs = (draft.get("recommendations") or []) if isinstance(draft, dict) else []
+    html_parts.append("<h3 style=\"margin: 1em 0 0.3em 0; padding: 6px 0; border-bottom: 2px solid #1976d2; color: #1565c0;\">新規購入推奨</h3>")
+    if not recs:
+        html_parts.append("<p>（なし）</p>")
+    else:
+        rows = []
+        for r in recs:
+            ticker = str(r.get("ticker", ""))
+            name = str(r.get("name", "-"))[:32]
+            shares = r.get("shares", 0)
+            budget = r.get("budget_used") or r.get("amount_yen") or 0
+            try:
+                budget_str = f"{float(budget):,.0f}" if budget else "-"
+            except (TypeError, ValueError):
+                budget_str = "-"
+            rows.append([ticker, name, f"{shares} 株", budget_str])
+        html_parts.append(_table(["ティッカー", "銘柄名", "株数", "予算（円）"], [[_esc(x) for x in row] for row in rows]))
     html_parts.append("")
 
     html_parts.append("<h3 style=\"margin: 1em 0 0.3em 0; padding: 6px 0; border-bottom: 2px solid #1976d2; color: #1565c0;\">保有銘柄の状況</h3>")
@@ -251,16 +287,6 @@ def build_report_html() -> str:
         html_parts.append(_table(wl_headers, wl_rows, wl_changes))
     else:
         html_parts.append("<p>（データなし）</p>")
-    html_parts.append("")
-
-    recs = (draft.get("recommendations") or []) if isinstance(draft, dict) else []
-    html_parts.append("<h3 style=\"margin: 1em 0 0.3em 0; padding: 6px 0; border-bottom: 2px solid #1976d2; color: #1565c0;\">新規購入推奨</h3>")
-    if not recs:
-        html_parts.append("<p>（なし）</p>")
-    else:
-        html_parts.append(_table(["銘柄", "株数", "予想約定額"], [[_esc(str(r.get("ticker", ""))), str(r.get("shares", "")), str(r.get("amount_yen", ""))] for r in recs]))
-    html_parts.append("")
-    html_parts.append("<p>======================================</p>")
     html_parts.append("</body></html>")
     return "\n".join(html_parts)
 
@@ -275,11 +301,92 @@ def build_report_body() -> str:
     return "DPA 日次レポート（要約のみ。last_report を確認してください。）"
 
 
+def run_daily_routine() -> tuple[bool, str]:
+    """
+    daily_routine（日次バッチ）を実行し、成功したかどうかとログ文字列を返す。
+    - 戻り値 True: 正常終了（レポートメール送信）
+    - 戻り値 False: 失敗（エラーレポートを送信）
+    """
+    cmd = [sys.executable, "-m", "daily_routine", "--config", "config.yaml"]
+    try:
+        proc = subprocess.run(
+            cmd,
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            timeout=60 * 30,  # 最大30分
+        )
+    except Exception as e:
+        return False, f"Failed to start daily_routine: {e}"
+
+    stdout = proc.stdout or ""
+    stderr = proc.stderr or ""
+    log_parts: list[str] = []
+    if stdout.strip():
+        log_parts.append("=== STDOUT ===")
+        log_parts.append(stdout.strip())
+    if stderr.strip():
+        log_parts.append("=== STDERR ===")
+        log_parts.append(stderr.strip())
+    log_parts.append(f"(exit_code={proc.returncode})")
+    log = "\n".join(log_parts)
+
+    # コンソールにも出しておく
+    print(log, file=sys.stderr)
+    return proc.returncode == 0, log
+
+
+def build_failure_html(log: str) -> str:
+    """日次バッチ失敗時のエラーメール本文（HTML）を生成。"""
+    escaped_log = _esc(log or "No log output.")
+    return (
+        "<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head>"
+        "<body style=\"font-family: sans-serif; max-width: 720px;\">"
+        "<h2 style=\"color:#c62828;\">DPA 日次バッチ失敗のお知らせ</h2>"
+        "<p>今朝の DPA 日次バッチ実行に失敗したため、日次レポートは更新されていません。</p>"
+        "<p>ログのサマリは次のとおりです（必要に応じてサーバー側のログも確認してください）。</p>"
+        "<pre style=\"font-size:12px; background:#f5f5f5; padding:8px; white-space:pre-wrap;\">"
+        f"{escaped_log}"
+        "</pre>"
+        "<p>スクリプト: daily_routine.py / send_daily_report.py</p>"
+        "</body></html>"
+    )
+
+
+def _is_daily_report_email_enabled() -> bool:
+    """config.yaml の daily_report.enabled を参照。未設定時は True（従来互換）。"""
+    config_path = ROOT / "config.yaml"
+    if not config_path.exists():
+        return True
+    try:
+        import yaml
+        with open(config_path, encoding="utf-8") as f:
+            cfg = yaml.safe_load(f) or {}
+        email_cfg = cfg.get("daily_report") or {}
+        return bool(email_cfg.get("enabled", True))
+    except Exception:
+        return True
+
+
 def send_report(service, to_email: str) -> None:
-    """レポートを HTML メールで to_email 宛てに送信する。"""
-    body_html = build_report_html()
-    data_date = load_json(DATA_DIR / "last_report.json", {}).get("data_date", "")
-    subject = f"DPA 日次レポート {data_date}" if data_date else "DPA 日次レポート"
+    """
+    日次バッチを実行し、その結果に応じて HTML メールを to_email 宛てに送信する。
+    - 成功時: 通常の DPA 日次レポート（daily_report.enabled が false ならメール送信スキップ）
+    - 失敗時: 失敗を通知するエラーレポート（同じく enabled で制御）
+    """
+    ok, log = run_daily_routine()
+
+    if not _is_daily_report_email_enabled():
+        print("設定によりメール送信はスキップされました（daily_report.enabled: false）")
+        return
+
+    if ok:
+        body_html = build_report_html()
+        data_date = load_json(DATA_DIR / "last_report.json", {}).get("data_date", "")
+        subject = f"DPA 日次レポート {data_date}" if data_date else "DPA 日次レポート"
+    else:
+        body_html = build_failure_html(log)
+        subject = "DPA 日次バッチ失敗のお知らせ"
 
     message = MIMEText(body_html, "html", "utf-8")
     message["To"] = to_email

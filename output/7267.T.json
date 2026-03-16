@@ -3,19 +3,19 @@
   "name": "Honda Motor Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 56.96118383194397,
+    "value_score": 58.20800726309393,
     "safety_score": 100.0,
-    "momentum_score": 54.535897664470625,
-    "total_score": 73.69165306567172
+    "momentum_score": 33.15942016715467,
+    "total_score": 69.91508693866851
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.1351931296329612,
-    "r_squared": 0.4787460524293761,
-    "alpha": -0.0002948225836255638
+    "beta": 1.135597297397271,
+    "r_squared": 0.47879854083254725,
+    "alpha": -0.0003032254113324236
   },
   "risk_metrics": {
-    "atr_percent": 3.0179615705931493
+    "atr_percent": 3.161026403867609
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1368.0,
+      "last_close": 1344.5,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 0.427174279611796,
-      "target_pe": 10.965052901571015,
-      "time_z_pb": 0.005947364753398581,
-      "time_z_pe": 0.005947364753399725,
-      "space_z_pb": -1.071168459557383,
-      "space_z_pe": -0.6869695926888073
+      "target_pb": 0.419836124954722,
+      "target_pe": 10.776691247194613,
+      "time_z_pb": -0.0941925218637004,
+      "time_z_pe": -0.09419252186369913,
+      "space_z_pb": -1.073037916483578,
+      "space_z_pe": -0.6963863336988055
     }
   }
 }

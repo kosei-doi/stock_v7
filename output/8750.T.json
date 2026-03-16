@@ -3,19 +3,19 @@
   "name": "Dai-ichi Life Holdings, Inc.",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 26.39004353920531,
+    "value_score": 26.22401323600656,
     "safety_score": 100.0,
-    "momentum_score": 18.51008254188184,
-    "total_score": 54.25803392405849
+    "momentum_score": 4.10424993119494,
+    "total_score": 51.31045528064161
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.134467960987113,
-    "r_squared": 0.40722742314489174,
-    "alpha": 0.00045079360505077696
+    "beta": 1.1344319553241595,
+    "r_squared": 0.40721190206811064,
+    "alpha": 0.0004556539651399557
   },
   "risk_metrics": {
-    "atr_percent": 4.390771086759828
+    "atr_percent": 4.194571730701445
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1421.0,
+      "last_close": 1418.5,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 1.2641988840175369,
-      "target_pe": 12.836495031616982,
-      "time_z_pb": 2.329446423369005,
-      "time_z_pe": 2.3294464233690055,
-      "space_z_pb": -0.13147167306555738,
-      "space_z_pe": -0.9543784818427854
+      "target_pb": 1.2619747480498777,
+      "target_pe": 12.813911472448057,
+      "time_z_pb": 2.313274948206002,
+      "time_z_pe": 2.313274948206001,
+      "space_z_pb": -0.08057834015757803,
+      "space_z_pe": -0.9152498134620657
     }
   }
 }

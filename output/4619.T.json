@@ -3,19 +3,19 @@
   "name": "Nihon Tokushu Toryo Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 27.565624839459083,
+    "value_score": 27.701319787765826,
     "safety_score": 100.0,
-    "momentum_score": 38.83580019200665,
-    "total_score": 58.79340997418496
+    "momentum_score": 32.932620534263634,
+    "total_score": 57.66705202195906
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.7703779859161096,
-    "r_squared": 0.2608669399087493,
-    "alpha": 0.0003226222828637517
+    "beta": 0.7705390543095167,
+    "r_squared": 0.2609924038969711,
+    "alpha": 0.000331969922453441
   },
   "risk_metrics": {
-    "atr_percent": 2.9289087897932893
+    "atr_percent": 2.8166421207658323
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 2329.0,
+      "last_close": 2328.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-15 00:00:00",
-      "date_max": "2026-03-13 00:00:00",
+      "date_min": "2021-03-16 00:00:00",
+      "date_max": "2026-03-16 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3809.0,
+      "last_close": 3790.0,
       "empty": false
     },
     "fundamentals": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 0.8536645263353124,
-      "target_pe": 9.336914688903143,
-      "time_z_pb": 2.4168109638604465,
-      "time_z_pe": 2.416810963860446,
-      "space_z_pb": -0.9155455666719932,
-      "space_z_pe": -0.7262935347741166
+      "target_pb": 0.8532979893982857,
+      "target_pe": 9.332905708787685,
+      "time_z_pb": 2.406650776789582,
+      "time_z_pe": 2.4066507767895815,
+      "space_z_pb": -0.9132062522104845,
+      "space_z_pe": -0.7320760250997163
     }
   }
 }

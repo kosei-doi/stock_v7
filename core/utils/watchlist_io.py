@@ -87,17 +87,24 @@ def add_to_watchlist(
     path: str = WATCHLIST_PATH,
     scores_by_ticker: Optional[dict[str, DvcScoreOutput]] = None,
     portfolio_scores: Optional[dict[str, float]] = None,
+    max_items: Optional[int] = None,
 ) -> list[WatchlistItem]:
     """
     銘柄をウォッチリストに追加する。上限超過時はスコア最下位の WATCHING を削除。
     HOLDING は削除対象外。portfolio_scores があればそれで並べ（DPA と整合）、なければ total_score を使用。
+    max_items: 上限数（未指定時は MAX_WATCHLIST）。
     """
     items = load_watchlist(path)
     tickers = [_ticker(x) for x in items]
     if ticker in tickers:
         return items
     items.append({"ticker": ticker, "status": status})
-    return _evict_if_over(items, path, scores_by_ticker=scores_by_ticker, portfolio_scores=portfolio_scores)
+    return _evict_if_over(
+        items, path,
+        scores_by_ticker=scores_by_ticker,
+        portfolio_scores=portfolio_scores,
+        max_items=max_items or MAX_WATCHLIST,
+    )
 
 
 def _evict_if_over(
@@ -105,9 +112,10 @@ def _evict_if_over(
     path: str,
     scores_by_ticker: Optional[dict[str, DvcScoreOutput]] = None,
     portfolio_scores: Optional[dict[str, float]] = None,
+    max_items: int = MAX_WATCHLIST,
 ) -> list[WatchlistItem]:
     """上限超過時、WATCHING のうちスコア最下位を削除。HOLDING は保護。portfolio_scores 優先で DPA と整合。"""
-    if len(items) <= MAX_WATCHLIST:
+    if len(items) <= max_items:
         save_watchlist(items, path)
         return items
     # WATCHING のみ削除候補

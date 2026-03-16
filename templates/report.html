@@ -9,7 +9,78 @@
     <span><strong class="text-slate-300">データ基準日:</strong> {{ report.data_date or '-' }}</span>
   </div>
 
-  <!-- ① 保有銘柄の状況 -->
+  <!-- ① 新規購入推奨 & 売却指示 -->
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">新規購入推奨</h3>
+      <div class="p-4">
+        {% if draft and draft.get('recommendations') %}
+        <p class="text-slate-400 text-sm mb-3">空き予算: <span class="text-amber-400 font-semibold">{{ (draft.get('available_budget', 0) or 0)|round(0)|int }} 円</span></p>
+        <table class="w-full text-left text-xs md:text-sm">
+          <thead class="bg-slate-700/50 text-slate-300">
+            <tr>
+              <th class="px-2 py-1 md:px-3 md:py-2 w-8">#</th>
+              <th class="px-2 py-1 md:px-3 md:py-2 font-mono">ティッカー</th>
+              <th class="px-2 py-1 md:px-3 md:py-2 break-words">銘柄名</th>
+              <th class="px-2 py-1 md:px-3 md:py-2 text-right">株数</th>
+              <th class="px-2 py-1 md:px-3 md:py-2 text-right">予算（円）</th>
+              <th class="px-2 py-1 md:px-3 md:py-2 text-right hidden sm:table-cell">単価</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-200">
+            {% for rec in draft.get('recommendations') %}
+            <tr class="border-t border-slate-700 hover:bg-slate-700/30">
+              <td class="px-2 py-1 md:px-3 md:py-2">{{ loop.index }}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 font-mono">{{ rec.ticker }}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 break-words max-w-[140px] truncate" title="{{ rec.name or '-' }}">{{ rec.name or '-' }}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 text-right">{{ rec.shares|int }} 株</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 text-right">{{ (rec.budget_used or 0)|round(0)|int }}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 text-right hidden sm:table-cell text-slate-400">{% if rec.shares %}{{ ((rec.budget_used or 0) / rec.shares)|round(0)|int }}円{% else %}-{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-slate-500">（なし）</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">売却指示</h3>
+      <div class="p-4">
+        {% if purge and purge.get('items') %}
+        <table class="w-full text-left text-xs md:text-sm">
+          <thead class="bg-slate-700/50 text-slate-300">
+            <tr>
+              <th class="px-2 py-1 md:px-3 md:py-2 w-8">#</th>
+              <th class="px-2 py-1 md:px-3 md:py-2 font-mono">ティッカー</th>
+              <th class="px-2 py-1 md:px-3 md:py-2 break-words">銘柄名</th>
+              <th class="px-2 py-1 md:px-3 md:py-2">理由</th>
+              <th class="px-2 py-1 md:px-3 md:py-2 text-right">現在価格</th>
+              <th class="px-2 py-1 md:px-3 md:py-2 text-right hidden sm:table-cell">損切り目安</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-200">
+            {% for it in purge.get('items') %}
+            <tr class="border-t border-slate-700 hover:bg-slate-700/30">
+              <td class="px-2 py-1 md:px-3 md:py-2">{{ loop.index }}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 font-mono">{{ it.ticker }}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 break-words max-w-[140px] truncate" title="{{ (report.get('ticker_names') or {}).get(it.ticker, '-') }}">{{ (report.get('ticker_names') or {}).get(it.ticker, '-') }}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 break-words max-w-[180px]">{{ it.reason_ja or '-' }}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 text-right">{% if it.current_price is not none %}{{ it.current_price|round(0)|int }} 円{% else %}-{% endif %}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 text-right hidden sm:table-cell text-slate-400">{% if it.stop_loss_price is not none %}{{ it.stop_loss_price|round(0)|int }} 円{% else %}-{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-slate-500">（なし）</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ② 保有銘柄の状況 -->
   <section class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
     <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">保有銘柄の状況</h3>
     <div class="w-full">
@@ -72,7 +143,7 @@
     {% endif %}
   </section>
 
-  <!-- ② ウォッチリスト優先度 -->
+  <!-- ③ ウォッチリスト優先度 -->
   <section class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
     <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">ウォッチリスト優先度</h3>
     <div class="w-full">
@@ -126,39 +197,6 @@
           {% endfor %}
         </tbody>
       </table>
-    </div>
-  </section>
-
-  <!-- ③ 新規購入推奨 & 売却指示 -->
-  <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-      <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">新規購入推奨</h3>
-      <div class="p-4">
-        {% if draft and draft.get('recommendations') %}
-        <p class="text-slate-400 text-sm mb-2">空き予算: {{ draft.get('available_budget', 0)|int }} 円</p>
-        <ul class="space-y-2">
-          {% for rec in draft.get('recommendations') %}
-          <li class="text-slate-200">{{ rec.ticker }} ({{ rec.name or '-' }}): {{ rec.shares }} 株 — 予算 {{ rec.budget_used|int }} 円</li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <p class="text-slate-500">（なし）</p>
-        {% endif %}
-      </div>
-    </div>
-    <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-      <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">売却指示</h3>
-      <div class="p-4">
-        {% if purge and purge.get('items') %}
-        <ul class="space-y-2">
-          {% for it in purge.get('items') %}
-          <li class="text-slate-200">{{ it.ticker }}: {{ it.reason_ja }} (現在価格: {{ it.current_price }})</li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <p class="text-slate-500">（なし）</p>
-        {% endif %}
-      </div>
     </div>
   </section>
   {% else %}

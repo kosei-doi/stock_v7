@@ -1,40 +1,162 @@
 {% extends "base.html" %}
-{% block title %}資金設定 - DPA{% endblock %}
+{% block title %}設定 - DPA{% endblock %}
 {% block content %}
 <div class="space-y-6">
-  <h2 class="text-2xl font-bold text-slate-100">資金管理</h2>
-  <div class="max-w-md">
-    <div class="bg-slate-800 rounded-xl border border-slate-700 p-6">
-      <label class="block text-slate-400 text-sm mb-2">現金残高（円）</label>
-      <input type="number" id="cash-yen-input" min="0" step="1" value="{{ cash_yen if cash_yen is not none else 5000000 }}" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 text-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
-      <p class="mt-2 text-slate-500 text-sm">portfolio_state.json の cash_yen を更新します。</p>
-      <div class="mt-4 flex items-center gap-3">
-        <button type="button" id="btn-save-settings" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition">保存</button>
-        <span id="settings-msg" class="text-sm text-slate-400"></span>
+  <h2 class="text-2xl font-bold text-slate-100">設定</h2>
+  <p class="text-slate-400 text-sm">config.yaml と portfolio_state.json の値を変更できます。日次バッチやアプリの挙動に反映されます。</p>
+
+  <form id="settings-form" class="space-y-6">
+    <!-- 資金（portfolio_state） -->
+    <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
+      <h3 class="text-lg font-semibold text-amber-400 mb-4">資金</h3>
+      <div>
+        <label class="block text-slate-400 text-sm mb-2">現金残高（円）</label>
+        <input type="number" name="cash_yen" min="0" step="1"
+          value="{{ cash_yen if cash_yen is not none else 5000000 }}"
+          class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+        <p class="mt-1 text-slate-500 text-xs">portfolio_state.json</p>
       </div>
     </div>
-  </div>
+
+    <!-- config.yaml: 基本 -->
+    <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
+      <h3 class="text-lg font-semibold text-amber-400 mb-4">基本設定</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">ベンチマークティッカー</label>
+          <input type="text" name="benchmark_ticker" value="{{ config.benchmark_ticker or '1306.T' }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+          <p class="mt-1 text-slate-500 text-xs">例: 1306.T（TOPIX連動ETF）</p>
+        </div>
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">過去データ年数</label>
+          <input type="number" name="years" min="1" max="20" value="{{ config.years or 5 }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+        </div>
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">出力ディレクトリ</label>
+          <input type="text" name="output_dir" value="{{ config.output_dir or 'output' }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+        </div>
+      </div>
+    </div>
+
+    <!-- config.yaml: ウォッチリスト -->
+    <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
+      <h3 class="text-lg font-semibold text-amber-400 mb-4">ウォッチリスト</h3>
+      <div>
+        <label class="block text-slate-400 text-sm mb-2">登録上限数</label>
+        <input type="number" name="watchlist_max_items" min="5" max="100" step="1" value="{{ config.watchlist_max_items or 30 }}"
+          class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+        <p class="mt-1 text-slate-500 text-xs">上限超過時はスコア最下位の WATCHING を自動削除</p>
+      </div>
+    </div>
+
+    <!-- config.yaml: DPA -->
+    <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
+      <h3 class="text-lg font-semibold text-amber-400 mb-4">DPA（ポートフォリオ）</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">VI ティッカー</label>
+          <input type="text" name="vi_ticker" value="{{ config.vi_ticker or '^VIX' }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+          <p class="mt-1 text-slate-500 text-xs">例: ^VIX（米国VIX）</p>
+        </div>
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">現金比率ベースライン (mu_cash)</label>
+          <input type="number" name="mu_cash" min="0" max="1" step="0.05" value="{{ config.mu_cash or 0.4 }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+        </div>
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">VI 感度 (a_vi)</label>
+          <input type="number" name="a_vi" min="0" max="1" step="0.05" value="{{ config.a_vi or 0.2 }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+        </div>
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">MACD 感度 (b_macd)</label>
+          <input type="number" name="b_macd" min="0" max="1" step="0.05" value="{{ config.b_macd or 0.2 }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" name="llm_enabled" id="llm_enabled" value="1"
+            {% if config.llm_enabled %}checked{% endif %}
+            class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500" />
+          <label for="llm_enabled" class="text-slate-300">LLM を有効にする（catalyst_summary / stop_loss 生成）</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- メール通知 -->
+    <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
+      <h3 class="text-lg font-semibold text-amber-400 mb-4">メール通知</h3>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" name="daily_report_email_enabled" id="daily_report_email_enabled" value="1"
+          {% if config.daily_report_email_enabled %}checked{% endif %}
+          class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500" />
+        <label for="daily_report_email_enabled" class="text-slate-300">毎朝メールを送る（cron で send_daily_report.py 実行時）</label>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="submit" id="btn-save" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition">
+        保存
+      </button>
+      <span id="settings-msg" class="text-sm text-slate-400"></span>
+    </div>
+  </form>
 </div>
 <script>
 (function() {
-  const input = document.getElementById('cash-yen-input');
-  const btn = document.getElementById('btn-save-settings');
+  const form = document.getElementById('settings-form');
+  const btn = document.getElementById('btn-save');
   const msg = document.getElementById('settings-msg');
-  btn.addEventListener('click', function() {
-    const v = parseFloat(input.value);
-    if (isNaN(v) || v < 0) { msg.textContent = '0以上の数値を入力してください。'; msg.className = 'text-sm text-amber-400'; return; }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const body = {};
+    body.cash_yen = parseFloat(fd.get('cash_yen') || 0);
+    body.benchmark_ticker = (fd.get('benchmark_ticker') || '').trim();
+    body.years = parseInt(fd.get('years') || 5, 10);
+    body.output_dir = (fd.get('output_dir') || 'output').trim();
+    body.vi_ticker = (fd.get('vi_ticker') || '^VIX').trim();
+    body.watchlist_max_items = parseInt(fd.get('watchlist_max_items') || 30, 10);
+    body.daily_report_email_enabled = fd.get('daily_report_email_enabled') === '1';
+    body.mu_cash = parseFloat(fd.get('mu_cash') || 0.4);
+    body.a_vi = parseFloat(fd.get('a_vi') || 0.2);
+    body.b_macd = parseFloat(fd.get('b_macd') || 0.2);
+    body.llm_enabled = fd.get('llm_enabled') === '1';
+
+    if (isNaN(body.cash_yen) || body.cash_yen < 0) {
+      msg.textContent = '現金残高は 0 以上で入力してください。';
+      msg.className = 'text-sm text-amber-400';
+      return;
+    }
+    if (isNaN(body.watchlist_max_items) || body.watchlist_max_items < 5 || body.watchlist_max_items > 100) {
+      msg.textContent = 'ウォッチリスト上限は 5〜100 の範囲で入力してください。';
+      msg.className = 'text-sm text-amber-400';
+      return;
+    }
+
     msg.textContent = '保存中…';
+    msg.className = 'text-sm text-slate-400';
+    btn.disabled = true;
+
     fetch('/api/settings/update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cash_yen: v })
-    }).then(r => r.json()).then(() => {
+      body: JSON.stringify(body)
+    })
+    .then(r => r.json())
+    .then(() => {
       msg.textContent = '保存しました。';
       msg.className = 'text-sm text-green-500';
-    }).catch(() => {
+    })
+    .catch(() => {
       msg.textContent = '保存に失敗しました。';
       msg.className = 'text-sm text-red-400';
-    });
+    })
+    .finally(() => { btn.disabled = false; });
   });
 })();
 </script>
