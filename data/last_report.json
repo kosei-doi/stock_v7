@@ -1,19 +1,15 @@
 {
-  "created_at": "2026-03-20 16:46:45 JST",
+  "created_at": "2026-03-20 17:38:21 JST",
   "data_date": "2026-03-20",
   "target_cash_ratio": 0.4793112758121327,
   "phase": "caution",
   "phase_name_ja": "警戒モード【ロー・ベータ・シフト】",
   "vi_z": 1.396556379060663,
   "macd_trend": 1.0,
-  "cash_yen": 2272034.0,
+  "cash_yen": 2422234.0,
   "total_capital_yen": 2943384.0,
-  "equity_value_yen": 671350.0,
+  "equity_value_yen": 521150.0,
   "ticker_names": {
-    "6702.T": "Fujitsu Limited",
-    "7532.T": "Pan Pacific International Holdings Corporation",
-    "9028.T": "ZERO Co., Ltd.",
-    "4613.T": "Kansai Paint Co., Ltd.",
     "9432.T": "NTT, Inc.",
     "7131.T": "Nomura Corporation",
     "7267.T": "Honda Motor Co., Ltd.",
@@ -39,13 +35,13 @@
     "2914.T": "Japan Tobacco Inc.",
     "4028.T": "Ishihara Sangyo Kaisha,Ltd.",
     "7956.T": "Pigeon Corporation",
-    "7203.T": "Toyota Motor Corporation"
+    "7203.T": "Toyota Motor Corporation",
+    "1719.T": "Hazama Ando Corporation",
+    "3856.T": "Abalance Corporation",
+    "2185.T": "CMC Corporation",
+    "2153.T": "E J Holdings Inc."
   },
   "last_prices": {
-    "6702.T": 3340.0,
-    "7532.T": 989.5999755859375,
-    "9028.T": 3345.0,
-    "4613.T": 2420.0,
     "9432.T": 158.60000610351562,
     "7131.T": 3505.0,
     "7267.T": 1302.0,
@@ -71,30 +67,26 @@
     "2914.T": 5847.0,
     "4028.T": 3030.0,
     "7956.T": 1605.0,
-    "7203.T": 3325.0
+    "7203.T": 3325.0,
+    "1719.T": 1905.5,
+    "3856.T": 621.0,
+    "2185.T": 1870.0,
+    "2153.T": 1769.0
   },
   "current_weights": {
-    "4765.T": 0.02041867455962253,
-    "8789.T": 0.004348736012698309,
-    "3753.T": 0.0049942515145832145,
-    "4259.T": 0.021268037062102667,
     "8111.T": 0.07927949598149613,
     "2726.T": 0.09777861128551354
   },
   "target_weights": {
-    "4765.T": 0.07898923259345414,
-    "4259.T": 0.06824082738171748,
-    "8111.T": 0.09832577952920013,
-    "8789.T": 0.07641545287779138,
-    "3753.T": 0.08777341772756868,
-    "2726.T": 0.11094401407813545,
-    "6702.T": 0.0,
-    "7532.T": 0.0,
-    "9028.T": 0.0,
-    "4613.T": 0.0,
+    "8111.T": 0.2446465102073007,
+    "2726.T": 0.2760422139805666,
     "9432.T": 0.0,
     "7131.T": 0.0,
     "7267.T": 0.0,
+    "4765.T": 0.0,
+    "8789.T": 0.0,
+    "3753.T": 0.0,
+    "4259.T": 0.0,
     "5838.T": 0.0,
     "5958.T": 0.0,
     "9932.T": 0.0,
@@ -111,29 +103,13 @@
     "2914.T": 0.0,
     "4028.T": 0.0,
     "7956.T": 0.0,
-    "7203.T": 0.0
+    "7203.T": 0.0,
+    "1719.T": 0.0,
+    "3856.T": 0.0,
+    "2185.T": 0.0,
+    "2153.T": 0.0
   },
   "score_trends": {
-    "6702.T": {
-      "last": 66.04488451573346,
-      "level": 0.6604488451573346,
-      "trend": null
-    },
-    "7532.T": {
-      "last": 55.91622696696394,
-      "level": 0.5591622696696394,
-      "trend": null
-    },
-    "9028.T": {
-      "last": 60.25897560881947,
-      "level": 0.6025897560881947,
-      "trend": null
-    },
-    "4613.T": {
-      "last": 67.1645921847927,
-      "level": 0.6716459218479269,
-      "trend": null
-    },
     "9432.T": {
       "last": 73.53173100319891,
       "level": 0.7353173100319892,
@@ -263,13 +239,29 @@
       "last": 62.704761293956594,
       "level": 0.6270476129395659,
       "trend": null
+    },
+    "1719.T": {
+      "last": 59.19773333086328,
+      "level": 0.5919773333086328,
+      "trend": null
+    },
+    "3856.T": {
+      "last": 55.62284717328121,
+      "level": 0.5562284717328121,
+      "trend": null
+    },
+    "2185.T": {
+      "last": 62.92761419113564,
+      "level": 0.6292761419113564,
+      "trend": null
+    },
+    "2153.T": {
+      "last": 67.82740864257073,
+      "level": 0.6782740864257073,
+      "trend": null
     }
   },
   "portfolio_scores": {
-    "6702.T": 64.74165712621573,
-    "7532.T": 56.33992698083789,
-    "9028.T": 65.1595128412631,
-    "4613.T": 64.6016834160368,
     "9432.T": 72.10523542958897,
     "7131.T": 64.05866637497381,
     "7267.T": 68.34912225039956,
@@ -295,7 +287,11 @@
     "2914.T": 70.46051412290359,
     "4028.T": 44.32622373274578,
     "7956.T": 66.93894394651998,
-    "7203.T": 55.98586215089598
+    "7203.T": 55.98586215089598,
+    "1719.T": 59.41278317474826,
+    "3856.T": 51.012754433835894,
+    "2185.T": 63.42724532041328,
+    "2153.T": 65.49125824793809
   },
   "purge": {
     "phase": "caution",
@@ -305,9 +301,9 @@
   },
   "draft": {
     "phase": "caution",
-    "draft_budget_cap": 861236.8597549817,
-    "raw_available_budget": 861236.8597549817,
-    "available_budget": 492860.0067138672,
+    "draft_budget_cap": 1011436.8597549817,
+    "raw_available_budget": 1011436.8597549817,
+    "available_budget": 619740.0115966797,
     "recommendations": [
       {
         "ticker": "3696.T",
@@ -320,10 +316,10 @@
       {
         "ticker": "9432.T",
         "name": "NTT, Inc.",
-        "shares": 1100,
+        "shares": 1900,
         "limit_price": null,
         "score": 72.10523542958897,
-        "budget_used": 174460.0067138672
+        "budget_used": 301340.0115966797
       },
       {
         "ticker": "9264.T",
@@ -335,5 +331,5 @@
       }
     ]
   },
-  "report_text": "========== DPA 日次レポート ==========\n\n## 本日の目標現金比率: 48%\n## マクロフェーズ: 警戒モード【ロー・ベータ・シフト】\n  - VI Zスコア: 1.396556379060663\n  - MACDトレンド: 1.0\n\n## ポートフォリオ概要\n  - 総資産: 2,943,384 円\n  - 現金: 2,272,034 円\n  - 株式評価額: 671,350 円\n  - 本日新規購入に使える新規購入枠: 861,237 円\n\n## 売却指示\n  （なし）\n\n## 保有銘柄の状況\n  - 2726.T   PAL GROUP Holdings CO., LTD.             現在=  9.8%  目標= 11.1% ( -1.3)  score=  70.7  level=0.71  trend=   -  株価=    1439 円\n  - 3753.T   FLIGHT SOLUTIONS Inc.                    現在=  0.5%  目標=  8.8% ( -8.3)  score=  73.9  level=0.74  trend=   -  株価=     147 円\n  - 4259.T   ExaWizards Inc.                          現在=  2.1%  目標=  6.8% ( -4.7)  score=  64.3  level=0.64  trend=   -  株価=     626 円\n  - 4765.T   SBI Global Asset Management Co., Ltd.    現在=  2.0%  目標=  7.9% ( -5.9)  score=  63.7  level=0.64  trend=   -  株価=     601 円\n  - 8111.T   Goldwin Inc.                             現在=  7.9%  目標=  9.8% ( -1.9)  score=  79.1  level=0.79  trend=   -  株価=    2334 円\n  - 8789.T   FinTech Global Incorporated              現在=  0.4%  目標=  7.6% ( -7.2)  score=  57.7  level=0.58  trend=   -  株価=     128 円\n\n## ウォッチリスト優先度（保有すべき順）\n  - 2726.T   PAL GROUP Holdings CO., LTD.             [HOLDING ] score=  70.7  trend=   -  株価=    1439 円\n  - 8111.T   Goldwin Inc.                             [HOLDING ] score=  79.1  trend=   -  株価=    2334 円\n  - 3696.T   Ceres Inc.                               [WATCHING] score=  78.4  trend=   -  株価=    1499 円\n  - 9432.T   NTT, Inc.                                [WATCHING] score=  73.5  trend=   -  株価=     159 円\n  - 3753.T   FLIGHT SOLUTIONS Inc.                    [HOLDING ] score=  73.9  trend=   -  株価=     147 円\n  - 9264.T   Puequ CO.,LTD.                           [WATCHING] score=  73.0  trend=   -  株価=    1685 円\n  - 2914.T   Japan Tobacco Inc.                       [WATCHING] score=  68.3  trend=   -  株価=    5847 円\n  - 2502.T   Asahi Group Holdings, Ltd.               [WATCHING] score=  72.7  trend=   -  株価=    1576 円\n  - 6998.T   Nippon Tungsten Co., Ltd.                [WATCHING] score=  67.6  trend=   -  株価=    2295 円\n  - 6378.T   Kimura Chemical Plants Co., Ltd.         [WATCHING] score=  69.0  trend=   -  株価=    1677 円\n  - 7267.T   Honda Motor Co., Ltd.                    [WATCHING] score=  74.0  trend=   -  株価=    1302 円\n  - 6902.T   DENSO Corporation                        [WATCHING] score=  74.4  trend=   -  株価=    1916 円\n  - 9932.T   Sugimoto & Co., Ltd.                     [WATCHING] score=  71.0  trend=   -  株価=    1288 円\n  - 7956.T   Pigeon Corporation                       [WATCHING] score=  68.5  trend=   -  株価=    1605 円\n  - 5958.T   Sanyo Industries, Ltd.                   [WATCHING] score=  64.2  trend=   -  株価=    4870 円\n  - 9028.T   ZERO Co., Ltd.                           [WATCHING] score=  60.3  trend=   -  株価=    3345 円\n  - 6702.T   Fujitsu Limited                          [WATCHING] score=  66.0  trend=   -  株価=    3340 円\n  - 4613.T   Kansai Paint Co., Ltd.                   [WATCHING] score=  67.2  trend=   -  株価=    2420 円\n  - 7131.T   Nomura Corporation                       [WATCHING] score=  55.8  trend=   -  株価=    3505 円\n  - 4619.T   Nihon Tokushu Toryo Co., Ltd.            [WATCHING] score=  61.5  trend=   -  株価=    2291 円\n  - 5838.T   Rakuten Bank, Ltd.                       [WATCHING] score=  53.5  trend=   -  株価=    6136 円\n  - 4765.T   SBI Global Asset Management Co., Ltd.    [HOLDING ] score=  63.7  trend=   -  株価=     601 円\n  - 8789.T   FinTech Global Incorporated              [HOLDING ] score=  57.7  trend=   -  株価=     128 円\n  - 4259.T   ExaWizards Inc.                          [HOLDING ] score=  64.3  trend=   -  株価=     626 円\n  - 7532.T   Pan Pacific International Holdings Corpo [WATCHING] score=  55.9  trend=   -  株価=     990 円\n  - 7203.T   Toyota Motor Corporation                 [WATCHING] score=  62.7  trend=   -  株価=    3325 円\n  - 3023.T   Rasa Corporation                         [WATCHING] score=  52.5  trend=   -  株価=    1981 円\n  - 4262.T   NIFTY Lifestyle Co., Ltd.                [WATCHING] score=  52.3  trend=   -  株価=    1425 円\n  - 7172.T   Japan Investment Adviser Co., Ltd.       [WATCHING] score=  47.8  trend=   -  株価=    1908 円\n  - 4028.T   Ishihara Sangyo Kaisha,Ltd.              [WATCHING] score=  47.2  trend=   -  株価=    3030 円\n\n## 新規購入推奨\n  推奨買付合計（消費額）: 492,860 円\n  - 3696.T (Ceres Inc.): 100 株 (予算: 149,900 円)\n  - 9432.T (NTT, Inc.): 1100 株 (予算: 174,460 円)\n  - 9264.T (Puequ CO.,LTD.): 100 株 (予算: 168,500 円)\n\n======================================"
+  "report_text": "========== DPA 日次レポート ==========\n\n## 本日の目標現金比率: 48%\n## マクロフェーズ: 警戒モード【ロー・ベータ・シフト】\n  - VI Zスコア: 1.396556379060663\n  - MACDトレンド: 1.0\n\n## ポートフォリオ概要\n  - 総資産: 2,943,384 円\n  - 現金: 2,422,234 円\n  - 株式評価額: 521,150 円\n  - 本日新規購入に使える新規購入枠: 1,011,437 円\n\n## 売却指示\n  （なし）\n\n## 保有銘柄の状況\n  - 2726.T   PAL GROUP Holdings CO., LTD.             現在=  9.8%  目標= 27.6% (-17.8)  score=  70.7  level=0.71  trend=   -  株価=    1439 円\n  - 8111.T   Goldwin Inc.                             現在=  7.9%  目標= 24.5% (-16.5)  score=  79.1  level=0.79  trend=   -  株価=    2334 円\n\n## ウォッチリスト優先度（保有すべき順）\n  - 2726.T   PAL GROUP Holdings CO., LTD.             [HOLDING ] score=  70.7  trend=   -  株価=    1439 円\n  - 8111.T   Goldwin Inc.                             [HOLDING ] score=  79.1  trend=   -  株価=    2334 円\n  - 3696.T   Ceres Inc.                               [WATCHING] score=  78.4  trend=   -  株価=    1499 円\n  - 9432.T   NTT, Inc.                                [WATCHING] score=  73.5  trend=   -  株価=     159 円\n  - 3753.T   FLIGHT SOLUTIONS Inc.                    [WATCHING] score=  73.9  trend=   -  株価=     147 円\n  - 9264.T   Puequ CO.,LTD.                           [WATCHING] score=  73.0  trend=   -  株価=    1685 円\n  - 2914.T   Japan Tobacco Inc.                       [WATCHING] score=  68.3  trend=   -  株価=    5847 円\n  - 2502.T   Asahi Group Holdings, Ltd.               [WATCHING] score=  72.7  trend=   -  株価=    1576 円\n  - 6998.T   Nippon Tungsten Co., Ltd.                [WATCHING] score=  67.6  trend=   -  株価=    2295 円\n  - 6378.T   Kimura Chemical Plants Co., Ltd.         [WATCHING] score=  69.0  trend=   -  株価=    1677 円\n  - 7267.T   Honda Motor Co., Ltd.                    [WATCHING] score=  74.0  trend=   -  株価=    1302 円\n  - 6902.T   DENSO Corporation                        [WATCHING] score=  74.4  trend=   -  株価=    1916 円\n  - 9932.T   Sugimoto & Co., Ltd.                     [WATCHING] score=  71.0  trend=   -  株価=    1288 円\n  - 7956.T   Pigeon Corporation                       [WATCHING] score=  68.5  trend=   -  株価=    1605 円\n  - 5958.T   Sanyo Industries, Ltd.                   [WATCHING] score=  64.2  trend=   -  株価=    4870 円\n  - 2153.T   E J Holdings Inc.                        [WATCHING] score=  67.8  trend=   -  株価=    1769 円\n  - 7131.T   Nomura Corporation                       [WATCHING] score=  55.8  trend=   -  株価=    3505 円\n  - 2185.T   CMC Corporation                          [WATCHING] score=  62.9  trend=   -  株価=    1870 円\n  - 4619.T   Nihon Tokushu Toryo Co., Ltd.            [WATCHING] score=  61.5  trend=   -  株価=    2291 円\n  - 5838.T   Rakuten Bank, Ltd.                       [WATCHING] score=  53.5  trend=   -  株価=    6136 円\n  - 4765.T   SBI Global Asset Management Co., Ltd.    [WATCHING] score=  63.7  trend=   -  株価=     601 円\n  - 1719.T   Hazama Ando Corporation                  [WATCHING] score=  59.2  trend=   -  株価=    1906 円\n  - 8789.T   FinTech Global Incorporated              [WATCHING] score=  57.7  trend=   -  株価=     128 円\n  - 4259.T   ExaWizards Inc.                          [WATCHING] score=  64.3  trend=   -  株価=     626 円\n  - 7203.T   Toyota Motor Corporation                 [WATCHING] score=  62.7  trend=   -  株価=    3325 円\n  - 3023.T   Rasa Corporation                         [WATCHING] score=  52.5  trend=   -  株価=    1981 円\n  - 3856.T   Abalance Corporation                     [WATCHING] score=  55.6  trend=   -  株価=     621 円\n  - 4262.T   NIFTY Lifestyle Co., Ltd.                [WATCHING] score=  52.3  trend=   -  株価=    1425 円\n  - 7172.T   Japan Investment Adviser Co., Ltd.       [WATCHING] score=  47.8  trend=   -  株価=    1908 円\n  - 4028.T   Ishihara Sangyo Kaisha,Ltd.              [WATCHING] score=  47.2  trend=   -  株価=    3030 円\n\n## 新規購入推奨\n  推奨買付合計（消費額）: 619,740 円\n  - 3696.T (Ceres Inc.): 100 株 (予算: 149,900 円)\n  - 9432.T (NTT, Inc.): 1900 株 (予算: 301,340 円)\n  - 9264.T (Puequ CO.,LTD.): 100 株 (予算: 168,500 円)\n\n======================================"
 }

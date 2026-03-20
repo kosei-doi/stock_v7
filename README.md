@@ -15,24 +15,22 @@
 pip install -r requirements.txt
 ```
 
-設定は `config_example.yaml` をコピーして編集するか、そのまま参照して `--config` で別ファイルを指定します。  
+設定はプロジェクト直下の **`config.yaml` 1 ファイル**だけです（リポジトリにひな形同梱）。編集して保存してください。  
+別ファイルを使う場合は `--config` でパスを指定できます。  
 設定値（数値・パス）は `config_loader` で型変換・デフォルト補完されます。
-
-```bash
-cp config_example.yaml config.yaml
-# config.yaml を編集（総資金、VI ティッカー、現金比率など）
-```
 
 ## 日次実行
 
 ```bash
-python -m daily_routine --config config.yaml
+python -m daily_routine
 ```
+
+（`--config path/to.yaml` で明示したいときだけ指定。省略時は `config.yaml` を読みます。）
 
 LLM を使わない（推奨）:
 
 ```bash
-python -m daily_routine --config config.yaml --no-llm
+python -m daily_routine --no-llm
 ```
 
 設定で `llm.enabled: false` にしていれば `--no-llm` は省略可能です。
@@ -57,7 +55,7 @@ python -m core.dvc.dvc_phase1 --ticker 7203.T --config config.yaml --dry-run
 | 最終レポート | `data/last_report.json` | — |
 | DVC 出力 | `output/<ticker>.json` | `--output-dir` |
 
-パスを変えたい場合は `config_example.yaml` の `dpa` / `cache` 配下のコメントを参照してください。  
+パスを変えたい場合は `config.yaml` の `dpa` / `cache` 配下のコメントを参照してください。  
 `--verbose` を付けると使用した config パス・cache_path・sector_peers_path 等が stderr に出力されます。
 
 ## スコア履歴の日付について

@@ -16,10 +16,15 @@ import yaml
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
+from core.utils.config_loader import (
+    DEFAULT_WATCHLIST_MAX_ITEMS,
+    load_merged_config,
+    watchlist_max_items_from_raw_config,
+)
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 CONFIG_PATH = PROJECT_ROOT / "config.yaml"
-CONFIG_EXAMPLE_PATH = PROJECT_ROOT / "config_example.yaml"
 LAST_REPORT_PATH = DATA_DIR / "last_report.json"
 PREVIOUS_REPORT_PATH = DATA_DIR / "previous_report.json"
 WATCHLIST_PATH = DATA_DIR / "watchlist.json"
@@ -42,6 +47,13 @@ def _read_json(path: Path, default: Any = None) -> Any:
 def _write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _load_validated_config():
+    """config.yaml を検証済み dict にして返す（API・バッチと同じ設定を使う）。"""
+    from core.utils.config_loader import get_validated_config
+
+    return get_validated_config(load_merged_config(None))
 
 
 def _write_run_status(status: str, message: str, step: Optional[int] = None, total_steps: int = 7, finished_at: Optional[str] = None) -> None:
@@ -314,14 +326,13 @@ def analyze_ticker(body: dict) -> dict:
     else:
         ticker = normalized
     try:
-        from core.utils.config_loader import get_validated_config, load_config
         from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data
         from core.dvc.scoring import run_dvc_for_ticker
         from core.utils.watchlist_io import add_to_watchlist, load_watchlist, WATCHLIST_PATH
         from core.utils.io_utils import save_output_json
     except ImportError as e:
         raise HTTPException(status_code=500, detail=f"core の読み込みに失敗しました: {e}") from e
-    cfg = get_validated_config(load_config(None, use_example_as_base=True))
+    cfg = _load_validated_config()
     sector_peers_path = str(Path(cfg.get("sector_peers_path", "data/sector_peers.json")).resolve())
     if not Path(sector_peers_path).exists():
         raise HTTPException(status_code=500, detail="sector_peers.json が見つかりません。")
@@ -352,11 +363,13 @@ def analyze_ticker(body: dict) -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
     saved_path = output_dir / f"{ticker}.json"
     save_output_json(result, str(saved_path))
-    max_items = int(cfg.get("watchlist_max_items", 30))
-    before_count = len(load_watchlist(str(WATCHLIST_PATH)))
-    add_to_watchlist(ticker, path=str(WATCHLIST_PATH), scores_by_ticker={ticker: result}, max_items=max_items)
-    after_count = len(load_watchlist(str(WATCHLIST_PATH)))
-    evicted = before_count >= max_items and after_count == max_items
+    max_items = int(cfg.get("watchlist_max_items", DEFAULT_WATCHLIST_MAX_ITEMS))
+    _wl, was_added, did_evict_watching = add_to_watchlist(
+        ticker,
+        path=str(WATCHLIST_PATH),
+        scores_by_ticker={ticker: result},
+        max_items=max_items,
+    )
     scores = result.scores
     # 保存済みJSONから再読み込み（確実に全フィールド取得＋JSONシリアライズ可能な型）
     d = {}
@@ -432,19 +445,26 @@ def analyze_ticker(body: dict) -> dict:
         "target_pe": vi.get("target_pe"),
         "watchlist_rank": watchlist_rank,
         "watchlist_total": len(sorted_tickers),
-        "message": "ウォッチリストに自動追加されました。" + ("（上限超過のため最下位をパージしました）" if evicted else ""),
+        "message": (
+            "すでにウォッチリストに登録されています。"
+            if not was_added
+            else (
+                "ウォッチリストに自動追加されました。（上限超過のため最下位をパージしました）"
+                if did_evict_watching
+                else "ウォッチリストに自動追加されました。"
+            )
+        ),
     }
 
 
 def _run_dvc_for_ticker(ticker: str) -> None:
     """銘柄の DVC を実行し output/<ticker>.json に保存。scores_history も更新。"""
-    from core.utils.config_loader import get_validated_config, load_config
     from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data, _now_jst
     from core.dpa.dpa_scores import update_scores_history_for_date
     from core.dvc.scoring import run_dvc_for_ticker
     from core.utils.io_utils import save_output_json
 
-    cfg = get_validated_config(load_config(None, use_example_as_base=True))
+    cfg = _load_validated_config()
     sector_peers_path = str(Path(cfg.get("sector_peers_path", "data/sector_peers.json")).resolve())
     bench_df, peers_data, _ = get_macro_and_peers_data(
         benchmark_ticker=cfg.get("benchmark_ticker", "1306.T"),
@@ -518,8 +538,8 @@ def trade_purchase(body: dict) -> dict:
         from core.utils.watchlist_io import update_holdings_bulk
         last_report = _read_json(LAST_REPORT_PATH) or {}
         portfolio_scores = last_report.get("portfolio_scores") or {}
-        cfg = _load_config_raw()
-        max_items = int((cfg.get("watchlist") or {}).get("max_items", 30))
+        cfg = _load_validated_config()
+        max_items = int(cfg.get("watchlist_max_items", DEFAULT_WATCHLIST_MAX_ITEMS))
         update_holdings_bulk(
             {ticker: {"shares": shares, "avg_price": avg_price}},
             path=str(WATCHLIST_PATH),
@@ -658,29 +678,20 @@ def remove_watchlist_ticker(ticker: str) -> dict:
 
 
 def _load_config_raw() -> dict:
-    """config.yaml を config_example とマージして返す。"""
-    base: dict = {}
-    if CONFIG_EXAMPLE_PATH.exists():
-        try:
-            base = yaml.safe_load(CONFIG_EXAMPLE_PATH.read_text(encoding="utf-8")) or {}
-        except Exception:
-            base = {}
-    if CONFIG_PATH.exists():
-        try:
-            override = yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8")) or {}
-            _deep_merge(base, override)
-        except Exception:
-            pass
-    return base
+    """config.yaml の内容を返す（設定画面の読み込み・保存用）。"""
+    return load_merged_config(None)
 
 
-def _deep_merge(base: dict, override: dict) -> None:
-    """base に override を再帰的にマージ（破壊的）。"""
-    for k, v in override.items():
-        if k in base and isinstance(base[k], dict) and isinstance(v, dict):
-            _deep_merge(base[k], v)
-        else:
-            base[k] = v
+def _ensure_nested_dict(cfg: dict, key: str) -> dict:
+    """
+    cfg[key] が dict でない（null・欠損・誤った型）のとき空 dict に置き換えて返す。
+    setdefault だけだと key が存在して値が None のとき壊れるため。
+    """
+    v = cfg.get(key)
+    if not isinstance(v, dict):
+        v = {}
+        cfg[key] = v
+    return v
 
 
 def _config_to_flat(cfg: dict) -> dict:
@@ -688,8 +699,6 @@ def _config_to_flat(cfg: dict) -> dict:
     dpa = cfg.get("dpa") or {}
     llm = cfg.get("llm") or {}
     email_cfg = cfg.get("daily_report") or {}
-    wl_cfg = cfg.get("watchlist") or {}
-
     def _dpa_float(key: str, default: float) -> float:
         v = dpa.get(key)
         if v is None:
@@ -715,10 +724,6 @@ def _config_to_flat(cfg: dict) -> dict:
     od = cfg.get("output_dir")
     if not od:
         od = "output"
-    wl_max = wl_cfg.get("max_items")
-    if wl_max is None:
-        wl_max = 30
-
     ow = dpa.get("over_weight_threshold")
     if ow is None:
         ow = 0.02
@@ -734,7 +739,7 @@ def _config_to_flat(cfg: dict) -> dict:
         "years": int(yrs),
         "output_dir": str(od).strip() or "output",
         "llm_enabled": bool(llm.get("enabled", False)),
-        "watchlist_max_items": int(wl_max),
+        "watchlist_max_items": watchlist_max_items_from_raw_config(cfg),
         "vi_ticker": vi_ticker,
         "mu_cash": _dpa_float("mu_cash", 0.4),
         "a_vi": _dpa_float("a_vi", 0.2),
@@ -764,12 +769,12 @@ def _flat_to_config(flat: dict) -> dict:
         try:
             v = int(flat["watchlist_max_items"])
             if 5 <= v <= 100:
-                cfg.setdefault("watchlist", {})["max_items"] = v
+                _ensure_nested_dict(cfg, "watchlist")["max_items"] = v
         except (TypeError, ValueError):
             pass
     if "llm_enabled" in flat:
-        cfg.setdefault("llm", {})["enabled"] = bool(flat["llm_enabled"])
-    dpa = cfg.setdefault("dpa", {})
+        _ensure_nested_dict(cfg, "llm")["enabled"] = bool(flat["llm_enabled"])
+    dpa = _ensure_nested_dict(cfg, "dpa")
     if "vi_ticker" in flat:
         v = str(flat["vi_ticker"]).strip()
         dpa["vi_ticker"] = v if v else "^VIX"
@@ -789,7 +794,7 @@ def _flat_to_config(flat: dict) -> dict:
         except (TypeError, ValueError):
             pass
     if "daily_report_email_enabled" in flat:
-        cfg.setdefault("daily_report", {})["enabled"] = bool(flat["daily_report_email_enabled"])
+        _ensure_nested_dict(cfg, "daily_report")["enabled"] = bool(flat["daily_report_email_enabled"])
     if "over_weight_threshold_pct" in flat:
         try:
             v = float(flat["over_weight_threshold_pct"])

@@ -1,0 +1,79 @@
+{
+  "ticker": "5714.T",
+  "name": "Dowa Holdings Co., Ltd.",
+  "sector": "Basic Materials",
+  "scores": {
+    "value_score": 0.0,
+    "safety_score": 100.0,
+    "momentum_score": 37.93467343653746,
+    "total_score": 47.58693468730749
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 1.0949989189184424,
+    "r_squared": 0.3631192499403464,
+    "alpha": 0.00014075824695306872
+  },
+  "risk_metrics": {
+    "atr_percent": 6.3978304081852775
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 9271.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3791.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 58550959.0,
+      "book_value_per_share": 6791.896,
+      "eps_ttm": 339.32,
+      "sector": "Basic Materials",
+      "long_name": "Dowa Holdings Co., Ltd."
+    },
+    "sector_peers": {
+      "resolved_sector": null,
+      "peer_count": 0,
+      "peer_tickers": [],
+      "peer_pb_count": 0,
+      "peer_pe_count": 0
+    },
+    "value_inputs": {
+      "target_pb": 1.3650091226367425,
+      "target_pe": 27.322291642107746,
+      "time_z_pb": 3.9094301295218683,
+      "time_z_pe": 3.909430129521868,
+      "space_z_pb": null,
+      "space_z_pe": null
+    }
+  }
+}

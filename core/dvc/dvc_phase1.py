@@ -4,7 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from core.utils.config_loader import get_validated_config, load_config
+from core.utils.config_loader import get_validated_config, load_merged_config
 from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data
 from core.utils.io_utils import format_data_overview, save_output_json
 from core.dvc.scoring import run_dvc_for_ticker
@@ -19,7 +19,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--years",
         type=int,
-        help="過去データ取得年数（デフォルトはconfig_example.yamlを参照）",
+        help="過去データ取得年数（デフォルトはプロジェクトの config.yaml）",
     )
     parser.add_argument(
         "--output",
@@ -27,7 +27,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--config",
-        help="追加の設定ファイルパス（YAML）",
+        help="読み込む設定ファイル（YAML）。未指定時はプロジェクト直下の config.yaml（存在すれば）",
     )
     parser.add_argument(
         "--dry-run",
@@ -45,8 +45,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
-    cfg_path = Path(args.config) if args.config else None
-    raw_cfg = load_config(cfg_path, use_example_as_base=True)
+    if args.config:
+        cfg_path = Path(args.config)
+        if not cfg_path.exists():
+            print(f"設定ファイルがありません: {cfg_path}", file=sys.stderr)
+            return 1
+        raw_cfg = load_merged_config(cfg_path)
+    else:
+        raw_cfg = load_merged_config(None)
     cfg = get_validated_config(raw_cfg)
 
     benchmark_ticker = args.benchmark_ticker or cfg.get("benchmark_ticker")

@@ -18,9 +18,9 @@ pip install --upgrade pip
 pip install -r requirements.txt
 deactivate
 
-echo "===> Ensuring data/output dirs and config..."
+echo "===> Ensuring data/output dirs..."
 mkdir -p data output
-[[ ! -f config.yaml ]] && cp config_example.yaml config.yaml
+# config.yaml はリポジトリに含まれる。未コミットの環境のみ手で用意する
 
 echo "===> Installing systemd service..."
 cp scripts/dpa_web.service "${SERVICE_PATH}"

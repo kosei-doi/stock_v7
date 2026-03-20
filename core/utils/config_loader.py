@@ -1,6 +1,6 @@
 """
 設定ファイルの読み込みと型検証を一括で行う共通モジュール。
-ユーザー指定の config のみ、または example + ユーザー上書きを選択できる。
+プロジェクト直下の config.yaml（単一ファイル）を読む。欠損キーは get_validated_config で補完する。
 """
 from __future__ import annotations
 
@@ -52,6 +52,22 @@ def _coerce_int(value: Any, default: int) -> int:
         return default
 
 
+def watchlist_max_items_from_raw_config(cfg: dict[str, Any]) -> int:
+    """
+    YAML の生 dict からウォッチリスト登録上限を読む。
+    - 標準: watchlist.max_items
+    - 補助: トップレベル watchlist_max_items（誤ったインデントや旧形式の救済）
+    watchlist が dict でない（null / リスト等）ときはネスト値は使わない。
+    """
+    wl_raw = cfg.get("watchlist")
+    v: Any = None
+    if isinstance(wl_raw, dict):
+        v = wl_raw.get("max_items")
+    if v is None:
+        v = cfg.get("watchlist_max_items")
+    return _coerce_int(v, DEFAULT_WATCHLIST_MAX_ITEMS)
+
+
 def _coerce_float(value: Any, default: float) -> float:
     if value is None:
         return default
@@ -63,6 +79,22 @@ def _coerce_float(value: Any, default: float) -> float:
         return default
 
 
+def project_config_path() -> Path:
+    """プロジェクトルートのユーザー設定ファイル（config.yaml）。"""
+    return _project_root() / "config.yaml"
+
+
+def load_merged_config(config_path: Optional[Path] = None) -> dict[str, Any]:
+    """
+    単一 YAML の内容を返す。
+    - config_path が None: プロジェクト直下の config.yaml（存在すれば）。
+    - 指定あり: そのファイル（CLI の --config 向け）。
+    """
+    if config_path is None:
+        return load_config(None, default_to_project_yaml=True)
+    return load_config(config_path, default_to_project_yaml=True)
+
+
 def _coerce_str(value: Any, default: str) -> str:
     if value is None:
         return default
@@ -72,31 +104,27 @@ def _coerce_str(value: Any, default: str) -> str:
 
 def load_config(
     config_path: Optional[Path] = None,
-    use_example_as_base: bool = True,
+    default_to_project_yaml: bool = True,
 ) -> dict[str, Any]:
     """
-    設定を読み込んでマージする。
-    - use_example_as_base=True: config_example.yaml をベースに、config_path で上書き。
-      example はプロジェクトルート（本モジュールの親ディレクトリ）基準で探す。
-    - config_path を指定したがファイルが存在しない場合は上書きされない（呼び出し側で警告推奨）。
+    単一の YAML ファイルを読み込む。
+    - config_path が None かつ default_to_project_yaml が True: プロジェクトの config.yaml があれば読む。
+    - config_path が None かつ default_to_project_yaml が False: 空 dict。
+    - config_path が指定されている: そのパス（存在しなければ空 dict）。default_to_project_yaml は無視される。
     """
-    base: dict[str, Any] = {}
-    if use_example_as_base:
-        example = _project_root() / "config_example.yaml"
-        if example.exists():
-            try:
-                with example.open(encoding="utf-8") as f:
-                    base = yaml.safe_load(f) or {}
-            except (OSError, yaml.YAMLError):
-                base = {}
-    if config_path and config_path.exists():
-        try:
-            with config_path.open(encoding="utf-8") as f:
-                override = yaml.safe_load(f) or {}
-            base.update(override)
-        except (OSError, yaml.YAMLError):
-            pass
-    return base
+    if config_path is None:
+        if not default_to_project_yaml:
+            return {}
+        p = project_config_path()
+        config_path = p if p.exists() else None
+    if not config_path or not config_path.exists():
+        return {}
+    try:
+        with config_path.open(encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        return data if isinstance(data, dict) else {}
+    except (OSError, yaml.YAMLError):
+        return {}
 
 
 def get_validated_config(cfg: dict[str, Any]) -> dict[str, Any]:
@@ -137,8 +165,7 @@ def get_validated_config(cfg: dict[str, Any]) -> dict[str, Any]:
     out["llm_enabled"] = bool(llm_cfg.get("enabled", False))
     out["llm_model"] = _coerce_str(llm_cfg.get("model"), "gpt-4.1-mini")
 
-    wl_cfg = cfg.get("watchlist") or {}
-    out["watchlist_max_items"] = _coerce_int(wl_cfg.get("max_items"), DEFAULT_WATCHLIST_MAX_ITEMS)
+    out["watchlist_max_items"] = watchlist_max_items_from_raw_config(cfg)
 
     out["total_capital_jpy"] = _coerce_float(dpa_cfg.get("total_capital_jpy"), DEFAULT_TOTAL_CAPITAL_JPY)
     out["portfolio_path"] = _coerce_str(dpa_cfg.get("portfolio_path"), DEFAULT_PORTFOLIO_PATH)

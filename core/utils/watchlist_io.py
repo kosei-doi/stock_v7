@@ -100,28 +100,33 @@ def add_to_watchlist(
     scores_by_ticker: Optional[dict[str, DvcScoreOutput]] = None,
     portfolio_scores: Optional[dict[str, float]] = None,
     max_items: Optional[int] = None,
-) -> list[WatchlistItem]:
+) -> tuple[list[WatchlistItem], bool, bool]:
     """
     銘柄をウォッチリストに追加する。上限超過時はスコア最下位の WATCHING を削除。
     HOLDING は削除対象外。portfolio_scores があればそれで並べ（DPA と整合）、なければ total_score を使用。
     status=HOLDING のときは shares（必須）、avg_price（任意）を渡せる。
+
+    Returns:
+        (items, was_added, did_evict): 既に同じ銘柄があれば was_added=False。
+        did_evict は「WATCHING を 1 件実際に削除した」場合のみ True。
     """
     items = load_watchlist(path)
     tickers = [_ticker(x) for x in items]
     if ticker in tickers:
-        return items
+        return items, False, False
     entry: WatchlistItem = {"ticker": ticker, "status": status}
     if status == STATUS_HOLDING and shares is not None:
         entry["shares"] = int(shares)
         if avg_price is not None:
             entry["avg_price"] = float(avg_price)
     items.append(entry)
-    return _evict_if_over(
+    new_items, did_evict = _evict_if_over(
         items, path,
         scores_by_ticker=scores_by_ticker,
         portfolio_scores=portfolio_scores,
         max_items=max_items or MAX_WATCHLIST,
     )
+    return new_items, True, did_evict
 
 
 def add_or_update_holding(
@@ -202,7 +207,7 @@ def update_holdings_bulk(
     max_items = max_items if max_items is not None else MAX_WATCHLIST
     if len(items) > max_items:
         while len(items) > max_items:
-            items = _evict_if_over(items, path, portfolio_scores=portfolio_scores, max_items=max_items)
+            items, _ = _evict_if_over(items, path, portfolio_scores=portfolio_scores, max_items=max_items)
     else:
         save_watchlist(items, path)
     return items
@@ -214,16 +219,18 @@ def _evict_if_over(
     scores_by_ticker: Optional[dict[str, DvcScoreOutput]] = None,
     portfolio_scores: Optional[dict[str, float]] = None,
     max_items: int = MAX_WATCHLIST,
-) -> list[WatchlistItem]:
-    """上限超過時、WATCHING のうちスコア最下位を削除。HOLDING は保護。portfolio_scores 優先で DPA と整合。"""
+) -> tuple[list[WatchlistItem], bool]:
+    """上限超過時、WATCHING のうちスコア最下位を削除。HOLDING は保護。portfolio_scores 優先で DPA と整合。
+    戻り値の bool は、WATCHING を 1 件削除したとき True。
+    """
     if len(items) <= max_items:
         save_watchlist(items, path)
-        return items
+        return items, False
     # WATCHING のみ削除候補
     candidates = [i for i in items if (i.get("status") or STATUS_WATCHING) == STATUS_WATCHING]
     if not candidates:
         save_watchlist(items, path)
-        return items
+        return items, False
     def score_of(it: WatchlistItem | dict) -> float:
         t = _ticker(it)
         if portfolio_scores is not None and t in portfolio_scores:
@@ -237,7 +244,7 @@ def _evict_if_over(
     ticker_remove = _ticker(to_remove)
     new_items = [i for i in items if _ticker(i) != ticker_remove]
     save_watchlist(new_items, path)
-    return new_items
+    return new_items, True
 
 
 def remove_from_watchlist(ticker: str, path: str = WATCHLIST_PATH) -> list[WatchlistItem]:

@@ -351,7 +351,8 @@ def run_daily_routine() -> tuple[bool, str]:
     - 戻り値 True: 正常終了（レポートメール送信）
     - 戻り値 False: 失敗（エラーレポートを送信）
     """
-    cmd = [sys.executable, "-m", "daily_routine", "--config", "config.yaml"]
+    # --config 省略時も daily_routine が config.yaml（存在すれば）を読む
+    cmd = [sys.executable, "-m", "daily_routine"]
     try:
         proc = subprocess.run(
             cmd,
@@ -398,15 +399,12 @@ def build_failure_html(log: str) -> str:
 
 
 def _is_daily_report_email_enabled() -> bool:
-    """config.yaml の daily_report.enabled を参照。未設定時は True（従来互換）。"""
-    config_path = ROOT / "config.yaml"
-    if not config_path.exists():
-        return True
+    """config.yaml の daily_report.enabled を参照（ファイルが無い・読めないときは True）。"""
     try:
-        import yaml
-        with open(config_path, encoding="utf-8") as f:
-            cfg = yaml.safe_load(f) or {}
-        email_cfg = cfg.get("daily_report") or {}
+        from core.utils.config_loader import load_merged_config
+
+        raw = load_merged_config(None)
+        email_cfg = raw.get("daily_report") or {}
         return bool(email_cfg.get("enabled", True))
     except Exception:
         return True

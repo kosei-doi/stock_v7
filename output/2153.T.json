@@ -1,0 +1,90 @@
+{
+  "ticker": "2153.T",
+  "name": "E J Holdings Inc.",
+  "sector": "Industrials",
+  "scores": {
+    "value_score": 53.229187855917814,
+    "safety_score": 100.0,
+    "momentum_score": 32.678667501018005,
+    "total_score": 67.82740864257073
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.7511125501439565,
+    "r_squared": 0.3175109655450891,
+    "alpha": 9.508419414789763e-05
+  },
+  "risk_metrics": {
+    "atr_percent": 2.5720746184284904
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1769.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3791.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 18051672.0,
+      "book_value_per_share": 1948.01,
+      "eps_ttm": 205.38,
+      "sector": "Industrials",
+      "long_name": "E J Holdings Inc."
+    },
+    "sector_peers": {
+      "resolved_sector": "Industrials",
+      "peer_count": 10,
+      "peer_tickers": [
+        "8058.T",
+        "8001.T",
+        "8031.T",
+        "8053.T",
+        "8002.T",
+        "1801.T",
+        "1802.T",
+        "1803.T",
+        "1812.T",
+        "1925.T"
+      ],
+      "peer_pb_count": 10,
+      "peer_pe_count": 10
+    },
+    "value_inputs": {
+      "target_pb": 0.9081062212206303,
+      "target_pe": 8.61330217158438,
+      "time_z_pb": 1.1047904357355574,
+      "time_z_pe": 1.1047904357355554,
+      "space_z_pb": -2.4417086904915286,
+      "space_z_pe": -1.6799595806945942
+    }
+  }
+}

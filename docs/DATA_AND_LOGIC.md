@@ -12,7 +12,7 @@
 stock_v7/
 ├── daily_routine.py      # 日次バッチのエントリポイント
 ├── send_daily_report.py  # Gmail 経由の日次レポート送信（cron 用）
-├── config_example.yaml   # 設定のひな形
+├── config.yaml           # アプリ設定（単一ファイル）
 ├── requirements.txt
 ├── README.md
 ├── portfolio_state.json  # 現金残高（ルート。dpa.portfolio_path で変更可能）
@@ -68,7 +68,7 @@ stock_v7/
 | 用途 | デフォルトパス | 設定キー（例） |
 |------|----------------|----------------|
 | ウォッチリスト（保有含む） | `data/watchlist.json` | CLI `--watchlist` または `watchlist` 相当 |
-| ウォッチリスト上限 | 30 件 | `watchlist.max_items` → `get_validated_config` で `watchlist_max_items` |
+| ウォッチリスト上限 | 30 件（既定） | `watchlist.max_items` → `get_validated_config` で `watchlist_max_items`。**設定画面の値は `config.yaml` に保存される。Web の企業分析・ウォッチ追加 API と日次バッチ（`--config` 未指定時はプロジェクト直下の `config.yaml` があれば読込）で同じファイルを参照する。** |
 | ポートフォリオ状態（現金） | `portfolio_state.json` | `dpa.portfolio_path` |
 | セクター・ピア | `data/sector_peers.json` | `dpa.sector_peers_path` |
 | 日次キャッシュ | `data/daily_cache.json` | `cache.cache_path` または `dpa.cache_path` |
@@ -84,7 +84,7 @@ stock_v7/
 
 ### 2.1 data/watchlist.json
 
-**役割**: 監視・保有対象銘柄の一覧（Single Source of Truth）。最大 30 件。`status` で HOLDING / WATCHING を区別。
+**役割**: 監視・保有対象銘柄の一覧（Single Source of Truth）。最大件数は `watchlist.max_items`（既定 30）。`status` で HOLDING / WATCHING を区別。
 
 **形式**: JSON 配列。各要素はオブジェクト。
 
@@ -227,19 +227,25 @@ stock_v7/
 
 ---
 
-## 3. 設定（config_example.yaml / config_loader）
+## 3. 設定（config.yaml / config_loader）
 
 ### 3.1 設定の読み込み
 
-- **config_loader.load_config(config_path, use_example_as_base=True)**  
-  - ベース: プロジェクトルートの `config_example.yaml`（`_project_root()` で解決）。  
-  - 上書き: `config_path` で指定したファイル（存在する場合のみ）。トップレベルキーをマージする。  
+- **単一ファイル**: プロジェクト直下の **`config.yaml` のみ**（`config_example.yaml` は廃止）。  
+- **config_loader.load_merged_config(config_path=None)**  
+  - `config_path` が `None`: プロジェクトの `config.yaml` があれば読む（無ければ空 dict）。  
+  - 明示パス: CLI の `--config` 用にそのファイルだけを読む。  
+- **config_loader.load_config**  
+  - 上記と同様に **1 ファイルをそのまま**読み込む（ファイル同士のマージは行わない）。  
+  - `config_path` が `None` かつ `default_to_project_yaml=False` のときは `{}`。  
+- **欠損キー**: YAML に書かれていない項目は **`get_validated_config`** がコード上のデフォルトで補完する。  
+- **Web API** の検証済み設定: `get_validated_config(load_merged_config(None))`。  
 - **config_loader.get_validated_config(cfg)**  
   - 生の dict を型変換・デフォルト補完した **フラットな dict** に変換する。  
   - **ネスト YAML**（`dpa:`, `cache:`, `llm:`, `watchlist:`）は `get_validated_config` 内で読み取り、出力では `benchmark_ticker`, `cache_path`, `mu_cash`, `watchlist_max_items` などのフラットキーに統一する。  
   - 空文字の `vi_ticker` は `None` に正規化。
 
-### 3.2 config_example.yaml の構造（概要）
+### 3.2 config.yaml の構造（概要）
 
 | ブロック | 内容 |
 |----------|------|
@@ -378,7 +384,7 @@ stock_v7/
 
 - **空き予算**: `raw_available_budget = max(0, cash_current - total_capital_actual * target_cash_ratio)`。  
   パニック時またはこれが非正のときは `available_budget = 0`、`recommendations = []` で返す（raw は保持）。
-- **対象**: ウォッチリストの **WATCHING** かつ **未保有**の銘柄で、`momentum_score >= momentum_threshold`（デフォルト 50）のものだけ。
+- **対象**: ウォッチリストの **WATCHING** の銘柄で、`momentum_score >= momentum_threshold`（デフォルト 50）のもの。**保有済み銘柄も候補に含まれる**（追加買いのシミュレーション対象）。
 - **候補ソート**: 上記候補について、`portfolio_scores`（なければ `compute_portfolio_total_score`）を使って**ポートフォリオ用 total_score 降順**に並べる。
 - **仮想組入（Simulated Inclusion）**:
   - N を 1〜`MAX_DRAFT_CANDIDATES`（デフォルト 5、候補数がそれ以下なら候補数まで）でループ。
@@ -431,7 +437,7 @@ stock_v7/
    `run_purge` で売却候補を算出。
 
 6. **ステップ6**: ドラフト  
-   WATCHING かつ未保有の銘柄を対象に、仮想組入＋動的N最適化を行う `run_draft` で購入候補を算出。
+   WATCHING の銘柄（保有・未保有を問わず、着火点を満たすもの）を対象に、仮想組入＋動的N最適化を行う `run_draft` で購入候補を算出。
 
 7. **ステップ7**: レポート生成・保存  
    `DpaDailyReport` を組み立て、`format_report` でテキスト化。  
@@ -480,7 +486,7 @@ stock_v7/
 
 | 項目 | 値 | 所在 |
 |------|-----|------|
-| ウォッチリスト上限 | 30 件 | watchlist_io.MAX_WATCHLIST |
+| ウォッチリスト上限 | 既定 30 件（`config.yaml` の `watchlist.max_items`） | `get_validated_config` の `watchlist_max_items`、API から `watchlist_io` に `max_items` として渡す。コード定数 `watchlist_io.MAX_WATCHLIST` は未指定時のフォールバック |
 | HOLDING / WATCHING | 文字列で比較、省略時 WATCHING | watchlist_io |
 | キャッシュ fresh のカットオフ | 6:00 JST（設定可能） | daily_cache.DEFAULT_CACHE_CUTOFF_* |
 | スコアトレンド短期・長期 | 5 日・20 日 | dpa_scores.compute_score_trend |

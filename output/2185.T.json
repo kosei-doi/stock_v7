@@ -1,0 +1,85 @@
+{
+  "ticker": "2185.T",
+  "name": "CMC Corporation",
+  "sector": "Technology",
+  "scores": {
+    "value_score": 34.51007186428181,
+    "safety_score": 100.0,
+    "momentum_score": 45.61792722711456,
+    "total_score": 62.92761419113564
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.5006083424897833,
+    "r_squared": 0.0956711468881267,
+    "alpha": 0.00023367576689878978
+  },
+  "risk_metrics": {
+    "atr_percent": 2.47135217723453
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1870.0,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3791.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 12921538.0,
+      "book_value_per_share": 1688.999,
+      "eps_ttm": 164.19,
+      "sector": "Technology",
+      "long_name": "CMC Corporation"
+    },
+    "sector_peers": {
+      "resolved_sector": "Technology",
+      "peer_count": 5,
+      "peer_tickers": [
+        "6501.T",
+        "6758.T",
+        "8035.T",
+        "6503.T",
+        "6981.T"
+      ],
+      "peer_pb_count": 5,
+      "peer_pe_count": 5
+    },
+    "value_inputs": {
+      "target_pb": 1.1071646578831604,
+      "target_pe": 11.389244168341556,
+      "time_z_pb": 2.5904315218944394,
+      "time_z_pe": 2.59043152189444,
+      "space_z_pb": -1.1655902805179221,
+      "space_z_pe": -2.46192768555253
+    }
+  }
+}

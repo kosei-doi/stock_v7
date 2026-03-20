@@ -1,25 +1,5 @@
 [
   {
-    "ticker": "6702.T",
-    "status": "WATCHING"
-  },
-  {
-    "ticker": "7532.T",
-    "status": "WATCHING"
-  },
-  {
-    "ticker": "9028.T",
-    "status": "WATCHING"
-  },
-  {
-    "ticker": "4613.T",
-    "status": "WATCHING"
-  },
-  {
-    "ticker": "9432.T",
-    "status": "WATCHING"
-  },
-  {
     "ticker": "7131.T",
     "status": "WATCHING"
   },
@@ -125,6 +105,26 @@
   },
   {
     "ticker": "7203.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "1719.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "3856.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "2185.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "2153.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "5714.T",
     "status": "WATCHING"
   }
 ]

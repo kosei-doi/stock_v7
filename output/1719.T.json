@@ -1,0 +1,90 @@
+{
+  "ticker": "1719.T",
+  "name": "Hazama Ando Corporation",
+  "sector": "Industrials",
+  "scores": {
+    "value_score": 30.965437849515293,
+    "safety_score": 100.0,
+    "momentum_score": 34.05779095528579,
+    "total_score": 59.19773333086328
+  },
+  "market_linkage": {
+    "benchmark": "1306.T",
+    "beta": 0.6523697044213935,
+    "r_squared": 0.27871121947576966,
+    "alpha": 0.0003657798740307781
+  },
+  "risk_metrics": {
+    "atr_percent": 2.989466581699592
+  },
+  "ai_analysis": {
+    "catalyst_summary": "LLM未使用モードのため簡易出力です。",
+    "stop_loss_recommendation": null,
+    "warning_flag": null
+  },
+  "data_overview": {
+    "price_history": {
+      "rows": 1223,
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 1905.5,
+      "empty": false
+    },
+    "benchmark": {
+      "rows": 1222,
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
+      "columns": [
+        "adj_close",
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "last_close": 3791.0,
+      "empty": false
+    },
+    "fundamentals": {
+      "shares_outstanding": 156765788.0,
+      "book_value_per_share": 1196.564,
+      "eps_ttm": 168.83,
+      "sector": "Industrials",
+      "long_name": "Hazama Ando Corporation"
+    },
+    "sector_peers": {
+      "resolved_sector": "Industrials",
+      "peer_count": 10,
+      "peer_tickers": [
+        "8058.T",
+        "8001.T",
+        "8031.T",
+        "8053.T",
+        "8002.T",
+        "1801.T",
+        "1802.T",
+        "1803.T",
+        "1812.T",
+        "1925.T"
+      ],
+      "peer_pb_count": 10,
+      "peer_pe_count": 10
+    },
+    "value_inputs": {
+      "target_pb": 1.5924764575902333,
+      "target_pe": 11.286501214239175,
+      "time_z_pb": 2.3322568769069463,
+      "time_z_pe": 2.3322568769069463,
+      "space_z_pb": -1.0528266410351659,
+      "space_z_pe": -1.1853034520644956
+    }
+  }
+}

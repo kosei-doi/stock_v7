@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional, Set
 
-from core.utils.config_loader import get_validated_config, load_config
+from core.utils.config_loader import get_validated_config, load_merged_config, project_config_path
 from core.dpa.dpa_draft import LOT_SIZE, run_draft
 from core.dpa.dpa_macro import get_macro_state
 from core.dpa.dpa_portfolio_score import compute_portfolio_total_score
@@ -483,10 +483,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv or [])
 
-    cfg_path = Path(args.config) if args.config else None
-    if cfg_path is not None and not cfg_path.exists():
-        print(f"指定した設定ファイルがありません: {cfg_path}", file=sys.stderr)
-    raw_cfg = load_config(cfg_path, use_example_as_base=True)
+    if args.config:
+        cfg_path = Path(args.config)
+        if not cfg_path.exists():
+            print(f"指定した設定ファイルがありません: {cfg_path}", file=sys.stderr)
+            return 1
+        raw_cfg = load_merged_config(cfg_path)
+    else:
+        p = project_config_path()
+        cfg_path = p if p.exists() else None
+        raw_cfg = load_merged_config(None)
     cfg = get_validated_config(raw_cfg)
 
     sector_peers_path = _resolve_path(cfg.get("sector_peers_path", "data/sector_peers.json"))
@@ -496,7 +502,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.verbose:
         print(
-            f"        config={cfg_path or '(example only)'} cache_path={_resolve_path(cfg.get('cache_path', 'data/daily_cache.json'))} "
+            f"        config={cfg_path or '(config.yaml なし・get_validated_config の既定値)'} cache_path={_resolve_path(cfg.get('cache_path', 'data/daily_cache.json'))} "
             f"sector_peers={sector_peers_path} "
             f"portfolio={_resolve_path(cfg.get('portfolio_path', PORTFOLIO_STATE_PATH))}",
             file=sys.stderr,

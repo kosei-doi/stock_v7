@@ -85,10 +85,9 @@ def run_draft(
         if h.get("ticker") or h.get("ticker_symbol")
     }
 
+    # ウォッチリスト WATCHING のスナップショットのうち、着火点を満たす銘柄を候補にする（保有・未保有を問わない）
     candidates: list[tuple[DvcScoreOutput, float]] = []
     for d in watching_snapshots:
-        if d.ticker in holding_tickers:
-            continue
         mom = d.scores.momentum_score
         if mom is None or mom < momentum_threshold:
             continue

@@ -6,12 +6,17 @@ llm:
   provider: openai
   model: gpt-4.1-mini
 dpa:
+  total_capital_jpy: 5000000.0
   vi_ticker: ^VIX
   mu_cash: 0.4
   a_vi: 0.2
   b_macd: 0.2
-  total_capital_jpy: 5000000.0
+  over_weight_threshold: 0.02
+  max_position_pct: 0.15
+  max_position_jpy: 750000.0
+  ignition_momentum_threshold: 50.0
+  max_draft_candidates: 5
 watchlist:
-  max_items: 45
+  max_items: 30
 daily_report:
   enabled: true
