@@ -26,31 +26,31 @@
   <!-- 購入パネル -->
   <section id="panel-buy" class="panel space-y-4">
     <div class="rounded-xl border border-slate-700 bg-slate-800/50 p-5">
-      <h3 class="text-sm font-semibold text-emerald-400 mb-4 flex items-center gap-2">
+      <h3 class="text-sm font-semibold text-rose-400 mb-4 flex items-center gap-2">
         <i class="fas fa-arrow-down"></i>
         購入を記録
       </h3>
       <p class="text-xs text-slate-500 mb-4">銘柄コード・株数・取得単価を入力。新規銘柄は企業分析を自動実行します。</p>
-      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
         <div class="sm:col-span-3">
           <label class="block text-xs text-slate-400 mb-1">コード</label>
           <input id="purchase-ticker" type="text" placeholder="7203 または AAPL"
-            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500" />
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500" />
         </div>
         <div class="sm:col-span-2">
           <label class="block text-xs text-slate-400 mb-1">株数</label>
           <input id="purchase-shares" type="number" min="1" step="1" placeholder="100"
-            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-emerald-500/50" />
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-rose-500/50" />
         </div>
         <div class="sm:col-span-2">
           <label class="block text-xs text-slate-400 mb-1">単価（円）</label>
           <input id="purchase-avg" type="number" min="0" step="0.01" placeholder="2500"
-            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-emerald-500/50" />
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-rose-500/50" />
         </div>
-        <div class="sm:col-span-3 flex flex-col justify-end">
+        <div class="sm:col-span-5 flex flex-col justify-end">
           <p id="purchase-cost" class="text-xs text-slate-500 mb-1.5">購入額: —</p>
           <button id="btn-purchase" type="button"
-            class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg text-sm transition">
+            class="w-full py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-medium rounded-lg text-sm transition">
             購入を記録
           </button>
         </div>
@@ -62,17 +62,17 @@
   <!-- 売却パネル -->
   <section id="panel-sell" class="panel hidden space-y-4">
     <div class="rounded-xl border border-slate-700 bg-slate-800/50 p-5">
-      <h3 class="text-sm font-semibold text-rose-400 mb-4 flex items-center gap-2">
+      <h3 class="text-sm font-semibold text-emerald-400 mb-4 flex items-center gap-2">
         <i class="fas fa-arrow-up"></i>
         売却を記録
       </h3>
       {% if holdings %}
       <p class="text-xs text-slate-500 mb-4">保有銘柄を選択し、売却株数を入力。空欄で全売り。</p>
-      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-        <div class="sm:col-span-4">
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+        <div class="sm:col-span-5">
           <label class="block text-xs text-slate-400 mb-1">銘柄</label>
           <select id="sale-ticker"
-            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-rose-500/50">
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-emerald-500/50">
             <option value="">選択してください</option>
             {% for h in holdings %}
             <option value="{{ h.ticker }}" data-shares="{{ h.shares }}" data-price="{{ h.last_price or '' }}">
@@ -84,12 +84,12 @@
         <div class="sm:col-span-2">
           <label class="block text-xs text-slate-400 mb-1">売却株数</label>
           <input id="sale-shares" type="number" min="0" step="1" placeholder="全売り"
-            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-rose-500/50" />
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-emerald-500/50" />
         </div>
-        <div class="sm:col-span-3 flex flex-col justify-end">
+        <div class="sm:col-span-5 flex flex-col justify-end">
           <p id="sale-proceeds" class="text-xs text-slate-500 mb-1.5">売却代金: —</p>
           <button id="btn-sale" type="button"
-            class="w-full py-2.5 bg-rose-600/90 hover:bg-rose-500 text-white font-medium rounded-lg text-sm transition">
+            class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg text-sm transition">
             売却を記録
           </button>
         </div>
@@ -101,26 +101,35 @@
     </div>
   </section>
 
-  <!-- 保有銘柄一覧 -->
+  <!-- 保有銘柄一覧（列揃えテーブル） -->
   <section class="rounded-xl border border-slate-700 overflow-hidden">
     <h3 class="px-4 py-3 bg-slate-800/50 border-b border-slate-700 text-sm font-semibold text-slate-300">
       保有銘柄
     </h3>
     {% if holdings %}
-    <div class="divide-y divide-slate-700">
-      {% for h in holdings %}
-      <div class="px-4 py-3 flex flex-wrap items-center justify-between gap-2 hover:bg-slate-800/30 transition">
-        <div class="min-w-0">
-          <span class="font-mono text-slate-200">{{ h.ticker }}</span>
-          <span class="ml-2 text-slate-500 text-sm truncate">{{ h.name }}</span>
-        </div>
-        <div class="flex gap-4 text-sm tabular-nums">
-          <span class="text-slate-400">{{ h.shares }}株</span>
-          <span class="text-slate-500">@ {{ h.avg_price or '-' }}円</span>
-          <span class="text-amber-400/80">{{ (h.last_price|int) if h.last_price else '-' }}円</span>
-        </div>
-      </div>
-      {% endfor %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left border-collapse">
+        <thead>
+          <tr class="text-slate-500 border-b border-slate-700 bg-slate-900/40">
+            <th class="px-4 py-2.5 font-medium whitespace-nowrap">コード</th>
+            <th class="px-4 py-2.5 font-medium min-w-[8rem]">銘柄名</th>
+            <th class="px-4 py-2.5 font-medium text-right whitespace-nowrap">株数</th>
+            <th class="px-4 py-2.5 font-medium text-right whitespace-nowrap">取得単価</th>
+            <th class="px-4 py-2.5 font-medium text-right whitespace-nowrap">現在価格</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-700/80">
+          {% for h in holdings %}
+          <tr class="hover:bg-slate-800/40 transition">
+            <td class="px-4 py-3 font-mono text-slate-200 align-middle whitespace-nowrap">{{ h.ticker }}</td>
+            <td class="px-4 py-3 text-slate-400 align-middle max-w-[12rem] sm:max-w-md truncate" title="{{ h.name or '' }}">{{ h.name or '—' }}</td>
+            <td class="px-4 py-3 text-right tabular-nums text-slate-300 align-middle whitespace-nowrap">{{ h.shares }}<span class="text-slate-500 text-xs ml-0.5">株</span></td>
+            <td class="px-4 py-3 text-right tabular-nums text-slate-500 align-middle whitespace-nowrap">{% if h.avg_price is not none and h.avg_price != '' %}<span>{{ "%.2f"|format(h.avg_price|float) }}</span><span class="text-slate-600 text-xs ml-0.5">円</span>{% else %}—{% endif %}</td>
+            <td class="px-4 py-3 text-right tabular-nums text-amber-400/90 align-middle whitespace-nowrap">{% if h.last_price is not none and h.last_price != '' %}<span>{{ "%.0f"|format(h.last_price|float) }}</span><span class="text-slate-600 text-xs ml-0.5">円</span>{% else %}—{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
     {% else %}
     <div class="px-4 py-8 text-center text-slate-500 text-sm">
@@ -190,11 +199,12 @@
   purchaseShares?.addEventListener('input', updatePurchaseCost);
   purchaseAvg?.addEventListener('input', updatePurchaseCost);
 
-  function msg(el, text, type) {
+  function msg(el, text, type, context) {
     if (!el) return;
     el.textContent = text;
+    var okCls = context === 'sale' ? 'text-emerald-400' : 'text-rose-400';
     el.className = 'mt-3 text-xs min-h-[1.25rem] ' +
-      (type === 'err' ? 'text-rose-400' : type === 'ok' ? 'text-emerald-400' : 'text-slate-400');
+      (type === 'err' ? 'text-rose-400' : type === 'ok' ? okCls : 'text-slate-400');
   }
 
   // 購入
@@ -223,7 +233,7 @@
       if (!r.ok) return r.json().then(d => { throw new Error(d.detail || r.statusText); });
       return r.json();
     }).then(data => {
-      msg(purchaseMsg, '購入を記録しました。', 'ok');
+      msg(purchaseMsg, '購入を記録しました。', 'ok', 'buy');
       setCash(data.cash_yen);
       purchaseTicker.value = '';
       purchaseShares.value = '';
@@ -280,7 +290,7 @@
       if (!r.ok) return r.json().then(d => { throw new Error(d.detail || r.statusText); });
       return r.json();
     }).then(data => {
-      msg(saleMsg, '売却を記録しました。', 'ok');
+      msg(saleMsg, '売却を記録しました。', 'ok', 'sale');
       setCash(data.cash_yen);
       setTimeout(() => location.reload(), 800);
     }).catch(e => {

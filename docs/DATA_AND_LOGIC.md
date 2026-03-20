@@ -28,7 +28,7 @@ stock_v7/
 │
 ├── web/                  # FastAPI + Jinja2 の Web UI（BFF）
 │   ├── main.py           # ページルート・テンプレート
-│   └── api.py            # /api/*（レポートマージ、分析、取引、設定など）
+│   └── api.py            # /api/*（レポートマージ、分析、取引、設定など。専用のポートフォリオ画面・/api/positions/update は廃止）
 │
 ├── core/
 │   ├── dvc/              # DVC（Dynamic Value & Catalyst）関連
@@ -363,12 +363,13 @@ stock_v7/
 - 非現金部分: `non_cash = 1 - target_cash_ratio`（0〜1 にクリップ）。
 - 銘柄ごとに `raw_i = 0.7 * level_i + 0.3 * trend_i` のベースを計算（level はポートフォリオスコアの 0〜1 正規化、または score_trends の level）。
 - リスク調整: β（1 超でペナルティ）、R²（高いほど防御時にペナルティ）、ATR%（高いほどペナルティ）、α（プラスならボーナス）で `risk_factor` を掛ける。防御度が高いほど β・R² のペナルティが強い。
-- `raw[ticker] = base_raw * risk_factor` を 0.5〜1.5 にクリップした factor で掛け、全銘柄の raw を合計で正規化し、`target_weights[ticker] = non_cash * (raw[ticker] / total_raw)`。
+- `raw[ticker] = base_raw * risk_factor` を 0.5〜1.5 にクリップした factor で掛け、**正規化の母集団上の** raw を合計で正規化し、`target_weights[ticker] = non_cash * (raw[ticker] / total_raw)`。
+- **日次バッチ（`daily_routine`）**では `allocation_tickers` に**保有銘柄のティッカー集合**を渡す。すなわち **保有銘柄のみ**で raw を正規化し、その合計が `non_cash` になる（ウォッチの未保有銘柄は `target_weights = 0`）。ドラフトの仮想組入では、仮想ポートフォリオに含まれる銘柄だけを `dvc_subset` に入れて同関数を呼ぶため、従来どおりその集合内だけで `non_cash` を分割する。
 
 ### 5.5 パージ（dpa_purge.run_purge）
 
 - 保有銘柄（holdings）のみ対象。
-- `target_weights` はウォッチリスト全銘柄向けに `compute_target_weights` で算出した**ポートフォリオ全体における目標構成比**（各ティッカーの割合は 0〜1、合計は `1 - target_cash_ratio`）。
+- `target_weights` は上記のとおり **保有銘柄のみで正規化した**総資産ベースの目標比率（各ティッカーの割合は 0〜1、**保有分の合計**は `1 - target_cash_ratio`。未保有のウォッチ銘柄は 0）。
 - 各保有銘柄について `w = current_weights[ticker]`（総資産に対する現在比率）、`w_star = target_weights[ticker]`（同じく総資産ベースの目標比率）、`over = max(0, w - w_star)`。  
   `over > over_weight_threshold`（デフォルト 0.02 = 2%pt）のとき売却候補に追加。
 - 理由: フェーズが PANIC なら `MACRO_PANIC`、それ以外は `SCORE_DECAY`。日本語理由文を付与。
@@ -456,7 +457,7 @@ stock_v7/
 
 - **MacroPhase**: 列挙 CRUISE, CAUTION, PANIC, REVERSAL  
 - **MacroState**: phase, phase_name_ja, target_cash_ratio, vi_z, macd_trend  
-- **SellReason**: 列挙 MACRO_PANIC, STOP_LOSS, SCORE_DECAY  
+- **SellReason**: 列挙 MACRO_PANIC, SCORE_DECAY（目標比率超過の売却理由）  
 - **PurgeItem**: ticker, reason, reason_ja, current_price, stop_loss_price, score  
 - **DpaPurgeOutput**: phase, items, total_count  
 - **BuyRecommendation**: ticker, name, shares, limit_price, score, budget_used  

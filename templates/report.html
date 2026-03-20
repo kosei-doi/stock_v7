@@ -12,10 +12,10 @@
   <!-- ① 新規購入推奨 & 売却指示 -->
   <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-      <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">新規購入推奨</h3>
+      <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-rose-400">新規購入推奨</h3>
       <div class="p-4">
         {% if draft and draft.get('recommendations') %}
-        <p class="text-slate-400 text-sm mb-3">空き予算: <span class="text-amber-400 font-semibold">{{ (draft.get('available_budget', 0) or 0)|round(0)|int }} 円</span></p>
+        <p class="text-slate-400 text-sm mb-3">空き予算: <span class="text-rose-400 font-semibold">{{ (draft.get('available_budget', 0) or 0)|round(0)|int }} 円</span></p>
         <table class="w-full text-left text-xs md:text-sm">
           <thead class="bg-slate-700/50 text-slate-300">
             <tr>
@@ -46,29 +46,27 @@
       </div>
     </div>
     <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-      <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-amber-400">売却指示</h3>
+      <h3 class="px-4 py-3 border-b border-slate-700 font-semibold text-emerald-400">売却指示</h3>
       <div class="p-4">
         {% if purge and purge.get('items') %}
         <table class="w-full text-left text-xs md:text-sm">
           <thead class="bg-slate-700/50 text-slate-300">
             <tr>
-              <th class="px-2 py-1 md:px-3 md:py-2 w-8">#</th>
               <th class="px-2 py-1 md:px-3 md:py-2 font-mono">コード</th>
               <th class="px-2 py-1 md:px-3 md:py-2 break-words">銘柄名</th>
               <th class="px-2 py-1 md:px-3 md:py-2">理由</th>
               <th class="px-2 py-1 md:px-3 md:py-2 text-right">現在価格</th>
-              <th class="px-2 py-1 md:px-3 md:py-2 text-right hidden sm:table-cell">損切り目安</th>
+              <th class="px-2 py-1 md:px-3 md:py-2 text-right">売却株数</th>
             </tr>
           </thead>
           <tbody class="text-slate-200">
             {% for it in purge.get('items') %}
             <tr class="border-t border-slate-700 hover:bg-slate-700/30">
-              <td class="px-2 py-1 md:px-3 md:py-2">{{ loop.index }}</td>
               <td class="px-2 py-1 md:px-3 md:py-2 font-mono">{{ it.ticker }}</td>
               <td class="px-2 py-1 md:px-3 md:py-2 break-words max-w-[140px] truncate" title="{{ (report.get('ticker_names') or {}).get(it.ticker, '-') }}">{{ (report.get('ticker_names') or {}).get(it.ticker, '-') }}</td>
               <td class="px-2 py-1 md:px-3 md:py-2 break-words max-w-[180px]">{{ it.reason_ja or '-' }}</td>
               <td class="px-2 py-1 md:px-3 md:py-2 text-right">{% if it.current_price is not none %}{{ it.current_price|round(0)|int }} 円{% else %}-{% endif %}</td>
-              <td class="px-2 py-1 md:px-3 md:py-2 text-right hidden sm:table-cell text-slate-400">{% if it.stop_loss_price is not none %}{{ it.stop_loss_price|round(0)|int }} 円{% else %}-{% endif %}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 text-right text-slate-400">{% if (it.shares_to_sell | default(0)) | int > 0 %}{{ (it.shares_to_sell | default(0)) | int }} 株{% else %}-{% endif %}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -90,7 +88,7 @@
             <th class="px-2 py-1 md:px-4 md:py-2">コード</th>
             <th class="px-2 py-1 md:px-4 md:py-2">銘柄名</th>
             <th class="px-2 py-1 md:px-4 md:py-2">現在比率</th>
-            <th class="px-2 py-1 md:px-4 md:py-2">目標比率</th>
+            <th class="px-2 py-1 md:px-4 md:py-2" title="括弧内は乖離(%pt)＝現在比率−目標比率">目標比率</th>
             <th class="px-2 py-1 md:px-4 md:py-2">スコア</th>
             <th class="px-2 py-1 md:px-4 md:py-2">トレンド</th>
             <th class="px-2 py-1 md:px-4 md:py-2">株価</th>
@@ -109,7 +107,7 @@
             </td>
             <td class="px-2 py-1 md:px-4 md:py-2">
               {% if h.target_weight is not none %}
-              <span class="{% if h.prev_target_weight is not none %}{% if h.target_weight > h.prev_target_weight %}text-red-500{% elif h.target_weight < h.prev_target_weight %}text-green-500{% endif %}{% endif %}">{{ (h.target_weight * 100)|round(1) }}%</span>
+              <span class="{% if h.prev_target_weight is not none %}{% if h.target_weight > h.prev_target_weight %}text-red-500{% elif h.target_weight < h.prev_target_weight %}text-green-500{% endif %}{% endif %}">{{ (h.target_weight * 100)|round(1) }}%</span>{% if h.current_weight is not none %} <span class="text-slate-500">({{ ((h.current_weight - h.target_weight) * 100)|round(1) }})</span>{% endif %}
               {% else %}-{% endif %}
             </td>
             <td class="px-2 py-1 md:px-4 md:py-2">

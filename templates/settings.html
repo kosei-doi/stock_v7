@@ -12,7 +12,7 @@
       <div>
         <label class="block text-slate-400 text-sm mb-2">現金残高（円）</label>
         <input type="number" name="cash_yen" min="0" step="1"
-          value="{{ cash_yen if cash_yen is not none else 5000000 }}"
+          value="{{ cash_yen if cash_yen is defined and cash_yen is not none else 5000000 }}"
           class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
         <p class="mt-1 text-slate-500 text-xs">portfolio_state.json</p>
       </div>
@@ -24,18 +24,18 @@
       <div class="space-y-4">
         <div>
           <label class="block text-slate-400 text-sm mb-2">ベンチマークティッカー</label>
-          <input type="text" name="benchmark_ticker" value="{{ config.benchmark_ticker or '1306.T' }}"
+          <input type="text" name="benchmark_ticker" value="{{ config.benchmark_ticker if config.benchmark_ticker is defined and config.benchmark_ticker is not none and config.benchmark_ticker != '' else '1306.T' }}"
             class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
           <p class="mt-1 text-slate-500 text-xs">例: 1306.T（TOPIX連動ETF）</p>
         </div>
         <div>
           <label class="block text-slate-400 text-sm mb-2">過去データ年数</label>
-          <input type="number" name="years" min="1" max="20" value="{{ config.years or 5 }}"
+          <input type="number" name="years" min="1" max="20" value="{{ config.years if config.years is defined and config.years is not none else 5 }}"
             class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
         </div>
         <div>
           <label class="block text-slate-400 text-sm mb-2">出力ディレクトリ</label>
-          <input type="text" name="output_dir" value="{{ config.output_dir or 'output' }}"
+          <input type="text" name="output_dir" value="{{ config.output_dir if config.output_dir is defined and config.output_dir is not none and config.output_dir != '' else 'output' }}"
             class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
         </div>
       </div>
@@ -46,7 +46,7 @@
       <h3 class="text-lg font-semibold text-amber-400 mb-4">ウォッチリスト</h3>
       <div>
         <label class="block text-slate-400 text-sm mb-2">登録上限数</label>
-        <input type="number" name="watchlist_max_items" min="5" max="100" step="1" value="{{ config.watchlist_max_items or 30 }}"
+        <input type="number" name="watchlist_max_items" min="5" max="100" step="1" value="{{ config.watchlist_max_items if config.watchlist_max_items is defined and config.watchlist_max_items is not none else 30 }}"
           class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
         <p class="mt-1 text-slate-500 text-xs">上限超過時はスコア最下位の WATCHING を自動削除</p>
       </div>
@@ -54,34 +54,84 @@
 
     <!-- config.yaml: DPA -->
     <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
-      <h3 class="text-lg font-semibold text-amber-400 mb-4">DPA（ポートフォリオ）</h3>
+      <h3 class="text-lg font-semibold text-amber-400 mb-4">DPA</h3>
       <div class="space-y-4">
         <div>
           <label class="block text-slate-400 text-sm mb-2">VI ティッカー</label>
-          <input type="text" name="vi_ticker" value="{{ config.vi_ticker or '^VIX' }}"
+          <input type="text" name="vi_ticker" value="{{ config.vi_ticker if config.vi_ticker is defined and config.vi_ticker is not none and config.vi_ticker != '' else '^VIX' }}"
             class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
           <p class="mt-1 text-slate-500 text-xs">例: ^VIX（米国VIX）</p>
         </div>
         <div>
           <label class="block text-slate-400 text-sm mb-2">現金比率ベースライン (mu_cash)</label>
-          <input type="number" name="mu_cash" min="0" max="1" step="0.05" value="{{ config.mu_cash or 0.4 }}"
+          <input type="number" name="mu_cash" min="0" max="1" step="0.05" value="{{ config.mu_cash if config.mu_cash is defined and config.mu_cash is not none else 0.4 }}"
             class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
         </div>
         <div>
           <label class="block text-slate-400 text-sm mb-2">VI 感度 (a_vi)</label>
-          <input type="number" name="a_vi" min="0" max="1" step="0.05" value="{{ config.a_vi or 0.2 }}"
+          <input type="number" name="a_vi" min="0" max="1" step="0.05" value="{{ config.a_vi if config.a_vi is defined and config.a_vi is not none else 0.2 }}"
             class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
         </div>
         <div>
           <label class="block text-slate-400 text-sm mb-2">MACD 感度 (b_macd)</label>
-          <input type="number" name="b_macd" min="0" max="1" step="0.05" value="{{ config.b_macd or 0.2 }}"
+          <input type="number" name="b_macd" min="0" max="1" step="0.05" value="{{ config.b_macd if config.b_macd is defined and config.b_macd is not none else 0.2 }}"
             class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
         </div>
         <div class="flex items-center gap-2">
           <input type="checkbox" name="llm_enabled" id="llm_enabled" value="1"
-            {% if config.llm_enabled %}checked{% endif %}
+            {% if config.llm_enabled is defined and config.llm_enabled %}checked{% endif %}
             class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500" />
           <label for="llm_enabled" class="text-slate-300">LLM を有効にする（catalyst_summary / stop_loss 生成）</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- DPA: 売却（パージ） -->
+    <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
+      <h3 class="text-lg font-semibold text-amber-400 mb-1">DPA 売却（パージ）</h3>
+      <p class="text-slate-500 text-xs mb-4">オーバーウェイト判定と1銘柄の上限（売却時の参照にも用いる）</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">許容乖離幅（%）</label>
+          <input type="number" name="over_weight_threshold_pct" min="0.1" max="50" step="0.1"
+            value="{{ config.over_weight_threshold_pct if config.over_weight_threshold_pct is defined and config.over_weight_threshold_pct is not none else 2.0 }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+          <p class="mt-1 text-slate-500 text-xs">実保有比率 − ターゲット比率がこの値（%pt）を超えたら売却候補。既定 2.0（= 内部 0.02）</p>
+        </div>
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">1銘柄の最大保有比率（%）</label>
+          <input type="number" name="max_position_percent" min="1" max="100" step="0.5"
+            value="{{ config.max_position_percent if config.max_position_percent is defined and config.max_position_percent is not none else 15.0 }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+          <p class="mt-1 text-slate-500 text-xs">総資産に対する上限。既定 15.0（内部 0.15）</p>
+        </div>
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">1銘柄の絶対上限額（円）</label>
+          <input type="number" name="max_position_jpy" min="10000" step="1000"
+            value="{{ (config.max_position_jpy if config.max_position_jpy is defined and config.max_position_jpy is not none else 750000)|int }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+        </div>
+      </div>
+    </div>
+
+    <!-- DPA: 購入（ドラフト） -->
+    <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
+      <h3 class="text-lg font-semibold text-amber-400 mb-1">DPA 購入（ドラフト）</h3>
+      <p class="text-slate-500 text-xs mb-4">着火点モメンタムと動的Nシミュレーション最大数</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">着火点モメンタム</label>
+          <input type="number" name="ignition_momentum_threshold" min="0" max="100" step="1"
+            value="{{ config.ignition_momentum_threshold if config.ignition_momentum_threshold is defined and config.ignition_momentum_threshold is not none else 50 }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+          <p class="mt-1 text-slate-500 text-xs">未保有銘柄のうちモメンタムがこの値以上で購入候補に入る</p>
+        </div>
+        <div>
+          <label class="block text-slate-400 text-sm mb-2">動的Nシミュレーション最大数</label>
+          <input type="number" name="max_draft_candidates" min="1" max="30" step="1"
+            value="{{ config.max_draft_candidates if config.max_draft_candidates is defined and config.max_draft_candidates is not none else 5 }}"
+            class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-amber-500" />
+          <p class="mt-1 text-slate-500 text-xs">N=1…この値まで仮想組入を試す</p>
         </div>
       </div>
     </div>
@@ -91,7 +141,7 @@
       <h3 class="text-lg font-semibold text-amber-400 mb-4">メール通知</h3>
       <div class="flex items-center gap-2">
         <input type="checkbox" name="daily_report_email_enabled" id="daily_report_email_enabled" value="1"
-          {% if config.daily_report_email_enabled %}checked{% endif %}
+          {% if config.daily_report_email_enabled is defined and config.daily_report_email_enabled %}checked{% endif %}
           class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500" />
         <label for="daily_report_email_enabled" class="text-slate-300">毎朝メールを送る（cron で send_daily_report.py 実行時）</label>
       </div>
@@ -126,6 +176,11 @@
     body.a_vi = parseFloat(fd.get('a_vi') || 0.2);
     body.b_macd = parseFloat(fd.get('b_macd') || 0.2);
     body.llm_enabled = fd.get('llm_enabled') === '1';
+    body.over_weight_threshold_pct = parseFloat(fd.get('over_weight_threshold_pct') || 2);
+    body.max_position_percent = parseFloat(fd.get('max_position_percent') || 15);
+    body.max_position_jpy = parseFloat(fd.get('max_position_jpy') || 750000);
+    body.ignition_momentum_threshold = parseFloat(fd.get('ignition_momentum_threshold') || 50);
+    body.max_draft_candidates = parseInt(fd.get('max_draft_candidates') || 5, 10);
 
     if (isNaN(body.cash_yen) || body.cash_yen < 0) {
       msg.textContent = '現金残高は 0 以上で入力してください。';
@@ -134,6 +189,26 @@
     }
     if (isNaN(body.watchlist_max_items) || body.watchlist_max_items < 5 || body.watchlist_max_items > 100) {
       msg.textContent = 'ウォッチリスト上限は 5〜100 の範囲で入力してください。';
+      msg.className = 'text-sm text-amber-400';
+      return;
+    }
+    if (isNaN(body.over_weight_threshold_pct) || body.over_weight_threshold_pct <= 0 || body.over_weight_threshold_pct > 100) {
+      msg.textContent = '許容乖離幅は 0 より大きく 100 以下で入力してください。';
+      msg.className = 'text-sm text-amber-400';
+      return;
+    }
+    if (isNaN(body.max_position_percent) || body.max_position_percent <= 0 || body.max_position_percent > 100) {
+      msg.textContent = '1銘柄最大保有比率は 0 より大きく 100 以下で入力してください。';
+      msg.className = 'text-sm text-amber-400';
+      return;
+    }
+    if (isNaN(body.max_position_jpy) || body.max_position_jpy <= 0) {
+      msg.textContent = '1銘柄上限額は正の数で入力してください。';
+      msg.className = 'text-sm text-amber-400';
+      return;
+    }
+    if (isNaN(body.max_draft_candidates) || body.max_draft_candidates < 1 || body.max_draft_candidates > 30) {
+      msg.textContent = '動的N最大数は 1〜30 で入力してください。';
       msg.className = 'text-sm text-amber-400';
       return;
     }
@@ -149,14 +224,16 @@
     })
     .then(r => r.json())
     .then(() => {
-      msg.textContent = '保存しました。';
+      msg.textContent = '保存しました。再読み込みします…';
       msg.className = 'text-sm text-green-500';
+      btn.disabled = false;
+      window.location.reload();
     })
     .catch(() => {
       msg.textContent = '保存に失敗しました。';
       msg.className = 'text-sm text-red-400';
-    })
-    .finally(() => { btn.disabled = false; });
+      btn.disabled = false;
+    });
   });
 })();
 </script>

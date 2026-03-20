@@ -106,14 +106,40 @@ def _diff(cur: Optional[float], prev: Optional[float]) -> int:
     return 0
 
 
-def _table(headers: list[str], rows: list[list[str]], change_matrix: Optional[list[list[int]]] = None) -> str:
-    """HTML テーブルを生成。change_matrix[i][j]: 1=増(赤文字), -1=減(緑文字), 0=色なし。枠線は常にグレー。"""
-    h = "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" style=\"border-collapse:collapse; font-size:14px; border-color:#ccc;\">"
-    h += "<thead><tr>" + "".join(f"<th style=\"background:#e0e0e0; border-color:#ccc;\">{_esc(x)}</th>" for x in headers) + "</tr></thead><tbody>"
+def _table(
+    headers: list[str],
+    rows: list[list[str]],
+    change_matrix: Optional[list[list[int]]] = None,
+    *,
+    numeric_columns: bool = False,
+) -> str:
+    """HTML テーブルを生成。change_matrix[i][j]: 1=増(赤文字), -1=減(緑文字), 0=色なし。枠線は常にグレー。
+    numeric_columns=True のとき等幅＋数値列は右揃え（コード・銘柄名は左）。
+    """
+    table_style = "border-collapse:collapse; font-size:14px; border-color:#ccc;"
+    if numeric_columns:
+        table_style += " font-family:ui-monospace,Consolas,monospace; font-variant-numeric:tabular-nums;"
+    h = f"<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" style=\"{table_style}\">"
+    if numeric_columns:
+        th_parts = []
+        for i, x in enumerate(headers):
+            align = "left" if i < 2 else "right"
+            th_parts.append(
+                f"<th style=\"background:#e0e0e0; border-color:#ccc; text-align:{align};\">{_esc(x)}</th>"
+            )
+        h += "<thead><tr>" + "".join(th_parts) + "</tr></thead><tbody>"
+    else:
+        h += "<thead><tr>" + "".join(
+            f"<th style=\"background:#e0e0e0; border-color:#ccc;\">{_esc(x)}</th>" for x in headers
+        ) + "</tr></thead><tbody>"
     for ri, row in enumerate(rows):
         cells = []
         for i, x in enumerate(row):
-            style = " border-color:#ccc;"
+            if numeric_columns:
+                align = "left" if i < 2 else "right"
+                style = f" border-color:#ccc; text-align:{align};"
+            else:
+                style = " border-color:#ccc;"
             if change_matrix and ri < len(change_matrix) and i < len(change_matrix[ri]):
                 d = change_matrix[ri][i]
                 if d == 1:
@@ -180,7 +206,8 @@ def build_report_html() -> str:
     equity = last_report.get("equity_value_yen")
     draft = last_report.get("draft") or {}
     raw_budget = draft.get("raw_available_budget")
-    avail_budget = draft.get("available_budget")
+    draft_cap = draft.get("draft_budget_cap")
+    avail_budget = draft.get("available_budget")  # 推奨買付合計（消費額）
 
     html_parts = [
         "<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head><body style=\"font-family: sans-serif; max-width: 720px;\">",
@@ -199,15 +226,18 @@ def build_report_html() -> str:
             ("総資産", f"{total:,.0f} 円" if total is not None else "-"),
             ("現金", f"{cash:,.0f} 円" if cash is not None else "-"),
             ("株式評価額", f"{equity:,.0f} 円" if equity is not None else "-"),
-            ("本日新規購入に使える理論上の最大額", f"{raw_budget:,.0f} 円" if raw_budget is not None else "-"),
-            ("マクロ防衛モードにより実際の新規購入枠", f"{avail_budget:,.0f} 円" if avail_budget is not None else "-"),
+            ("本日新規購入に使える理論上の最大額（売却見込み反映）", f"{raw_budget:,.0f} 円" if raw_budget is not None else "-"),
+            ("ドラフト予算上限（PANIC 時は0）", f"{draft_cap:,.0f} 円" if draft_cap is not None else "-"),
+            ("推奨買付合計（消費額）", f"{avail_budget:,.0f} 円" if avail_budget is not None else "-"),
         ]),
         "",
     ]
 
     purge = last_report.get("purge") or {}
     purge_items = purge.get("items") or []
-    html_parts.append("<h3 style=\"margin: 1em 0 0.3em 0; padding: 6px 0; border-bottom: 2px solid #1976d2; color: #1565c0;\">売却指示</h3>")
+    html_parts.append(
+        "<h3 style=\"margin: 1em 0 0.3em 0; padding: 6px 0; border-bottom: 2px solid #2e7d32; color: #1b5e20;\">売却指示</h3>"
+    )
     if not purge_items:
         html_parts.append("<p>（なし）</p>")
     else:
@@ -217,15 +247,27 @@ def build_report_html() -> str:
             name = (ticker_names.get(ticker) or "-")[:32]
             reason = str(x.get("reason_ja") or x.get("reason") or "-")
             price = x.get("current_price")
-            stop = x.get("stop_loss_price")
             price_str = f"{float(price):,.0f}" if price is not None else "-"
-            stop_str = f"{float(stop):,.0f}" if stop is not None else "-"
-            purge_rows.append([ticker, name, reason, price_str, stop_str])
-        html_parts.append(_table(["コード", "銘柄名", "理由", "現在価格", "損切り目安"], [[_esc(str(c)) for c in row] for row in purge_rows]))
+            sh = x.get("shares_to_sell")
+            try:
+                sh_int = int(sh) if sh is not None else 0
+            except (TypeError, ValueError):
+                sh_int = 0
+            # 0 株＝実売却なし（アラートのみ）
+            shares_str = f"{sh_int} 株" if sh_int > 0 else "-"
+            purge_rows.append([ticker, name, reason, price_str, shares_str])
+        html_parts.append(
+            _table(
+                ["コード", "銘柄名", "理由", "現在価格", "売却株数"],
+                [[_esc(str(c)) for c in row] for row in purge_rows],
+            )
+        )
     html_parts.append("")
 
     recs = (draft.get("recommendations") or []) if isinstance(draft, dict) else []
-    html_parts.append("<h3 style=\"margin: 1em 0 0.3em 0; padding: 6px 0; border-bottom: 2px solid #1976d2; color: #1565c0;\">新規購入推奨</h3>")
+    html_parts.append(
+        "<h3 style=\"margin: 1em 0 0.3em 0; padding: 6px 0; border-bottom: 2px solid #c62828; color: #b71c1c;\">新規購入推奨</h3>"
+    )
     if not recs:
         html_parts.append("<p>（なし）</p>")
     else:
@@ -245,7 +287,7 @@ def build_report_html() -> str:
 
     html_parts.append("<h3 style=\"margin: 1em 0 0.3em 0; padding: 6px 0; border-bottom: 2px solid #1976d2; color: #1565c0;\">保有銘柄の状況</h3>")
     if current_weights:
-        hold_headers = ["コード", "銘柄名", "現在%", "目標%", "スコア", "株価(円)"]
+        hold_headers = ["コード", "銘柄名", "現在%", "目標%(乖離pt)", "スコア", "株価(円)"]
         hold_rows = []
         hold_changes = []
         for ticker in sorted(current_weights.keys(), key=lambda t: -(current_weights.get(t) or 0)):
@@ -258,12 +300,14 @@ def build_report_html() -> str:
             prev_price = prev_last_prices.get(ticker)
             score_val = _score_num(last_report, ticker)
             prev_score_val = _score_num(previous_report, ticker)
-            hold_rows.append([ticker, name, f"{cw:.1f}", f"{tw:.1f}", score_str(ticker), f"{price:,.0f}" if price is not None else "-"])
+            dev_pp = cw - tw
+            tgt_cell = f"{tw:.1f} ({dev_pp:+.1f})"
+            hold_rows.append([ticker, name, f"{cw:.1f}", tgt_cell, score_str(ticker), f"{price:,.0f}" if price is not None else "-"])
             hold_changes.append([
                 0, 0,
                 _diff(cw, prev_cw), _diff(tw, prev_tw), _diff(score_val, prev_score_val), _diff(price, prev_price),
             ])
-        html_parts.append(_table(hold_headers, hold_rows, hold_changes))
+        html_parts.append(_table(hold_headers, hold_rows, hold_changes, numeric_columns=True))
     else:
         html_parts.append("<p>（なし）</p>")
     html_parts.append("")

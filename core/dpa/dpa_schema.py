@@ -6,7 +6,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class MacroPhase(str, Enum):
@@ -27,10 +27,9 @@ class MacroState(BaseModel):
 
 
 class SellReason(str, Enum):
-    """売却理由。"""
-    MACRO_PANIC = "macro_panic"       # マクロ悪化（防衛モード移行）
-    STOP_LOSS = "stop_loss"           # ATR損切りライン抵触
-    SCORE_DECAY = "score_decay"       # スコア陳腐化
+    """売却理由（マクロ防衛と通常の目標比率リバランスの2系統）。"""
+    MACRO_PANIC = "macro_panic"   # マクロ PANIC 時の目標比率超過（防衛）
+    SCORE_DECAY = "score_decay"  # 通常時の目標比率超過（比率調整・スコア相対）
 
 
 class PurgeItem(BaseModel):
@@ -41,6 +40,24 @@ class PurgeItem(BaseModel):
     current_price: Optional[float] = None
     stop_loss_price: Optional[float] = None
     score: Optional[float] = None
+    shares_to_sell: int = Field(
+        0,
+        description="単元株単位で算出した売却株数。0 は実売却なし（一覧では「-」表示）",
+    )
+    estimated_sale_cash: Optional[float] = Field(
+        None, description="上記売却の見込み金額（円）"
+    )
+
+    @field_validator("shares_to_sell", mode="before")
+    @classmethod
+    def _shares_to_sell_int(cls, v: object) -> int:
+        """旧 JSON の null や欠損を 0 に正規化する。"""
+        if v is None:
+            return 0
+        try:
+            return int(v)
+        except (TypeError, ValueError):
+            return 0
 
 
 class DpaPurgeOutput(BaseModel):
@@ -48,6 +65,10 @@ class DpaPurgeOutput(BaseModel):
     phase: MacroPhase
     items: list[PurgeItem] = Field(default_factory=list)
     total_count: int = 0
+    estimated_cash_generated: float = Field(
+        0.0,
+        description="パージ候補を単元株で売却した場合の見込み現金増（円）の合計",
+    )
 
 
 class BuyRecommendation(BaseModel):
@@ -63,9 +84,19 @@ class BuyRecommendation(BaseModel):
 class DpaDraftOutput(BaseModel):
     """ドラフト（購入判定）の出力。"""
     phase: MacroPhase
-    available_budget: float = Field(0.0, description="本日の新規買付パワー（実際に使う額、円）")
+    draft_budget_cap: float = Field(
+        0.0,
+        description="動的Nシミュレーションに渡した予算上限（円）。PANIC または枠0のときは0",
+    )
     raw_available_budget: Optional[float] = Field(
-        None, description="マクロ防衛設定を無視した理論上の新規買付パワー（円）"
+        None,
+        description=(
+            "max(0, (現金+売却見込み)-総資産×目標現金比率) の理論上の新規買付枠（円）"
+        ),
+    )
+    available_budget: float = Field(
+        0.0,
+        description="採用シナリオにおける推奨買付の合計（消費額、円）。SYSTEM_OVERVIEW §5.2 の total_spent",
     )
     recommendations: list[BuyRecommendation] = Field(default_factory=list)
 

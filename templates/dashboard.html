@@ -72,8 +72,8 @@
   <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
       <div class="px-4 py-3 border-b border-slate-700 flex items-center justify-between">
-        <h3 class="font-semibold text-amber-400">新規購入推奨</h3>
-        <a href="/report" class="text-xs text-amber-400 hover:text-amber-300">レポートへ</a>
+        <h3 class="font-semibold text-rose-400">新規購入推奨</h3>
+        <a href="/report" class="text-xs text-rose-400 hover:text-rose-300">レポートへ</a>
       </div>
       <div class="p-4" id="dashboard-draft">
         <p class="text-slate-500 text-sm">読み込み中…</p>
@@ -81,8 +81,8 @@
     </div>
     <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
       <div class="px-4 py-3 border-b border-slate-700 flex items-center justify-between">
-        <h3 class="font-semibold text-amber-400">売却指示</h3>
-        <a href="/report" class="text-xs text-amber-400 hover:text-amber-300">レポートへ</a>
+        <h3 class="font-semibold text-emerald-400">売却指示</h3>
+        <a href="/report" class="text-xs text-emerald-400 hover:text-emerald-300">レポートへ</a>
       </div>
       <div class="p-4" id="dashboard-purge">
         <p class="text-slate-500 text-sm">読み込み中…</p>
@@ -95,7 +95,7 @@
     <section class="bg-slate-800 rounded-xl border border-slate-700 p-4 space-y-3">
       <div class="flex items-center justify-between">
         <h3 class="font-semibold text-sm text-slate-100">保有サマリ（上位 5 件）</h3>
-        <a href="/positions" class="text-xs text-amber-400 hover:text-amber-300">ポートフォリオへ</a>
+        <a href="/trade" class="text-xs text-amber-400 hover:text-amber-300">取引へ</a>
       </div>
       <p class="text-xs text-slate-400" id="holdings-summary">保有銘柄情報を読み込み中…</p>
       <div class="overflow-hidden rounded-lg border border-slate-700/60">
@@ -166,7 +166,16 @@
       const shares = h.shares != null ? Number(h.shares) : 0;
       if (price != null && shares) totalVal += price * shares;
       const cw = h.current_weight != null ? (h.current_weight * 100).toFixed(1) + '%' : '-';
-      const tw = h.target_weight != null ? (h.target_weight * 100).toFixed(1) + '%' : '-';
+      let tw = '-';
+      if (h.target_weight != null) {
+        const twp = (h.target_weight * 100).toFixed(1) + '%';
+        if (h.current_weight != null) {
+          const dev = ((h.current_weight - h.target_weight) * 100).toFixed(1);
+          tw = twp + '<span class="text-slate-500">(' + dev + ')</span>';
+        } else {
+          tw = twp;
+        }
+      }
       const pnl = h.unrealized_pnl != null ? h.unrealized_pnl : 0;
       const pnlClass = pnl > 0 ? 'text-red-500' : pnl < 0 ? 'text-green-500' : 'text-slate-200';
       const tr = document.createElement('tr');
@@ -202,7 +211,7 @@
         '<td class="px-3 py-2 text-right">' + (score != null ? score.toFixed(1) : '-') + '</td>';
       watchlistBody.appendChild(tr);
     });
-    watchlistSummary.textContent = '表示中: ' + top.length + ' 件（ポートフォリオ優先度の高い順）';
+    watchlistSummary.textContent = '表示中: ' + top.length + ' 件（銘柄優先度の高い順）';
   }
 
   function phaseFromTargetRatio(ratio) {
@@ -240,8 +249,11 @@
       el.innerHTML = '<p class="text-slate-500">（なし）</p>';
       return;
     }
-    const budget = ((draft.available_budget || 0) | 0).toLocaleString();
-    let html = '<p class="text-slate-400 text-xs mb-3">空き予算: <span class="text-amber-400 font-semibold">' + budget + ' 円</span></p>';
+    const cap = (draft.draft_budget_cap != null ? draft.draft_budget_cap : draft.raw_available_budget) || 0;
+    const spent = (draft.available_budget || 0);
+    const capStr = (cap | 0).toLocaleString();
+    const spentStr = (spent | 0).toLocaleString();
+    let html = '<p class="text-slate-400 text-xs mb-3">ドラフト予算上限: <span class="text-rose-400 font-semibold">' + capStr + ' 円</span>　推奨買付合計: <span class="text-slate-300 font-semibold">' + spentStr + ' 円</span></p>';
     html += '<table class="w-full text-left text-xs"><thead class="text-slate-400 border-b border-slate-600"><tr><th class="py-1.5 pr-2">コード</th><th class="py-1.5 pr-2 w-14 text-right">株数</th><th class="py-1.5 text-right">予算（円）</th></tr></thead><tbody>';
     recs.forEach((r) => {
       const name = (r.name || (tickerNames && tickerNames[r.ticker]) || '-').substring(0, 18);
@@ -252,6 +264,15 @@
     el.innerHTML = html;
   }
 
+  function _escHtml(s) {
+    if (s == null || s === '') return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   function renderPurge(purge, tickerNames) {
     const el = document.getElementById('dashboard-purge');
     if (!el) return;
@@ -260,12 +281,31 @@
       el.innerHTML = '<p class="text-slate-500">（なし）</p>';
       return;
     }
-    let html = '<ul class="space-y-1 text-sm text-slate-200">';
-    items.forEach(it => {
-      const name = (tickerNames && tickerNames[it.ticker]) || it.ticker || '-';
-      html += '<li class="truncate">' + (it.ticker || '') + ': ' + (it.reason_ja || it.reason || '-') + ' <span class="text-slate-500">(' + (it.current_price != null ? Math.round(it.current_price).toLocaleString() : '-') + ' 円)</span></li>';
+    let html = '<table class="w-full text-left text-xs"><thead class="text-slate-400 border-b border-slate-600"><tr>';
+    html += '<th class="py-1.5 pr-2">コード</th>';
+    html += '<th class="py-1.5 pr-2 min-w-[5rem]">銘柄名</th>';
+    html += '<th class="py-1.5 pr-2">理由</th>';
+    html += '<th class="py-1.5 pr-2 text-right whitespace-nowrap">現在価格</th>';
+    html += '<th class="py-1.5 text-right whitespace-nowrap">売却株数</th>';
+    html += '</tr></thead><tbody>';
+    items.forEach(function (it) {
+      const t = it.ticker || '';
+      const name = (tickerNames && tickerNames[t]) ? String(tickerNames[t]).substring(0, 22) : '-';
+      const reason = it.reason_ja || it.reason || '-';
+      const price = (it.current_price != null && it.current_price !== '') ? (Math.round(it.current_price)).toLocaleString() + ' 円' : '-';
+      const rawSh = it.shares_to_sell;
+      const shNum = (rawSh != null && rawSh !== '' && !Number.isNaN(Number(rawSh))) ? Number(rawSh) : null;
+      // 0 株＝この条件では実売却なし（アラートのみ等）
+      const sh = (shNum !== null && shNum > 0) ? (shNum + ' 株') : '-';
+      html += '<tr class="border-b border-slate-700/60">';
+      html += '<td class="py-1.5 pr-2 align-top"><span class="font-mono text-slate-200">' + _escHtml(t) + '</span></td>';
+      html += '<td class="py-1.5 pr-2 align-top text-slate-400" title="' + _escHtml(tickerNames && tickerNames[t] ? tickerNames[t] : '') + '">' + _escHtml(name) + '</td>';
+      html += '<td class="py-1.5 pr-2 align-top text-slate-300 leading-snug">' + _escHtml(reason) + '</td>';
+      html += '<td class="py-1.5 pr-2 align-top text-right font-mono text-slate-200">' + price + '</td>';
+      html += '<td class="py-1.5 align-top text-right text-slate-300">' + sh + '</td>';
+      html += '</tr>';
     });
-    html += '</ul>';
+    html += '</tbody></table>';
     el.innerHTML = html;
   }
 

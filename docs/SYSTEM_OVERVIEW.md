@@ -257,7 +257,7 @@ flowchart LR
 ```
 
 - 対象は **保有銘柄のみ**。
-- 「保有銘柄だけで山分けしたターゲット比率」は使わない。`compute_target_weights` の **全ウォッチ対象向け** `w_i^*` と、総資産に対する現在比率 `w` を比較し、`over = max(0, w - w_i^*)` が `over_weight_threshold`（デフォルト 2%pt）を超えた銘柄を売却候補にする（`dpa_purge.run_purge`）。
+- 目標比率 `w_i^*` は `compute_target_weights` で、**保有銘柄だけ**を母集団として `non_cash = 1 - target_cash_ratio` を山分けした総資産ベースの比率（未保有のウォッチ銘柄は 0）。これと総資産に対する現在比率 `w` を比較し、`over = max(0, w - w_i^*)` が `over_weight_threshold`（デフォルト 2%pt）を超えた銘柄を売却候補にする（`dpa_purge.run_purge`）。
 - フェーズが PANIC のときは理由を `MACRO_PANIC`、それ以外は `SCORE_DECAY` として DpaPurgeOutput に載せる。
 
 ### 5.2 購入（ドラフト）― 仮想組入 & 動的N最適化

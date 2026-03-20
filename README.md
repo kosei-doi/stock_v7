@@ -49,9 +49,8 @@ python -m core.dvc.dvc_phase1 --ticker 7203.T --config config.yaml --dry-run
 
 | 用途 | ファイル／パス | 設定で変更可能 |
 |------|-----------------|----------------|
-| ウォッチリスト | `data/watchlist.json` | `--watchlist` |
-| 保有ポジション | `data/positions.json` | `dpa.positions_path` |
-| ポートフォリオ状態（現金等） | `portfolio_state.json` | `dpa.portfolio_path` |
+| ウォッチリスト（保有株数・平均単価は HOLDING 行） | `data/watchlist.json` | `--watchlist` |
+| 現金残高など | `portfolio_state.json` | `dpa.portfolio_path` |
 | セクター・ピア定義 | `data/sector_peers.json` | `dpa.sector_peers_path` |
 | 日次キャッシュ（ベンチマーク・VI等） | `data/daily_cache.json` | `cache.cache_path` または `dpa.cache_path` |
 | スコア履歴 | `data/scores_history.json` | `dpa.scores_history_path` |

@@ -28,6 +28,10 @@ DEFAULT_MIN_CASH_RATIO = 0.2
 DEFAULT_MAX_CASH_RATIO = 0.8
 DEFAULT_MOMENTUM_THRESHOLD = 50.0
 DEFAULT_LOT_SIZE = 100
+DEFAULT_OVER_WEIGHT_THRESHOLD = 0.02
+DEFAULT_MAX_POSITION_PCT = 0.15
+DEFAULT_MAX_POSITION_JPY = 750_000.0
+DEFAULT_MAX_DRAFT_CANDIDATES = 5
 DEFAULT_SCORES_HISTORY_PATH = "data/scores_history.json"
 DEFAULT_WATCHLIST_MAX_ITEMS = 30
 
@@ -101,7 +105,8 @@ def get_validated_config(cfg: dict[str, Any]) -> dict[str, Any]:
     返り値は benchmark_ticker, years, output_dir, cache_path, sector_peers_path,
     cache_cutoff_hour, cache_cutoff_minute, market_tz, llm_enabled, llm_model,
     total_capital_jpy, portfolio_path, scores_history_path, vi_ticker, mu_cash, a_vi, b_macd,
-    macd_scale, min_cash_ratio, max_cash_ratio, momentum_threshold, lot_size などを含む。
+    macd_scale, min_cash_ratio, max_cash_ratio, momentum_threshold, lot_size,
+    over_weight_threshold, max_position_pct, max_position_jpy, max_draft_candidates などを含む。
     vi_ticker は空文字のとき None に正規化する。
     """
     out: dict[str, Any] = {}
@@ -154,7 +159,22 @@ def get_validated_config(cfg: dict[str, Any]) -> dict[str, Any]:
     out["macd_scale"] = _coerce_float(dpa_cfg.get("macd_scale"), DEFAULT_MACD_SCALE)
     out["min_cash_ratio"] = _coerce_float(dpa_cfg.get("min_cash_ratio"), DEFAULT_MIN_CASH_RATIO)
     out["max_cash_ratio"] = _coerce_float(dpa_cfg.get("max_cash_ratio"), DEFAULT_MAX_CASH_RATIO)
-    out["momentum_threshold"] = _coerce_float(dpa_cfg.get("momentum_threshold"), DEFAULT_MOMENTUM_THRESHOLD)
+    _ign = dpa_cfg.get("ignition_momentum_threshold")
+    _mom = dpa_cfg.get("momentum_threshold")
+    if _ign is not None:
+        out["momentum_threshold"] = _coerce_float(_ign, DEFAULT_MOMENTUM_THRESHOLD)
+    elif _mom is not None:
+        out["momentum_threshold"] = _coerce_float(_mom, DEFAULT_MOMENTUM_THRESHOLD)
+    else:
+        out["momentum_threshold"] = DEFAULT_MOMENTUM_THRESHOLD
     out["lot_size"] = _coerce_int(dpa_cfg.get("lot_size"), DEFAULT_LOT_SIZE)
+    out["over_weight_threshold"] = _coerce_float(
+        dpa_cfg.get("over_weight_threshold"), DEFAULT_OVER_WEIGHT_THRESHOLD
+    )
+    out["max_position_pct"] = _coerce_float(dpa_cfg.get("max_position_pct"), DEFAULT_MAX_POSITION_PCT)
+    out["max_position_jpy"] = _coerce_float(dpa_cfg.get("max_position_jpy"), DEFAULT_MAX_POSITION_JPY)
+    out["max_draft_candidates"] = _coerce_int(
+        dpa_cfg.get("max_draft_candidates"), DEFAULT_MAX_DRAFT_CANDIDATES
+    )
 
     return out

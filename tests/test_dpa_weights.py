@@ -52,3 +52,26 @@ def test_compute_target_weights_empty_trends_skipped():
     # portfolio_scores があれば level はそれで上書きされるので、level=None でも 0.7/100 で level がつく
     weights = compute_target_weights(dvc_results, score_trends, macro, portfolio_scores={"A": 70.0})
     assert "A" in weights
+
+
+def test_compute_target_weights_allocation_holdings_only():
+    """保有銘柄集合だけで non_cash を山分けし、それ以外は 0。"""
+    dvc_results = {
+        "A": _make_output("A", 80.0),
+        "B": _make_output("B", 60.0),
+        "C": _make_output("C", 90.0),
+    }
+    score_trends = {
+        "A": {"level": 0.8, "trend": 0.2},
+        "B": {"level": 0.6, "trend": 0.0},
+        "C": {"level": 0.9, "trend": 0.0},
+    }
+    macro = MacroState(phase="cruise", phase_name_ja="巡航", target_cash_ratio=0.2, vi_z=None, macd_trend=None)
+    ps = {"A": 80.0, "B": 60.0, "C": 90.0}
+    # A, B のみ保有想定 → raw は A,B だけで正規化、合計 non_cash=0.8
+    w = compute_target_weights(
+        dvc_results, score_trends, macro, portfolio_scores=ps, allocation_tickers={"A", "B"}
+    )
+    assert w.get("C", 0) == 0.0
+    assert w["A"] + w["B"] == pytest.approx(0.8)
+    assert w["A"] > w["B"]

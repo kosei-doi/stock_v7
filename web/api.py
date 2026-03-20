@@ -592,64 +592,16 @@ def trade_sale(body: dict) -> dict:
     return {"ok": True, "cash_yen": state["cash_yen"]}
 
 
-@router.post("/positions/update")
-def update_positions(body: dict) -> dict:
-    """watchlist の HOLDING 銘柄の shares/avg_price を一括更新。新規銘柄は DVC を実行してから追加。"""
-    if not isinstance(body.get("positions"), dict):
-        raise HTTPException(status_code=400, detail="positions オブジェクトを送信してください。")
-    positions = {}
-    for ticker, entry in body["positions"].items():
-        if not isinstance(entry, dict):
-            continue
-        shares = entry.get("shares") or entry.get("shares_held")
-        try:
-            shares = int(shares) if shares is not None else 0
-        except (TypeError, ValueError):
-            shares = 0
-        avg = entry.get("avg_price")
-        try:
-            avg = float(avg) if avg is not None else None
-        except (TypeError, ValueError):
-            avg = None
-        positions[ticker] = {"shares": shares}
-        if avg is not None:
-            positions[ticker]["avg_price"] = avg
-
-    wl = _read_json(WATCHLIST_PATH)
-    if not isinstance(wl, list):
-        wl = []
-    existing_tickers = {x.get("ticker") or x.get("ticker_symbol") or "" for x in wl}
-    new_tickers = [t for t in positions.keys() if t not in existing_tickers]
-
-    for ticker in new_tickers:
-        try:
-            _run_dvc_for_ticker(ticker)
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"{ticker} の企業分析に失敗しました: {e}") from e
-
-    try:
-        from core.utils.watchlist_io import update_holdings_bulk
-        last_report = _read_json(LAST_REPORT_PATH) or {}
-        portfolio_scores = last_report.get("portfolio_scores") or {}
-        cfg = _load_config_raw()
-        wl_cfg = cfg.get("watchlist") or {}
-        max_items = int(wl_cfg.get("max_items", 30))
-        update_holdings_bulk(
-            positions,
-            path=str(WATCHLIST_PATH),
-            portfolio_scores=portfolio_scores,
-            max_items=max_items,
-        )
-    except ImportError as e:
-        raise HTTPException(status_code=500, detail=f"core の読み込みに失敗しました: {e}") from e
-
-    return {"ok": True, "positions": positions}
-
-
 CONFIG_KEYS = {
     "benchmark_ticker", "years", "output_dir", "llm_enabled",
     "vi_ticker", "mu_cash", "a_vi", "b_macd", "daily_report_email_enabled",
     "watchlist_max_items",
+    # DPA 売却・購入（UI は % 表示、YAML は小数・円で保存）
+    "over_weight_threshold_pct",
+    "max_position_percent",
+    "max_position_jpy",
+    "ignition_momentum_threshold",
+    "max_draft_candidates",
 }
 
 
@@ -732,22 +684,67 @@ def _deep_merge(base: dict, override: dict) -> None:
 
 
 def _config_to_flat(cfg: dict) -> dict:
-    """設定をフラット形式（UI用）に変換。"""
+    """設定をフラット形式（UI用）に変換。YAML の null / 欠損でも常にスカラーで返す。"""
     dpa = cfg.get("dpa") or {}
     llm = cfg.get("llm") or {}
     email_cfg = cfg.get("daily_report") or {}
     wl_cfg = cfg.get("watchlist") or {}
+
+    def _dpa_float(key: str, default: float) -> float:
+        v = dpa.get(key)
+        if v is None:
+            return float(default)
+        return float(v)
+
+    def _dpa_int(key: str, default: int) -> int:
+        v = dpa.get(key)
+        if v is None:
+            return int(default)
+        return int(v)
+
+    _ign = dpa.get("ignition_momentum_threshold")
+    _mom = dpa.get("momentum_threshold")
+    _ignite = float(_ign) if _ign is not None else (float(_mom) if _mom is not None else 50.0)
+
+    bt = cfg.get("benchmark_ticker")
+    if not bt:
+        bt = "1306.T"
+    yrs = cfg.get("years")
+    if yrs is None:
+        yrs = 5
+    od = cfg.get("output_dir")
+    if not od:
+        od = "output"
+    wl_max = wl_cfg.get("max_items")
+    if wl_max is None:
+        wl_max = 30
+
+    ow = dpa.get("over_weight_threshold")
+    if ow is None:
+        ow = 0.02
+    mp = dpa.get("max_position_pct")
+    if mp is None:
+        mp = 0.15
+
+    _vi = dpa.get("vi_ticker")
+    vi_ticker = "^VIX" if _vi is None else (str(_vi).strip() or "^VIX")
+
     return {
-        "benchmark_ticker": cfg.get("benchmark_ticker", "1306.T"),
-        "years": int(cfg.get("years", 5)),
-        "output_dir": cfg.get("output_dir", "output"),
+        "benchmark_ticker": str(bt).strip() or "1306.T",
+        "years": int(yrs),
+        "output_dir": str(od).strip() or "output",
         "llm_enabled": bool(llm.get("enabled", False)),
-        "watchlist_max_items": int(wl_cfg.get("max_items", 30)),
-        "vi_ticker": dpa.get("vi_ticker") or "^VIX",
-        "mu_cash": float(dpa.get("mu_cash", 0.4)),
-        "a_vi": float(dpa.get("a_vi", 0.2)),
-        "b_macd": float(dpa.get("b_macd", 0.2)),
+        "watchlist_max_items": int(wl_max),
+        "vi_ticker": vi_ticker,
+        "mu_cash": _dpa_float("mu_cash", 0.4),
+        "a_vi": _dpa_float("a_vi", 0.2),
+        "b_macd": _dpa_float("b_macd", 0.2),
         "daily_report_email_enabled": bool(email_cfg.get("enabled", True)),
+        "over_weight_threshold_pct": round(float(ow) * 100.0, 4),
+        "max_position_percent": round(float(mp) * 100.0, 4),
+        "max_position_jpy": _dpa_float("max_position_jpy", 750_000.0),
+        "ignition_momentum_threshold": _ignite,
+        "max_draft_candidates": _dpa_int("max_draft_candidates", 5),
     }
 
 
@@ -793,6 +790,39 @@ def _flat_to_config(flat: dict) -> dict:
             pass
     if "daily_report_email_enabled" in flat:
         cfg.setdefault("daily_report", {})["enabled"] = bool(flat["daily_report_email_enabled"])
+    if "over_weight_threshold_pct" in flat:
+        try:
+            v = float(flat["over_weight_threshold_pct"])
+            if 0 < v <= 100:
+                dpa["over_weight_threshold"] = v / 100.0
+        except (TypeError, ValueError):
+            pass
+    if "max_position_percent" in flat:
+        try:
+            v = float(flat["max_position_percent"])
+            if 0 < v <= 100:
+                dpa["max_position_pct"] = v / 100.0
+        except (TypeError, ValueError):
+            pass
+    if "max_position_jpy" in flat:
+        try:
+            v = float(flat["max_position_jpy"])
+            if v > 0:
+                dpa["max_position_jpy"] = v
+        except (TypeError, ValueError):
+            pass
+    if "ignition_momentum_threshold" in flat:
+        try:
+            dpa["ignition_momentum_threshold"] = float(flat["ignition_momentum_threshold"])
+        except (TypeError, ValueError):
+            pass
+    if "max_draft_candidates" in flat:
+        try:
+            v = int(flat["max_draft_candidates"])
+            if 1 <= v <= 30:
+                dpa["max_draft_candidates"] = v
+        except (TypeError, ValueError):
+            pass
     return cfg
 
 

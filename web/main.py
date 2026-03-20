@@ -89,25 +89,6 @@ def create_app():
             traceback.print_exc()
         return templates.TemplateResponse("trade.html", {"request": request, "holdings": holdings, "cash_yen": cash_yen})
 
-    @app.get("/positions", response_class=HTMLResponse)
-    async def positions(request: Request):
-        from web.api import _read_json, _get_positions_from_watchlist
-        pos = _get_positions_from_watchlist()
-        last_report = _read_json(PROJECT_ROOT / "data" / "last_report.json")
-        names = (last_report or {}).get("ticker_names") or {}
-        last_prices = (last_report or {}).get("last_prices") or {}
-        positions_list = [
-            {
-                "ticker": t,
-                "name": names.get(t, "-"),
-                "shares": (e.get("shares") or e.get("shares_held")) or 0,
-                "avg_price": e.get("avg_price"),
-                "last_price": last_prices.get(t),
-            }
-            for t, e in pos.items()
-        ]
-        return templates.TemplateResponse("positions.html", {"request": request, "positions": positions_list})
-
     @app.get("/watchlist", response_class=HTMLResponse)
     async def watchlist(request: Request):
         from web.api import _read_json

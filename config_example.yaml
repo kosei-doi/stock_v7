@@ -27,11 +27,18 @@ dpa:
   mu_cash: 0.4                 # 現金比率のベースライン
   a_vi: 0.2                    # VI Zスコアに対する感度（vi_ticker 未指定時は VI 項は 0 扱い）
   b_macd: 0.2                  # MACDトレンドに対する感度
+  # 売却（パージ）・ポジション上限
+  over_weight_threshold: 0.02   # 許容乖離（比率）。UI では %（例: 2.0 → 0.02）
+  max_position_pct: 0.15        # 1銘柄の最大保有比率（比率）。UI では %（例: 15.0 → 0.15）
+  max_position_jpy: 750000      # 1銘柄の絶対上限額（円）
+  # 購入（ドラフト）
+  ignition_momentum_threshold: 50.0   # 着火点モメンタム（未保有の momentum_score がこの値以上で候補）
+  max_draft_candidates: 5         # 動的Nシミュレーションの最大N（整数）
   # マクロ・現金比率の微調整（任意）
   # macd_scale: 0.002          # MACD トレンド正規化のスケール
   # min_cash_ratio: 0.2        # 目標現金比率の下限
   # max_cash_ratio: 0.8        # 目標現金比率の上限
-  # momentum_threshold: 50.0   # 購入着火点（モメンタムスコアがこの値以上で陽転とみなす）
+  # momentum_threshold: 50.0   # 後方互換: ignition_momentum_threshold が無いときの着火点
   # lot_size: 100              # 売買単位（日本株: 100株単位）
 
 # ウォッチリスト

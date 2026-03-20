@@ -6,7 +6,7 @@ from __future__ import annotations
 およびマクロの target_cash_ratio から非現金部分を銘柄ごとに割り振る。
 """
 
-from typing import Dict, Optional
+from typing import AbstractSet, Dict, Optional
 
 from core.dpa.dpa_schema import MacroState
 from core.dvc.schema import DvcScoreOutput
@@ -19,12 +19,17 @@ def compute_target_weights(
     alpha_level: float = 0.7,
     beta_trend: float = 0.3,
     portfolio_scores: Optional[Dict[str, float]] = None,
+    allocation_tickers: Optional[AbstractSet[str]] = None,
 ) -> Dict[str, float]:
     """
     非現金部分 (1 - target_cash_ratio) を、
     raw_i = max(0, alpha * level_i + beta * trend_i) に
     β, R², α, ATR からの連続的なリスク調整を掛けたうえで正規化して割り振る。
 
+    - **allocation_tickers** を指定した場合、その集合に含まれ **かつ** ``dvc_results`` にある銘柄
+      だけを正規化の母集団とし、それらの ``target_weights`` の合計が ``non_cash`` になる
+      （日次レポートの「保有のみで目標比率を山分け」用）。
+      未指定時は従来どおり ``dvc_results`` の全銘柄が対象。
     - portfolio_scores を渡す場合、level には「ポートフォリオ用 total_score」の 0〜1 正規化を使う（購入順と整合）。
     - マクロが防御的（target_cash_ratio が高い）ほど、高β・高R² 銘柄の raw を抑える。
     - ATR が大きい銘柄は常に raw を少し抑え、α がプラスの銘柄はわずかに押し上げる。
@@ -34,10 +39,16 @@ def compute_target_weights(
     non_cash = max(0.0, min(1.0, 1.0 - macro_state.target_cash_ratio))
     raw: Dict[str, float] = {}
 
+    if allocation_tickers is not None:
+        eligible: list[str] = [t for t in allocation_tickers if t in dvc_results]
+    else:
+        eligible = list(dvc_results.keys())
+
     # マクロ防御の強さ（0〜1）
     defense_intensity = min(max(macro_state.target_cash_ratio - 0.4, 0.0) / 0.4, 1.0)
 
-    for ticker, out in dvc_results.items():
+    for ticker in eligible:
+        out = dvc_results[ticker]
         st = score_trends.get(ticker) or {}
         trend = st.get("trend")
         # レベル: ポートフォリオ用スコアがあればそれで統一（購入順と整合）、なければ履歴の level
@@ -108,5 +119,9 @@ def compute_target_weights(
     for ticker, r in raw.items():
         w = non_cash * (r / total_raw)
         weights[ticker] = float(w)
+    if allocation_tickers is not None:
+        for t in dvc_results:
+            if t not in weights:
+                weights[t] = 0.0
     return weights
 

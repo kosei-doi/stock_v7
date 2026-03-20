@@ -8,7 +8,7 @@ import json
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Set
 
 from core.utils.config_loader import get_validated_config, load_config
 from core.dpa.dpa_draft import LOT_SIZE, run_draft
@@ -17,7 +17,7 @@ from core.dpa.dpa_portfolio_score import compute_portfolio_total_score
 from core.dpa.dpa_scores import compute_score_trend, load_scores_history
 from core.dpa.dpa_weights import compute_target_weights
 from core.dpa.dpa_purge import run_purge
-from core.dpa.dpa_schema import DpaDailyReport
+from core.dpa.dpa_schema import DpaDailyReport, MacroPhase
 from core.utils.daily_cache import (
     DEFAULT_CACHE_PATH,
     DEFAULT_CACHE_CUTOFF_HOUR,
@@ -114,7 +114,7 @@ def current_weights(
 
 
 def build_holdings_list(watchlist: list[dict], positions: dict) -> list[dict]:
-    """HOLDING 銘柄の一覧を positions の情報付きで返す。"""
+    """HOLDING 銘柄の一覧を positions の株数付きで返す。"""
     holdings = get_holdings(watchlist)
     out = []
     for h in holdings:
@@ -126,6 +126,16 @@ def build_holdings_list(watchlist: list[dict], positions: dict) -> list[dict]:
             "shares": pos.get("shares") or pos.get("shares_held") or 0,
         })
     return out
+
+
+def holding_tickers_from_holdings(holdings: list[dict]) -> Set[str]:
+    """保有行からティッカー集合を返す（目標構成比を保有のみで正規化するときに使用）。"""
+    s: Set[str] = set()
+    for h in holdings:
+        t = h.get("ticker") or h.get("ticker_symbol")
+        if t:
+            s.add(str(t).strip())
+    return s
 
 
 def format_report(report: DpaDailyReport) -> str:
@@ -143,21 +153,39 @@ def format_report(report: DpaDailyReport) -> str:
         f"  - 現金: {report.cash_yen:,.0f} 円" if report.cash_yen is not None else "  - 現金: -",
         f"  - 株式評価額: {report.equity_value_yen:,.0f} 円" if report.equity_value_yen is not None else "  - 株式評価額: -",
     ]
-    # 新規購入予算（理論値と防御適用後の実際の値）の表示
+    # 新規購入予算（売却見込み反映後の理論枠と、PANIC 時の実効枠）
     raw_budget = report.draft.raw_available_budget
-    effective_budget = report.draft.available_budget
-    if raw_budget is not None and raw_budget != effective_budget:
+    cap = report.draft.draft_budget_cap
+    if report.phase == MacroPhase.PANIC:
+        lines.append(
+            f"  - 本日新規購入に使える理論上の最大額（売却見込み反映）: {raw_budget or 0:,.0f} 円"
+        )
+        lines.append("  - マクロ防衛（PANIC）により新規買付枠: 0 円")
+    elif raw_budget is not None and cap is not None and abs(raw_budget - cap) > 1e-6:
         lines.append(f"  - 本日新規購入に使える理論上の最大額: {raw_budget:,.0f} 円")
-        lines.append(f"  - マクロ防衛モードにより実際の新規購入枠: {effective_budget:,.0f} 円")
+        lines.append(f"  - 実際のドラフト予算上限: {cap:,.0f} 円")
     else:
-        lines.append(f"  - 本日新規購入に使える新規購入枠: {effective_budget:,.0f} 円")
+        lines.append(f"  - 本日新規購入に使える新規購入枠: {cap or raw_budget or 0:,.0f} 円")
     lines.append("")
     lines.append("## 売却指示")
     if not report.purge.items:
         lines.append("  （なし）")
     else:
+        names = report.ticker_names or {}
+        lines.append(
+            "  コード     | 銘柄名               | 理由 | 現在価格   | 売却株数"
+        )
         for it in report.purge.items:
-            lines.append(f"  - {it.ticker}: {it.reason_ja} (現在価格: {it.current_price})")
+            nm = (names.get(it.ticker) or "-")[:16]
+            px = f"{it.current_price:,.0f} 円" if it.current_price is not None else "-"
+            sh = int(it.shares_to_sell or 0)
+            sh_disp = f"{sh} 株" if sh > 0 else "-"
+            rj = it.reason_ja or "-"
+            if len(rj) > 40:
+                rj = rj[:39] + "…"
+            lines.append(
+                f"  {it.ticker:<10} | {nm:<16} | {rj} | {px:>12} | {sh_disp}"
+            )
     lines.append("")
     # 保有銘柄の状況（現在比率・目標比率・スコアトレンド・株価・ロット必要資金）
     cw = report.current_weights or {}
@@ -182,7 +210,8 @@ def format_report(report: DpaDailyReport) -> str:
             ticker_col = f"{ticker:<8}"
             name_col = f"{name:<40.40}"
             cur_col = f"{w_cur*100:>5.1f}%"
-            tgt_col = f"{w_star*100:>5.1f}%"
+            dev_pp = (w_cur - w_star) * 100.0
+            tgt_col = f"{w_star*100:>5.1f}% ({dev_pp:>+5.1f})"
             score_col = f"{last:>6.1f}" if last is not None else f"{'-':>6}"
             level_col = f"{level:>4.2f}" if level is not None else f"{'-':>4}"
             trend_col = f"{trend:>4.2f}" if trend is not None else f"{'-':>4}"
@@ -225,7 +254,8 @@ def format_report(report: DpaDailyReport) -> str:
     if not report.draft.recommendations:
         lines.append("  （なし）")
     else:
-        lines.append(f"  空き予算: {report.draft.available_budget:,.0f} 円")
+        spent = report.draft.available_budget
+        lines.append(f"  推奨買付合計（消費額）: {spent:,.0f} 円")
         for r in report.draft.recommendations:
             lines.append(f"  - {r.ticker} ({r.name or '-'}): {r.shares} 株 (予算: {r.budget_used:,.0f} 円)")
     lines.append("")
@@ -251,6 +281,10 @@ def run_daily_routine(
     max_cash_ratio: float = 0.8,
     momentum_threshold: float = 50.0,
     lot_size: int = LOT_SIZE,
+    over_weight_threshold: float = 0.02,
+    max_position_pct: float = 0.15,
+    max_position_jpy: float = 750_000.0,
+    max_draft_candidates: int = 5,
     llm_enabled: bool = False,
     verbose: bool = False,
     cache_cutoff_hour: int = DEFAULT_CACHE_CUTOFF_HOUR,
@@ -336,27 +370,55 @@ def run_daily_routine(
     for ticker in results.keys():
         score_trends[ticker] = compute_score_trend(ticker, history)
     portfolio_scores = {t: compute_portfolio_total_score(results[t], macro) for t in results}
-    target_weights = compute_target_weights(results, score_trends, macro, portfolio_scores=portfolio_scores)
-    print(f"        → ターゲット構成比を {len(target_weights)} 銘柄に割り当て完了", file=sys.stderr)
+    holding_tickers = holding_tickers_from_holdings(holdings)
+    target_weights = compute_target_weights(
+        results,
+        score_trends,
+        macro,
+        portfolio_scores=portfolio_scores,
+        allocation_tickers=holding_tickers,
+    )
+    n_pos = len([w for w in target_weights.values() if w and w > 0])
+    print(
+        f"        → ターゲット構成比（保有銘柄のみで non_cash を割当）: "
+        f"正の重み {n_pos} 銘柄 / 保有 {len(holding_tickers)} 銘柄",
+        file=sys.stderr,
+    )
 
-    _progress(5, total_steps, "パージ（売却候補の判定：オーバーウェイト銘柄の洗い出し）…", verbose=verbose)
+    _progress(5, total_steps, "パージ（売却候補：オーバーウェイト銘柄の洗い出し）…", verbose=verbose)
     purge_out = run_purge(
         phase=macro.phase,
         holdings=holdings,
         current_weights=current_w,
         target_weights=target_weights,
         current_prices=current_prices,
+        total_capital_actual=total_cap,
+        lot_size=lot_size,
+        over_weight_threshold=over_weight_threshold,
     )
-    print(f"        → 売却候補: {purge_out.total_count} 銘柄", file=sys.stderr)
+    est_cash = float(purge_out.estimated_cash_generated)
+    print(
+        f"        → 売却候補: {purge_out.total_count} 銘柄, 売却見込み現金: {est_cash:,.0f} 円",
+        file=sys.stderr,
+    )
 
     _progress(6, total_steps, "ドラフト（購入候補の判定：ポートフォリオスコア順・予算配分）…", verbose=verbose)
     watching_items = get_watching(watchlist)
     watching_snapshots = [results[_ticker(w)] for w in watching_items if _ticker(w) in results]
+    # 資金の受け渡し: 売却見込みを現金に足し、目標現金水準を超えた分を新規買付枠にする
+    raw_available_budget = max(
+        0.0,
+        (cash_current + est_cash) - total_cap * float(macro.target_cash_ratio),
+    )
+    draft_budget_cap = (
+        0.0
+        if macro.phase == MacroPhase.PANIC or raw_available_budget <= 0
+        else raw_available_budget
+    )
     draft_out = run_draft(
+        available_budget=draft_budget_cap,
+        total_capital_actual=total_cap,
         macro_state=macro,
-        total_capital=total_cap,
-        cash_current=cash_current,
-        holdings_value=holdings_val,
         holdings=holdings,
         watching_snapshots=watching_snapshots,
         current_prices=current_prices,
@@ -365,10 +427,19 @@ def run_daily_routine(
         score_trends=score_trends,
         portfolio_scores=portfolio_scores,
         all_scores=results,
+        raw_available_budget=raw_available_budget,
         momentum_threshold=momentum_threshold,
         lot_size=lot_size,
+        max_position_pct=max_position_pct,
+        max_position_jpy=max_position_jpy,
+        max_draft_candidates=max_draft_candidates,
     )
-    print(f"        → 購入候補: {len(draft_out.recommendations)} 件, 空き予算: {draft_out.available_budget:,.0f} 円", file=sys.stderr)
+    print(
+        f"        → 購入候補: {len(draft_out.recommendations)} 件, "
+        f"ドラフト予算上限: {draft_out.draft_budget_cap:,.0f} 円, "
+        f"推奨買付合計: {draft_out.available_budget:,.0f} 円",
+        file=sys.stderr,
+    )
 
     _progress(7, total_steps, "レポート生成…", verbose=verbose)
     ticker_names = {t: results[t].name for t in results.keys()}
@@ -449,6 +520,10 @@ def main(argv: list[str] | None = None) -> int:
         max_cash_ratio=float(cfg.get("max_cash_ratio", 0.8)),
         momentum_threshold=float(cfg.get("momentum_threshold", 50.0)),
         lot_size=int(cfg.get("lot_size", LOT_SIZE)),
+        over_weight_threshold=float(cfg.get("over_weight_threshold", 0.02)),
+        max_position_pct=float(cfg.get("max_position_pct", 0.15)),
+        max_position_jpy=float(cfg.get("max_position_jpy", 750_000.0)),
+        max_draft_candidates=int(cfg.get("max_draft_candidates", 5)),
         llm_enabled=False if args.no_llm else bool(cfg.get("llm_enabled", False)),
         verbose=args.verbose,
         cache_cutoff_hour=int(cfg.get("cache_cutoff_hour", DEFAULT_CACHE_CUTOFF_HOUR)),
