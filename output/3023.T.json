@@ -3,19 +3,19 @@
   "name": "Rasa Corporation",
   "sector": "Basic Materials",
   "scores": {
-    "value_score": 13.7066298901805,
+    "value_score": 15.463156574474588,
     "safety_score": 100.0,
-    "momentum_score": 26.546792064348253,
-    "total_score": 50.79201036894185
+    "momentum_score": 31.4773931920268,
+    "total_score": 52.48074126819519
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.6556252341843963,
-    "r_squared": 0.22739868250370415,
-    "alpha": 0.00038209768787656715
+    "beta": 0.6649725261941791,
+    "r_squared": 0.23293641318042432,
+    "alpha": 0.00036181796704136713
   },
   "risk_metrics": {
-    "atr_percent": 5.004980079681275
+    "atr_percent": 5.00468738732242
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 2008.0,
+      "last_close": 1981.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 10567591.0,
       "book_value_per_share": 2122.227,
-      "eps_ttm": 201.4,
+      "eps_ttm": 201.57,
       "sector": "Basic Materials",
       "long_name": "Rasa Corporation"
     },
@@ -68,10 +68,10 @@
       "peer_pe_count": 0
     },
     "value_inputs": {
-      "target_pb": 0.9461758803370234,
-      "target_pe": 9.97020854021847,
-      "time_z_pb": 1.8146685054909746,
-      "time_z_pe": 1.8146685054909752,
+      "target_pb": 0.9334533958902607,
+      "target_pe": 9.82785136677085,
+      "time_z_pb": 1.7268421712762707,
+      "time_z_pe": 1.7268421712762707,
       "space_z_pb": null,
       "space_z_pe": null
     }

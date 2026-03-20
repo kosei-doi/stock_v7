@@ -3,19 +3,19 @@
   "name": "NTT, Inc.",
   "sector": "Communication Services",
   "scores": {
-    "value_score": 52.676923136832016,
+    "value_score": 50.571723899403736,
     "safety_score": 100.0,
-    "momentum_score": 51.681519648868544,
-    "total_score": 71.40707318450652
+    "momentum_score": 66.51973085434497,
+    "total_score": 73.53263573063049
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.4280999149891789,
-    "r_squared": 0.216655600726442,
-    "alpha": 6.119845450903527e-05
+    "beta": 0.4242422081679683,
+    "r_squared": 0.21455278695463278,
+    "alpha": 6.844884160410507e-05
   },
   "risk_metrics": {
-    "atr_percent": 1.344161581045221
+    "atr_percent": 1.4366804946860192
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 155.6999969482422,
+      "last_close": 158.60000610351562,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 1.3379391864800443,
-      "target_pe": 12.396496572312275,
-      "time_z_pb": 0.25444707929446175,
-      "time_z_pe": 0.25444707929446037,
-      "space_z_pb": -0.9243351530568756,
-      "space_z_pe": -0.5082368690345102
+      "target_pb": 1.3628591348810775,
+      "target_pe": 12.627389020980543,
+      "time_z_pb": 0.4181375490148419,
+      "time_z_pe": 0.4181375490148407,
+      "space_z_pb": -0.9161163241869056,
+      "space_z_pe": -0.48122729770855127
     }
   }
 }

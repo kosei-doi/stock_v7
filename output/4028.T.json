@@ -5,17 +5,17 @@
   "scores": {
     "value_score": 0.0,
     "safety_score": 100.0,
-    "momentum_score": 32.908049916518834,
-    "total_score": 46.581609983303764
+    "momentum_score": 36.01961637600463,
+    "total_score": 47.20392327520093
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.256490384014472,
-    "r_squared": 0.4294949918960568,
-    "alpha": 0.0005067230268536808
+    "beta": 1.2560277514393317,
+    "r_squared": 0.43067012426618184,
+    "alpha": 0.0004916398007861206
   },
   "risk_metrics": {
-    "atr_percent": 5.855547960811119
+    "atr_percent": 5.9523809523809526
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3135.0,
+      "last_close": 3030.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 38255219.0,
       "book_value_per_share": 3157.078,
-      "eps_ttm": 348.55,
+      "eps_ttm": 348.54,
       "sector": "Basic Materials",
       "long_name": "Ishihara Sangyo Kaisha,Ltd."
     },
@@ -68,10 +68,10 @@
       "peer_pe_count": 0
     },
     "value_inputs": {
-      "target_pb": 0.9930068246650859,
-      "target_pe": 8.994405393774207,
-      "time_z_pb": 2.9695436876431685,
-      "time_z_pe": 2.969543687643167,
+      "target_pb": 0.9597482228820448,
+      "target_pe": 8.693406782578757,
+      "time_z_pb": 2.7452489997062437,
+      "time_z_pe": 2.7452489997062437,
       "space_z_pb": null,
       "space_z_pe": null
     }

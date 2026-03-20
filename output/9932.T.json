@@ -3,19 +3,19 @@
   "name": "Sugimoto & Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 59.67439764257647,
+    "value_score": 60.569718662168235,
     "safety_score": 100.0,
-    "momentum_score": 28.957640783975265,
-    "total_score": 69.66128721382564
+    "momentum_score": 34.07670733610584,
+    "total_score": 71.04322893208847
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.0490201913824242,
-    "r_squared": 0.3508216861758884,
-    "alpha": -0.00029789269279735547
+    "beta": 1.04744078790624,
+    "r_squared": 0.3519243530695398,
+    "alpha": -0.0003095281112798895
   },
   "risk_metrics": {
-    "atr_percent": 2.5834701696770663
+    "atr_percent": 2.867125110913931
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1305.0,
+      "last_close": 1288.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 17478265.0,
       "book_value_per_share": 1909.716,
-      "eps_ttm": 96.27,
+      "eps_ttm": 96.23,
       "sector": "Industrials",
       "long_name": "Sugimoto & Co., Ltd."
     },
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 0.6833476810164444,
-      "target_pe": 13.555624805235276,
-      "time_z_pb": 0.2891606151067309,
-      "time_z_pe": 0.28916061510673097,
-      "space_z_pb": -2.85317153997988,
-      "space_z_pe": -0.7860812559643101
+      "target_pb": 0.6744458338307895,
+      "target_pe": 13.384599397277356,
+      "time_z_pb": 0.21803991639154932,
+      "time_z_pe": 0.21803991639154943,
+      "space_z_pb": -2.9159062818951167,
+      "space_z_pe": -0.7965494147167069
     }
   }
 }

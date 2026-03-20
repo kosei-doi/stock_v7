@@ -33,7 +33,7 @@ from core.utils.watchlist_io import (
     get_holdings,
     get_watching,
     load_watchlist,
-    load_positions,
+    positions_from_watchlist,
     _ticker,
 )
 
@@ -241,7 +241,6 @@ def run_daily_routine(
     output_dir: str = "output",
     cache_path: str = DEFAULT_CACHE_PATH,
     portfolio_path: str = PORTFOLIO_STATE_PATH,
-    positions_path: str = "data/positions.json",
     vi_value_override: Optional[float] = None,
     vi_ticker: Optional[str] = None,
     mu_cash: float = 0.4,
@@ -296,7 +295,7 @@ def run_daily_routine(
         print(f"        → {len(results)} 銘柄のスコア計算完了", file=sys.stderr)
 
     _progress(2, total_steps, "ウォッチリスト・ポジション・現金の読込…", verbose=verbose)
-    positions = load_positions(positions_path)
+    positions = positions_from_watchlist(path=watchlist_path)
     state = load_portfolio_state(portfolio_path)
     cash_current = float(state.get("cash_yen", DEFAULT_TOTAL_CAPITAL_JPY))
     current_prices = current_prices_from_dvc_results(results)
@@ -427,7 +426,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.verbose:
         print(
             f"        config={cfg_path or '(example only)'} cache_path={_resolve_path(cfg.get('cache_path', 'data/daily_cache.json'))} "
-            f"sector_peers={sector_peers_path} positions={_resolve_path(cfg.get('positions_path', 'data/positions.json'))} "
+            f"sector_peers={sector_peers_path} "
             f"portfolio={_resolve_path(cfg.get('portfolio_path', PORTFOLIO_STATE_PATH))}",
             file=sys.stderr,
         )
@@ -440,7 +439,6 @@ def main(argv: list[str] | None = None) -> int:
         output_dir=str(cfg.get("output_dir", args.output_dir)),
         cache_path=_resolve_path(cfg.get("cache_path", "data/daily_cache.json")),
         portfolio_path=_resolve_path(cfg.get("portfolio_path", PORTFOLIO_STATE_PATH)),
-        positions_path=_resolve_path(cfg.get("positions_path", "data/positions.json")),
         vi_value_override=args.vi,
         vi_ticker=cfg.get("vi_ticker"),
         mu_cash=float(cfg.get("mu_cash", 0.4)),

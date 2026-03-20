@@ -1,21 +1,21 @@
 {
-  "ticker": "5838.T",
-  "name": "Rakuten Bank, Ltd.",
-  "sector": "Financial Services",
+  "ticker": "7956.T",
+  "name": "Pigeon Corporation",
+  "sector": "Consumer Defensive",
   "scores": {
-    "value_score": 24.65515236417444,
+    "value_score": 60.31167523929493,
     "safety_score": 100.0,
-    "momentum_score": 18.085263551397,
-    "total_score": 53.47911365594918
+    "momentum_score": 22.025217202613064,
+    "total_score": 68.52971353624059
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.0649845764224306,
-    "r_squared": 0.16959563000318575,
-    "alpha": 0.0012477647022233929
+    "beta": 0.5018061253181919,
+    "r_squared": 0.10861369599605745,
+    "alpha": -0.0008773485203611649
   },
   "risk_metrics": {
-    "atr_percent": 4.749487800335258
+    "atr_percent": 2.1940364931019136
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,8 +24,8 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 711,
-      "date_min": "2023-04-21 00:00:00",
+      "rows": 1223,
+      "date_min": "2021-03-19 00:00:00",
       "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 6136.0,
+      "last_close": 1605.0,
       "empty": false
     },
     "benchmark": {
@@ -54,32 +54,32 @@
       "empty": false
     },
     "fundamentals": {
-      "shares_outstanding": 174498536.0,
-      "book_value_per_share": 2028.916,
-      "eps_ttm": 358.53,
-      "sector": "Financial Services",
-      "long_name": "Rakuten Bank, Ltd."
+      "shares_outstanding": 119630131.0,
+      "book_value_per_share": 693.103,
+      "eps_ttm": 71.63,
+      "sector": "Consumer Defensive",
+      "long_name": "Pigeon Corporation"
     },
     "sector_peers": {
-      "resolved_sector": "Financial Services",
+      "resolved_sector": "Consumer Defensive",
       "peer_count": 5,
       "peer_tickers": [
-        "8306.T",
-        "8316.T",
-        "8411.T",
-        "8308.T",
-        "8309.T"
+        "2502.T",
+        "2503.T",
+        "2802.T",
+        "2914.T",
+        "2801.T"
       ],
       "peer_pb_count": 5,
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 3.024275031593225,
-      "target_pe": 17.114327950241265,
-      "time_z_pb": 0.7831647145730863,
-      "time_z_pe": 0.7831647145730866,
-      "space_z_pb": 13.257008438361263,
-      "space_z_pe": 1.4867177652371313
+      "target_pb": 2.3156731394900905,
+      "target_pe": 22.406812787938016,
+      "time_z_pb": -0.6810823326197062,
+      "time_z_pe": -0.6810823326197063,
+      "space_z_pb": -0.1608126597292351,
+      "space_z_pe": -0.3738591522353792
     }
   }
 }

@@ -3,19 +3,19 @@
   "name": "Toyota Motor Corporation",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 33.86655116876594,
+    "value_score": 38.141611588691156,
     "safety_score": 100.0,
-    "momentum_score": 37.12823873177961,
-    "total_score": 60.97226821386229
+    "momentum_score": 37.2383787201248,
+    "total_score": 62.704320379501425
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.2235954790653407,
-    "r_squared": 0.544406607364365,
-    "alpha": 6.875827148505561e-05
+    "beta": 1.216879282741956,
+    "r_squared": 0.5437631756401229,
+    "alpha": 4.039149203048751e-05
   },
   "risk_metrics": {
-    "atr_percent": 4.194139194139194
+    "atr_percent": 4.103114930182599
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-11 00:00:00",
-      "date_max": "2026-03-11 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3510.0,
+      "last_close": 3325.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-10 00:00:00",
-      "date_max": "2026-03-10 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3847.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 13033385908.0,
       "book_value_per_share": 2990.373,
-      "eps_ttm": 284.09,
+      "eps_ttm": 284.23,
       "sector": "Consumer Cyclical",
       "long_name": "Toyota Motor Corporation"
     },
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 1.1737666170741912,
-      "target_pe": 12.355239536766518,
-      "time_z_pb": 1.8356479704723323,
-      "time_z_pe": 1.8356479704723316,
-      "space_z_pb": -0.8168117678082587,
-      "space_z_pe": -0.6567699358002211
+      "target_pb": 1.111901425006178,
+      "target_pe": 11.698272525771381,
+      "time_z_pb": 1.4861523788122222,
+      "time_z_pe": 1.4861523788122217,
+      "space_z_pb": -0.8191725698376843,
+      "space_z_pe": -0.6746874637717702
     }
   }
 }

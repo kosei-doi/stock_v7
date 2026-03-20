@@ -3,19 +3,19 @@
   "name": "Kimura Chemical Plants Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 27.534080400504873,
+    "value_score": 24.952151544120657,
     "safety_score": 100.0,
-    "momentum_score": 70.58261638768916,
-    "total_score": 65.13015543773979
+    "momentum_score": 95.24187090179797,
+    "total_score": 69.02923479800785
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.085737565102435,
-    "r_squared": 0.22247811990111482,
-    "alpha": 0.0003832926887905744
+    "beta": 1.0816839640846576,
+    "r_squared": 0.21880739208357666,
+    "alpha": 0.0005200715640026403
   },
   "risk_metrics": {
-    "atr_percent": 7.411855125372274
+    "atr_percent": 8.326944373456001
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1487.0,
+      "last_close": 1677.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 19806297.0,
-      "book_value_per_share": 982.347,
-      "eps_ttm": 106.14,
+      "book_value_per_share": 1000.779,
+      "eps_ttm": 106.29,
       "sector": "Industrials",
       "long_name": "Kimura Chemical Plants Co., Ltd."
     },
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 1.5137217296942933,
-      "target_pe": 14.009798379498775,
-      "time_z_pb": 4.153058547982309,
-      "time_z_pe": 4.153058547982309,
-      "space_z_pb": -1.1861432088758417,
-      "space_z_pe": -0.697376891250376
+      "target_pb": 1.6756946338802072,
+      "target_pe": 15.777589613322043,
+      "time_z_pb": 5.176514720257207,
+      "time_z_pe": 5.176514720257206,
+      "space_z_pb": -0.8839411093516703,
+      "space_z_pe": -0.35409677667849376
     }
   }
 }

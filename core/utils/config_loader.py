@@ -16,7 +16,6 @@ DEFAULT_OUTPUT_DIR = "output"
 DEFAULT_CACHE_PATH = "data/daily_cache.json"
 DEFAULT_SECTOR_PEERS_PATH = "data/sector_peers.json"
 DEFAULT_PORTFOLIO_PATH = "portfolio_state.json"
-DEFAULT_POSITIONS_PATH = "data/positions.json"
 DEFAULT_CACHE_CUTOFF_HOUR = 6
 DEFAULT_CACHE_CUTOFF_MINUTE = 0
 DEFAULT_MARKET_TZ = "Asia/Tokyo"
@@ -101,7 +100,7 @@ def get_validated_config(cfg: dict[str, Any]) -> dict[str, Any]:
     生の設定 dict を型変換・デフォルト補完した dict で返す。
     返り値は benchmark_ticker, years, output_dir, cache_path, sector_peers_path,
     cache_cutoff_hour, cache_cutoff_minute, market_tz, llm_enabled, llm_model,
-    total_capital_jpy, portfolio_path, positions_path, scores_history_path, vi_ticker, mu_cash, a_vi, b_macd,
+    total_capital_jpy, portfolio_path, scores_history_path, vi_ticker, mu_cash, a_vi, b_macd,
     macd_scale, min_cash_ratio, max_cash_ratio, momentum_threshold, lot_size などを含む。
     vi_ticker は空文字のとき None に正規化する。
     """
@@ -138,7 +137,6 @@ def get_validated_config(cfg: dict[str, Any]) -> dict[str, Any]:
 
     out["total_capital_jpy"] = _coerce_float(dpa_cfg.get("total_capital_jpy"), DEFAULT_TOTAL_CAPITAL_JPY)
     out["portfolio_path"] = _coerce_str(dpa_cfg.get("portfolio_path"), DEFAULT_PORTFOLIO_PATH)
-    out["positions_path"] = _coerce_str(dpa_cfg.get("positions_path"), DEFAULT_POSITIONS_PATH)
     out["sector_peers_path"] = _coerce_str(
         dpa_cfg.get("sector_peers_path") or cfg.get("sector_peers_path"),
         DEFAULT_SECTOR_PEERS_PATH,

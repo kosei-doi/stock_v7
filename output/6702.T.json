@@ -3,19 +3,19 @@
   "name": "Fujitsu Limited",
   "sector": "Technology",
   "scores": {
-    "value_score": 36.8122621868726,
+    "value_score": 41.088887847196645,
     "safety_score": 100.0,
-    "momentum_score": 40.65467602611268,
-    "total_score": 62.85584007997158
+    "momentum_score": 48.06034405725344,
+    "total_score": 66.04762395032934
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.0070036278988155,
-    "r_squared": 0.33354093676920293,
-    "alpha": 0.0002803970381790843
+    "beta": 1.0026226744874651,
+    "r_squared": 0.33290755556080676,
+    "alpha": 0.0002522106755178294
   },
   "risk_metrics": {
-    "atr_percent": 3.4756122160810103
+    "atr_percent": 3.242087254063302
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3541.0,
+      "last_close": 3340.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
-      "shares_outstanding": 1747077665.0,
+      "shares_outstanding": 1738388205.0,
       "book_value_per_share": 1138.321,
-      "eps_ttm": 162.66,
+      "eps_ttm": 162.63,
       "sector": "Technology",
       "long_name": "Fujitsu Limited"
     },
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 3.1107218438384256,
-      "target_pe": 21.76933480880364,
-      "time_z_pb": 1.552147375678293,
-      "time_z_pe": 1.5521473756782918,
-      "space_z_pb": -0.3548082227912459,
-      "space_z_pe": -1.0046994509617815
+      "target_pb": 2.934145992211336,
+      "target_pe": 20.53741622086946,
+      "time_z_pb": 1.2752546954786659,
+      "time_z_pe": 1.2752546954786659,
+      "space_z_pb": -0.43670375471510114,
+      "space_z_pe": -1.1612822935200566
     }
   }
 }

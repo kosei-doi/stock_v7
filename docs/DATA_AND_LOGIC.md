@@ -10,19 +10,25 @@
 
 ```
 stock_v7/
-├── daily_routine.py      # 日次バッチのエントリポイント（ルートに配置）
+├── daily_routine.py      # 日次バッチのエントリポイント
+├── send_daily_report.py  # Gmail 経由の日次レポート送信（cron 用）
 ├── config_example.yaml   # 設定のひな形
 ├── requirements.txt
 ├── README.md
-├── portfolio_state.json  # 現金残高（ルート。設定で変更可能）
+├── portfolio_state.json  # 現金残高（ルート。dpa.portfolio_path で変更可能）
 │
 ├── data/                 # 永続化データ（JSON）の格納先
-│   ├── watchlist.json
-│   ├── positions.json
+│   ├── watchlist.json    # ウォッチリスト＋保有（HOLDING は株数・平均単価を同梱）
 │   ├── sector_peers.json
 │   ├── daily_cache.json
 │   ├── scores_history.json
-│   └── last_report.json
+│   ├── last_report.json  # 直近の日次レポート（DpaDailyReport）
+│   ├── previous_report.json  # 前回実行分（data_date 変更時に退避）
+│   └── run_status.json   # Web から起動する日次バッチの進行状況（任意）
+│
+├── web/                  # FastAPI + Jinja2 の Web UI（BFF）
+│   ├── main.py           # ページルート・テンプレート
+│   └── api.py            # /api/*（レポートマージ、分析、取引、設定など）
 │
 ├── core/
 │   ├── dvc/              # DVC（Dynamic Value & Catalyst）関連
@@ -35,7 +41,7 @@ stock_v7/
 │   │   └── ai_agent.py   # LLM 要約（オプション）
 │   │
 │   ├── dpa/              # DPA（Dynamic Portfolio Architect）関連
-│   │   ├── dpa_macro.py       # マクロ判定・目標現金比率
+│   │   ├── dpa_macro.py       # マクロ判定・目標現金比率（MAX_POSITION_* も定義）
 │   │   ├── dpa_scores.py      # スコア履歴の読書・トレンド
 │   │   ├── dpa_portfolio_score.py  # ポートフォリオ用 total_score
 │   │   ├── dpa_weights.py     # ターゲット構成比
@@ -46,25 +52,30 @@ stock_v7/
 │   └── utils/            # 共通ユーティリティ
 │       ├── config_loader.py  # 設定読込・型検証
 │       ├── daily_cache.py    # マクロ・ピアの日次キャッシュ
-│       ├── watchlist_io.py   # ウォッチリスト・ポジション I/O
+│       ├── watchlist_io.py   # ウォッチリスト・HOLDING I/O
 │       └── io_utils.py       # DVC 出力 JSON 保存など
 │
 ├── output/               # 銘柄ごとの DVC 出力（output/<ticker>.json）
+├── scripts/              # デプロイ用（例: systemd サービス）
 ├── tests/
 └── docs/
 ```
+
+**注**: 旧来の `data/positions.json` は廃止。保有株数・平均単価は `watchlist.json` の `HOLDING` 行に保持し、`positions_from_watchlist()` が `{ ticker: { shares, avg_price? } }` 形式に変換する。
 
 ### 1.2 デフォルトパス一覧
 
 | 用途 | デフォルトパス | 設定キー（例） |
 |------|----------------|----------------|
-| ウォッチリスト | `data/watchlist.json` | `--watchlist` |
-| ポジション | `data/positions.json` | `dpa.positions_path` |
+| ウォッチリスト（保有含む） | `data/watchlist.json` | CLI `--watchlist` または `watchlist` 相当 |
+| ウォッチリスト上限 | 30 件 | `watchlist.max_items` → `get_validated_config` で `watchlist_max_items` |
 | ポートフォリオ状態（現金） | `portfolio_state.json` | `dpa.portfolio_path` |
 | セクター・ピア | `data/sector_peers.json` | `dpa.sector_peers_path` |
-| 日次キャッシュ | `data/daily_cache.json` | `cache.cache_path` |
+| 日次キャッシュ | `data/daily_cache.json` | `cache.cache_path` または `dpa.cache_path` |
 | スコア履歴 | `data/scores_history.json` | `dpa.scores_history_path` |
-| 最終レポート | `data/last_report.json` | （固定） |
+| 最終レポート | `data/last_report.json` | `daily_routine.main` 内で固定 |
+| 前回レポート | `data/previous_report.json` | 同上（`data_date` が変わるとき前回を退避） |
+| バッチ進捗 | `data/run_status.json` | Web API が書き込み |
 | DVC 出力 | `output/<ticker>.json` | `output_dir` |
 
 ---
@@ -85,46 +96,28 @@ stock_v7/
 
 **ルール**:
 - `status === "HOLDING"` の銘柄は、ウォッチリスト上限超過時の自動削除対象外。
-- 追加時に 30 件を超える場合は、WATCHING のうちスコア最下位を 1 件削除してから追加する。
+- 追加時に上限を超える場合は、WATCHING のうちスコア最下位を 1 件削除してから追加する（`watchlist.max_items`、既定 30）。
+
+**HOLDING 行の追加フィールド**:
+
+| キー | 型 | 説明 |
+|------|-----|------|
+| `shares` または `shares_held` | number | 保有株数 |
+| `avg_price` | number | 任意。平均取得単価（円） |
 
 **例**:
 ```json
 [
   { "ticker": "3197.T", "status": "WATCHING" },
-  { "ticker": "4765.T", "status": "HOLDING" }
+  { "ticker": "4765.T", "status": "HOLDING", "shares": 100, "avg_price": 580.0 }
 ]
 ```
 
----
-
-### 2.2 data/positions.json
-
-**役割**: 銘柄ごとの保有株数（および任意で平均単価）。キーはティッカー。
-
-**形式**: JSON オブジェクト。`{ "ticker": { "shares" or "shares_held", "avg_price"? }, ... }`
-
-| キー（トップレベル） | 値の型 | 説明 |
-|----------------------|--------|------|
-| `"<ticker>"` | object | その銘柄のポジション |
-
-各銘柄オブジェクト:
-
-| キー | 型 | 説明 |
-|------|-----|------|
-| `shares` または `shares_held` | number | 保有株数（整数想定） |
-| `avg_price` | number | 任意。平均取得単価 |
-
-**例**:
-```json
-{
-  "4765.T": { "shares": 100 },
-  "8789.T": { "shares": 100 }
-}
-```
+日次バッチ・Web の取引 API は `positions_from_watchlist()` で上記を `{ "4765.T": { "shares": 100, "avg_price": 580.0 } }` 形式に読み替える。
 
 ---
 
-### 2.3 data/sector_peers.json
+### 2.2 data/sector_peers.json
 
 **役割**: セクター名 → 代表銘柄ティッカーリストのマッピング。DVC の「空間軸 Z スコア」（ピア比較）で使用。
 
@@ -147,7 +140,7 @@ stock_v7/
 
 ---
 
-### 2.4 data/daily_cache.json
+### 2.3 data/daily_cache.json
 
 **役割**: ベンチマーク株価履歴・代表銘柄の簡易情報・VI 履歴をキャッシュし、同日中の再取得を避ける。
 
@@ -175,7 +168,7 @@ stock_v7/
 
 ---
 
-### 2.5 data/scores_history.json
+### 2.4 data/scores_history.json
 
 **役割**: 日付別の銘柄スコア履歴。スコアトレンド（短期・長期）の計算に使用。
 
@@ -198,11 +191,19 @@ stock_v7/
 
 ---
 
-### 2.6 data/last_report.json
+### 2.5 data/last_report.json
 
 **役割**: 直近の日次バッチで生成した `DpaDailyReport` をそのまま JSON 化したもの。Web 表示や外部連携用。
 
 **形式**: `DpaDailyReport` の Pydantic モデルを `model_dump(mode="json")` した 1 オブジェクト。フィールドは後述の「DPA スキーマ」を参照。
+
+---
+
+### 2.6 data/previous_report.json
+
+**役割**: 1 つ前の `last_report.json` のスナップショット。`daily_routine.main` が `last_report.json` を上書きする直前に、既存ファイルの `data_date` が今回と異なる場合のみ退避する。Web のレポート画面で順位変化などの比較に利用。
+
+**形式**: `last_report.json` と同じスキーマの JSON オブジェクト。
 
 ---
 
@@ -232,11 +233,24 @@ stock_v7/
 
 - **config_loader.load_config(config_path, use_example_as_base=True)**  
   - ベース: プロジェクトルートの `config_example.yaml`（`_project_root()` で解決）。  
-  - 上書き: `config_path` で指定したファイル（存在する場合のみ）。  
+  - 上書き: `config_path` で指定したファイル（存在する場合のみ）。トップレベルキーをマージする。  
 - **config_loader.get_validated_config(cfg)**  
-  - 生の dict を型変換・デフォルト補完した dict に変換する。数値は `int`/`float`、文字列は `str`、空文字の `vi_ticker` は `None` に正規化。
+  - 生の dict を型変換・デフォルト補完した **フラットな dict** に変換する。  
+  - **ネスト YAML**（`dpa:`, `cache:`, `llm:`, `watchlist:`）は `get_validated_config` 内で読み取り、出力では `benchmark_ticker`, `cache_path`, `mu_cash`, `watchlist_max_items` などのフラットキーに統一する。  
+  - 空文字の `vi_ticker` は `None` に正規化。
 
-### 3.2 設定キーとデフォルト値（get_validated_config 出力）
+### 3.2 config_example.yaml の構造（概要）
+
+| ブロック | 内容 |
+|----------|------|
+| トップレベル | `benchmark_ticker`, `years`, `output_dir` など |
+| `llm:` | `enabled`, `provider`, `model` |
+| `cache:`（任意） | `cache_path`, `cutoff_hour`, `cutoff_minute`, `market_tz` |
+| `dpa:` | `vi_ticker`, `mu_cash`, `a_vi`, `b_macd`, `portfolio_path`, `sector_peers_path`, `scores_history_path`, ほか任意 |
+| `watchlist:` | `max_items`（既定 30） |
+| `daily_report:` | `enabled`（メール送信のオンオフ） |
+
+### 3.3 設定キーとデフォルト値（get_validated_config 出力）
 
 | キー | 型 | デフォルト | 説明 |
 |------|-----|------------|------|
@@ -249,9 +263,9 @@ stock_v7/
 | `market_tz` | str | `"Asia/Tokyo"` | 市場タイムゾーン |
 | `llm_enabled` | bool | `false` | LLM でカタリスト要約を生成するか |
 | `llm_model` | str | `"gpt-4.1-mini"` | OpenAI モデル名 |
-| `total_capital_jpy` | float | `5000000` | 総資金（円） |
-| `portfolio_path` | str | `"portfolio_state.json"` | ポートフォリオ状態ファイル |
-| `positions_path` | str | `"data/positions.json"` | ポジションファイル |
+| `total_capital_jpy` | float | `5000000` | フォールバック用総資金（円）。実運用では総資産は現金＋評価額で算出 |
+| `portfolio_path` | str | `"portfolio_state.json"` | ポートフォリオ状態ファイル（現金） |
+| `watchlist_max_items` | int | `30` | ウォッチリスト上限（`watchlist.max_items`） |
 | `sector_peers_path` | str | `"data/sector_peers.json"` | セクター・ピアファイル |
 | `scores_history_path` | str | `"data/scores_history.json"` | スコア履歴ファイル |
 | `vi_ticker` | str or None | 設定次第 | VI 用ティッカー（例: `"^VIX"`） |
@@ -354,8 +368,9 @@ stock_v7/
 ### 5.5 パージ（dpa_purge.run_purge）
 
 - 保有銘柄（holdings）のみ対象。
-- 各銘柄について `over = current_weight - target_weight`。  
-  `over > over_weight_threshold`（デフォルト 0.02）のとき売却候補に追加。
+- `target_weights` はウォッチリスト全銘柄向けに `compute_target_weights` で算出した**ポートフォリオ全体における目標構成比**（各ティッカーの割合は 0〜1、合計は `1 - target_cash_ratio`）。
+- 各保有銘柄について `w = current_weights[ticker]`（総資産に対する現在比率）、`w_star = target_weights[ticker]`（同じく総資産ベースの目標比率）、`over = max(0, w - w_star)`。  
+  `over > over_weight_threshold`（デフォルト 0.02 = 2%pt）のとき売却候補に追加。
 - 理由: フェーズが PANIC なら `MACRO_PANIC`、それ以外は `SCORE_DECAY`。日本語理由文を付与。
 
 ### 5.6 ドラフト（dpa_draft.run_draft） ― 仮想組入 & 動的N最適化
@@ -402,8 +417,8 @@ stock_v7/
 1. **ステップ1**: ウォッチリスト読込・企業分析（DVC）  
    `run_dvc_for_watchlist` で全銘柄の DVC を実行。キャッシュからマクロ・ピアを読むか API 取得。結果を `output/<ticker>.json` に保存し、`scores_history` を更新。
 
-2. **ステップ2**: ウォッチリスト・ポジション・現金の読込  
-   watchlist, positions, portfolio_state を読む。DVC 結果から直近終値を取り current_prices を構築。holdings と現在構成比・総資産を計算。
+2. **ステップ2**: ウォッチリスト・現金の読込  
+   `watchlist` と `portfolio_state` を読み、`positions_from_watchlist` で HOLDING の株数・単価を取得。DVC 結果から直近終値を取り `current_prices` を構築。`holdings` と現在構成比・総資産を計算。
 
 3. **ステップ3**: マクロ判定  
    `get_macro_and_peers_data` で bench_df, vi_series を取得し、`get_macro_state` で目標現金比率とフェーズを算出。
@@ -417,9 +432,9 @@ stock_v7/
 6. **ステップ6**: ドラフト  
    WATCHING かつ未保有の銘柄を対象に、仮想組入＋動的N最適化を行う `run_draft` で購入候補を算出。
 
-7. **ステップ7**: レポート生成  
+7. **ステップ7**: レポート生成・保存  
    `DpaDailyReport` を組み立て、`format_report` でテキスト化。  
-   `main()` 側で `data/last_report.json` にレポートを JSON で保存し、テキストを stdout に出力。
+   `main()` 側で、既存 `last_report.json` の `data_date` が今回と異なる場合は `data/previous_report.json` に退避してから `data/last_report.json` を上書き保存し、テキストを stdout に出力。
 
 ---
 
@@ -446,7 +461,7 @@ stock_v7/
 - **DpaPurgeOutput**: phase, items, total_count  
 - **BuyRecommendation**: ticker, name, shares, limit_price, score, budget_used  
 - **DpaDraftOutput**: phase, available_budget, raw_available_budget, recommendations  
-- **DpaDailyReport**: target_cash_ratio, phase, phase_name_ja, vi_z, macd_trend, cash_yen, total_capital_yen, equity_value_yen, ticker_names, last_prices, current_weights, target_weights, score_trends, portfolio_scores, purge, draft, report_text  
+- **DpaDailyReport**: `created_at`, `data_date`, `target_cash_ratio`, `phase`, `phase_name_ja`, `vi_z`, `macd_trend`, `cash_yen`, `total_capital_yen`, `equity_value_yen`, `ticker_names`, `last_prices`, `current_weights`, `target_weights`, `score_trends`, `portfolio_scores`, `purge`, `draft`, `report_text`
 
 ### 7.3 その他（TypedDict / dataclass）
 
@@ -471,7 +486,7 @@ stock_v7/
 | 総合スコアの重み | value 0.4, safety 0.4, momentum 0.2 | scoring._combine_scores |
 | 目標現金比率の式 | mu_cash + a_vi*max(vi_z,0) - b_macd*macd_trend、0.2〜0.8 にクリップ | dpa_macro._continuous_cash_ratio |
 | フェーズ境界 | ≤0.3 CRUISE, ≤0.5 CAUTION, ≥0.7 PANIC, それ以外 REVERSAL | dpa_macro._phase_from_cash |
-| 1 銘柄上限 | 15% または 75 万円の小さい方 | dpa_macro.MAX_POSITION_* |
+| 1 銘柄上限（ドラフト購入シミュレーション） | 15% または 75 万円の小さい方 | `dpa_macro.MAX_POSITION_PCT` / `MAX_POSITION_JPY`（`dpa_draft` で参照） |
 | パージのオーバー閾値 | 2%（0.02） | dpa_purge.run_purge |
 | 着火点モメンタム | 50.0 | dpa_draft.DEFAULT_IGNITION_MOMENTUM_THRESHOLD |
 | 売買単位 | 100 株 | dpa_draft.LOT_SIZE |

@@ -3,19 +3,19 @@
   "name": "Nippon Tungsten Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 30.119534642169096,
+    "value_score": 29.88968265555833,
     "safety_score": 100.0,
-    "momentum_score": 52.46579088887741,
-    "total_score": 62.540972034643126
+    "momentum_score": 77.99017665228811,
+    "total_score": 67.55390839268095
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.5148555179498946,
-    "r_squared": 0.13783987004206272,
-    "alpha": 0.0005759354786205907
+    "beta": 0.535871672776774,
+    "r_squared": 0.1447733501359439,
+    "alpha": 0.0005977658944242666
   },
   "risk_metrics": {
-    "atr_percent": 8.307349665924276
+    "atr_percent": 8.69281045751634
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 2245.0,
+      "last_close": 2295.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 4857181.0,
-      "book_value_per_share": 2703.439,
-      "eps_ttm": 128.82,
+      "book_value_per_share": 2704.042,
+      "eps_ttm": 128.63,
       "sector": "Industrials",
       "long_name": "Nippon Tungsten Co., Ltd."
     },
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 0.8304237676529783,
-      "target_pe": 17.42741810277907,
-      "time_z_pb": 5.049312988479986,
-      "time_z_pe": 5.049312988479986,
-      "space_z_pb": -2.5579070099269505,
-      "space_z_pe": -0.02988366054227363
+      "target_pb": 0.8487294206229046,
+      "target_pe": 17.841872036072456,
+      "time_z_pb": 5.110559773580982,
+      "time_z_pe": 5.110559773580982,
+      "space_z_pb": -2.5622097995721895,
+      "space_z_pe": 0.027579336110417907
     }
   }
 }

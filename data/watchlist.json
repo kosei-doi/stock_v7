@@ -1,13 +1,5 @@
 [
   {
-    "ticker": "7272.T",
-    "status": "WATCHING"
-  },
-  {
-    "ticker": "8750.T",
-    "status": "WATCHING"
-  },
-  {
     "ticker": "6702.T",
     "status": "WATCHING"
   },
@@ -37,19 +29,27 @@
   },
   {
     "ticker": "4765.T",
-    "status": "HOLDING"
+    "status": "HOLDING",
+    "shares": 100,
+    "avg_price": 638.0
   },
   {
     "ticker": "8789.T",
-    "status": "HOLDING"
+    "status": "HOLDING",
+    "shares": 100,
+    "avg_price": 147.0
   },
   {
     "ticker": "3753.T",
-    "status": "HOLDING"
+    "status": "HOLDING",
+    "shares": 100,
+    "avg_price": 160.0
   },
   {
     "ticker": "4259.T",
-    "status": "HOLDING"
+    "status": "HOLDING",
+    "shares": 100,
+    "avg_price": 636.0
   },
   {
     "ticker": "5838.T",
@@ -85,11 +85,15 @@
   },
   {
     "ticker": "8111.T",
-    "status": "WATCHING"
+    "status": "HOLDING",
+    "shares": 100,
+    "avg_price": 2345.0
   },
   {
     "ticker": "2726.T",
-    "status": "WATCHING"
+    "status": "HOLDING",
+    "shares": 200,
+    "avg_price": 1488.0
   },
   {
     "ticker": "2502.T",
@@ -117,6 +121,14 @@
   },
   {
     "ticker": "4028.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "7956.T",
+    "status": "WATCHING"
+  },
+  {
+    "ticker": "7203.T",
     "status": "WATCHING"
   }
 ]

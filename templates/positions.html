@@ -11,7 +11,7 @@
       <table class="w-full text-left text-xs md:text-sm">
         <thead class="bg-slate-700/50 text-slate-300 text-[11px] md:text-sm">
           <tr>
-            <th class="px-2 py-1 md:px-4 md:py-2">ティッカー</th>
+            <th class="px-2 py-1 md:px-4 md:py-2">コード</th>
             <th class="px-2 py-1 md:px-4 md:py-2">銘柄名</th>
             <th class="px-2 py-1 md:px-4 md:py-2">保有株数</th>
             <th class="px-2 py-1 md:px-4 md:py-2">平均取得単価（円）</th>
@@ -48,18 +48,15 @@
   <!-- 新規保有銘柄の追加（テーブルの下に表示） -->
   <div class="bg-slate-800 rounded-xl border border-slate-700 p-4 space-y-3">
     <h3 class="font-semibold text-amber-300 text-sm">保有銘柄を追加</h3>
-    <p class="text-xs text-slate-400">4桁ティッカーと初期の株数・平均取得単価を入力して追加します。</p>
+    <p class="text-xs text-slate-400">コード（4桁数字または英字、例: 7203, AAPL）と株数・平均取得単価を入力し、保存をクリック。新規銘柄は企業分析（DVC）を自動実行します。</p>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <label class="text-xs text-slate-400 flex flex-col gap-1">
-        ティッカー（4桁、例: 7203）
+        コード（例: 7203, AAPL）
         <input
           id="add-position-ticker"
           type="text"
-          inputmode="numeric"
-          pattern="[0-9]*"
-          maxlength="4"
           class="mt-1 w-full px-2 py-1 rounded bg-slate-900 border border-slate-600 text-slate-100 text-sm"
-          placeholder="7203"
+          placeholder="7203 または AAPL"
         />
       </label>
       <label class="text-xs text-slate-400 flex flex-col gap-1">
@@ -110,30 +107,30 @@
 
   if (!tbody) return;
 
-  function normalizeDigits(str) {
-    const toHalf = str.replace(/[０-９]/g, function(c) {
+  function normalizeTicker(raw) {
+    const toHalf = (raw || '').replace(/[０-９]/g, function(c) {
       return String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
     });
-    return toHalf.replace(/[^0-9]/g, '');
+    const cleaned = toHalf.replace(/[^A-Za-z0-9.]/g, '');
+    if (/^[0-9]{4}$/.test(cleaned)) return cleaned + '.T';
+    return cleaned || '';
   }
 
-  // 保有銘柄の追加（ティッカーは4桁数字のみ許容し、内部的には .T を付与）
+  // 保有銘柄の追加（4桁数字→.T付与、英数字はそのまま例 AAPL）
   if (addBtn && addInput && addSharesInput && addAvgInput && addMsg) {
     addBtn.addEventListener('click', function() {
       const raw = (addInput.value || '').trim();
-      const tickerDigits = normalizeDigits(raw);
-      if (!tickerDigits || !/^[0-9]{4}$/.test(tickerDigits)) {
-        addMsg.textContent = 'ティッカーは 4 桁の数字で入力してください（例: 7203）。';
+      const fullTicker = normalizeTicker(raw);
+      if (!fullTicker || fullTicker.length < 2 || fullTicker.length > 20) {
+        addMsg.textContent = 'コードは 2〜20 文字の英数字で入力してください（例: 7203, AAPL）。';
         addMsg.className = 'text-xs text-red-400';
         return;
       }
       const sharesRaw = (addSharesInput.value || '').trim();
       const sharesVal = sharesRaw ? parseInt(sharesRaw, 10) : 0;
-      const shares = Number.isFinite(sharesVal) && sharesVal > 0 ? sharesVal : 0;
+      const shares = Number.isFinite(sharesVal) && sharesVal >= 0 ? sharesVal : 0;
       const avgRaw = (addAvgInput.value || '').trim();
       const avg = avgRaw ? parseFloat(avgRaw) : null;
-
-      const fullTicker = tickerDigits + '.T';
       // 既に存在していれば追加しない
       if (tbody.querySelector('tr[data-ticker="' + fullTicker + '"]')) {
         addMsg.textContent = fullTicker + ' はすでに一覧にあります。';

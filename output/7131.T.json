@@ -3,19 +3,19 @@
   "name": "Nomura Corporation",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 24.794442410941215,
+    "value_score": 24.974852379333008,
     "safety_score": 100.0,
-    "momentum_score": 51.36618612236463,
-    "total_score": 60.191014188849415
+    "momentum_score": 29.19253224205209,
+    "total_score": 55.828447400143624
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.3975139374012264,
-    "r_squared": 0.03880299843428202,
-    "alpha": 0.0012997695103470577
+    "beta": 0.4066007841782795,
+    "r_squared": 0.04078537346789983,
+    "alpha": 0.0012472052062060333
   },
   "risk_metrics": {
-    "atr_percent": 7.045543012845465
+    "atr_percent": 7.173425718361524
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1047,
+      "rows": 1050,
       "date_min": "2021-12-02 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3670.0,
+      "last_close": 3505.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 1322268.0,
       "book_value_per_share": 1790.106,
-      "eps_ttm": 384.32,
+      "eps_ttm": 384.5,
       "sector": "Consumer Cyclical",
       "long_name": "Nomura Corporation"
     },
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 2.050157923608993,
-      "target_pe": 9.549333888426311,
-      "time_z_pb": 2.765963393032387,
-      "time_z_pe": 2.7659633930323873,
-      "space_z_pb": -0.4718845792364385,
-      "space_z_pe": -0.7267260234988647
+      "target_pb": 1.9579846109671717,
+      "target_pe": 9.115734720416125,
+      "time_z_pb": 2.508268278190139,
+      "time_z_pe": 2.508268278190139,
+      "space_z_pb": -0.5047424178799239,
+      "space_z_pe": -0.7389706769533275
     }
   }
 }

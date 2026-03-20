@@ -3,19 +3,19 @@
   "name": "SBI Global Asset Management Co., Ltd.",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 26.617530535981363,
+    "value_score": 25.753962183061127,
     "safety_score": 100.0,
-    "momentum_score": 20.638210553848324,
-    "total_score": 54.77465432516221
+    "momentum_score": 66.96485119623027,
+    "total_score": 63.6945551124705
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.7869659001699747,
-    "r_squared": 0.3563708790598364,
-    "alpha": -0.00019348708126235698
+    "beta": 0.7823822578201675,
+    "r_squared": 0.35517152323877715,
+    "alpha": -0.00019421826715382078
   },
   "risk_metrics": {
-    "atr_percent": 2.1848739495798317
+    "atr_percent": 1.9015925837889234
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 595.0,
+      "last_close": 601.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 137970974.0,
       "book_value_per_share": 221.789,
-      "eps_ttm": 19.88,
+      "eps_ttm": 19.9,
       "sector": "Financial Services",
       "long_name": "SBI Global Asset Management Co., Ltd."
     },
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.6827299821001045,
-      "target_pe": 29.929577464788736,
-      "time_z_pb": 0.2818724553348865,
-      "time_z_pe": 0.2818724553348861,
-      "space_z_pb": 10.739760765056651,
-      "space_z_pe": 9.325002678327804
+      "target_pb": 2.7097827214153996,
+      "target_pe": 30.20100502512563,
+      "time_z_pb": 0.35383648474490614,
+      "time_z_pe": 0.35383648474490614,
+      "space_z_pb": 10.84684937454447,
+      "space_z_pe": 9.222515478604674
     }
   }
 }

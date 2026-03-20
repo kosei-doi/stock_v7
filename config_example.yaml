@@ -22,7 +22,6 @@ dpa:
   # パス（省略時はデフォルトを使用）
   # sector_peers_path: "data/sector_peers.json"
   # portfolio_path: "portfolio_state.json"
-  # positions_path: "data/positions.json"
   # scores_history_path: "data/scores_history.json"
   vi_ticker: "^VIX"            # 米国VIX（yfinance で取得）。未指定時は MACD のみで判定
   mu_cash: 0.4                 # 現金比率のベースライン

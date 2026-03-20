@@ -3,19 +3,19 @@
   "name": "ZERO Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 33.6215551951929,
+    "value_score": 34.97010040346779,
     "safety_score": 100.0,
-    "momentum_score": 35.69515957813259,
-    "total_score": 60.587653993703675
+    "momentum_score": 31.351679011974753,
+    "total_score": 60.25837596378207
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.6386805993141312,
-    "r_squared": 0.13474305855287255,
-    "alpha": 0.000814812120801487
+    "beta": 0.6402662416190043,
+    "r_squared": 0.1362746059939791,
+    "alpha": 0.0007732413094509885
   },
   "risk_metrics": {
-    "atr_percent": 3.034410844629823
+    "atr_percent": 2.9361520392910525
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3425.0,
+      "last_close": 3345.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 16803262.0,
-      "book_value_per_share": 2646.361,
-      "eps_ttm": 395.93,
+      "book_value_per_share": 2672.1,
+      "eps_ttm": 395.82,
       "sector": "Consumer Cyclical",
       "long_name": "ZERO Co., Ltd."
     },
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 1.2942300766977748,
-      "target_pe": 8.650519031141869,
-      "time_z_pb": 1.8647251903264765,
-      "time_z_pe": 1.8647251903264772,
-      "space_z_pb": -0.750620070759539,
-      "space_z_pe": -0.7489442990181158
+      "target_pb": 1.2518244077691703,
+      "target_pe": 8.450810974685464,
+      "time_z_pb": 1.76005648927116,
+      "time_z_pe": 1.7600564892711614,
+      "space_z_pb": -0.7671729491590398,
+      "space_z_pe": -0.7555216195213894
     }
   }
 }

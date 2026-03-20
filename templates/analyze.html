@@ -4,7 +4,7 @@
 <div class="space-y-6">
   <h2 class="text-2xl font-bold text-slate-100">企業分析＆自動追加</h2>
   <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
-    <label class="block text-slate-400 text-sm mb-2">ティッカー（例: 7203 日本株 / AAPL 米国株）</label>
+    <label class="block text-slate-400 text-sm mb-2">コード（例: 7203 日本株 / AAPL 米国株）</label>
     <div class="flex gap-2">
       <input
         type="text"
@@ -19,13 +19,43 @@
       <i class="fas fa-spinner fa-spin text-amber-400"></i>
       <span class="text-slate-400">分析中…</span>
     </div>
-    <div id="analyze-result" class="mt-4 hidden space-y-2">
+    <div id="analyze-result" class="mt-4 hidden space-y-4">
       <p class="text-green-500 font-medium" id="result-message"></p>
       <div class="grid grid-cols-2 gap-2 text-sm">
         <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Value:</span> <span id="result-value" class="text-slate-200"></span></div>
         <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Safety:</span> <span id="result-safety" class="text-slate-200"></span></div>
         <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Momentum:</span> <span id="result-momentum" class="text-slate-200"></span></div>
         <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Total:</span> <span id="result-total" class="text-amber-400 font-semibold"></span></div>
+      </div>
+      <div id="result-detail" class="space-y-3 text-sm hidden">
+        <div class="text-slate-400 font-medium">詳細</div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">企業名:</span> <span id="result-name" class="text-slate-200 truncate"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">セクター:</span> <span id="result-sector" class="text-slate-200 truncate"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">終値:</span> <span id="result-last-close" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">P/B:</span> <span id="result-pb" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">P/E:</span> <span id="result-pe" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">β:</span> <span id="result-beta" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">R²:</span> <span id="result-r2" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ATR%:</span> <span id="result-atr" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ピア数:</span> <span id="result-peer-count" class="text-slate-200"></span></div>
+        </div>
+        <div class="text-slate-400 font-medium">取得データの特徴</div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">データ期間:</span> <span id="result-date-range" class="text-slate-200 text-xs"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">トレード日数:</span> <span id="result-rows" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ベンチマーク:</span> <span id="result-benchmark" class="text-slate-200 truncate"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">時系列Z(PB):</span> <span id="result-time-z-pb" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">時系列Z(PE):</span> <span id="result-time-z-pe" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ピアZ(PB):</span> <span id="result-space-z-pb" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ピアZ(PE):</span> <span id="result-space-z-pe" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">目標P/B:</span> <span id="result-target-pb" class="text-slate-200"></span></div>
+          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">目標P/E:</span> <span id="result-target-pe" class="text-slate-200"></span></div>
+        </div>
+        <div class="flex flex-wrap gap-3 text-slate-400">
+          <span id="result-rank-badge"></span>
+          <span id="result-stop-loss"></span>
+        </div>
       </div>
     </div>
   </div>
@@ -59,7 +89,7 @@
     const raw = (input.value || '').trim();
     const ticker = normalizeTicker(raw);
     if (!ticker || ticker.length < 2 || ticker.length > 20) {
-      msg.textContent = 'ティッカーは 2〜20 文字の英数字で入力してください（例: 7203, AAPL）。';
+      msg.textContent = 'コードは 2〜20 文字の英数字で入力してください（例: 7203, AAPL）。';
       msg.className = 'mt-3 text-sm text-amber-400';
       return;
     }
@@ -83,6 +113,47 @@
       resultSafety.textContent = data.safety_score != null ? data.safety_score.toFixed(1) : '-';
       resultMomentum.textContent = data.momentum_score != null ? data.momentum_score.toFixed(1) : '-';
       resultTotal.textContent = data.total_score != null ? data.total_score.toFixed(1) : '-';
+
+      const detail = document.getElementById('result-detail');
+      const fmt = (v, d = 2) => (v != null && v !== '' && !isNaN(v)) ? (typeof v === 'number' && v % 1 !== 0 ? v.toFixed(d) : v) : '-';
+      document.getElementById('result-name').textContent = data.name || data.ticker || '-';
+      document.getElementById('result-sector').textContent = data.sector || '-';
+      document.getElementById('result-last-close').textContent = data.last_close != null && data.last_close !== '' ? Number(data.last_close).toLocaleString() + ' 円' : '-';
+      document.getElementById('result-pb').textContent = fmt(data.pb);
+      document.getElementById('result-pe').textContent = fmt(data.pe);
+      document.getElementById('result-beta').textContent = fmt(data.beta);
+      document.getElementById('result-r2').textContent = data.r_squared != null && data.r_squared !== '' ? (Number(data.r_squared) * 100).toFixed(1) + '%' : '-';
+      document.getElementById('result-atr').textContent = data.atr_percent != null && data.atr_percent !== '' ? Number(data.atr_percent).toFixed(2) + '%' : '-';
+      document.getElementById('result-peer-count').textContent = data.peer_count != null && data.peer_count !== '' ? data.peer_count : '-';
+
+      const dmin = data.date_min, dmax = data.date_max;
+      const dateRange = (dmin && dmax) ? (dmin.replace(/ 00:00:00/, '') + ' 〜 ' + dmax.replace(/ 00:00:00/, '')) : '-';
+      document.getElementById('result-date-range').textContent = dateRange;
+      document.getElementById('result-rows').textContent = data.rows != null && data.rows !== '' ? data.rows + ' 日' : '-';
+      document.getElementById('result-benchmark').textContent = data.benchmark || '-';
+      document.getElementById('result-time-z-pb').textContent = fmt(data.time_z_pb);
+      document.getElementById('result-time-z-pe').textContent = fmt(data.time_z_pe);
+      document.getElementById('result-space-z-pb').textContent = fmt(data.space_z_pb);
+      document.getElementById('result-space-z-pe').textContent = fmt(data.space_z_pe);
+      document.getElementById('result-target-pb').textContent = fmt(data.target_pb);
+      document.getElementById('result-target-pe').textContent = fmt(data.target_pe);
+
+      const rankBadge = document.getElementById('result-rank-badge');
+      if (data.watchlist_rank != null && data.watchlist_total != null && data.watchlist_total > 0) {
+        rankBadge.textContent = 'ウォッチリスト順位: ' + data.watchlist_rank + ' / ' + data.watchlist_total;
+        rankBadge.className = 'text-amber-400 font-medium';
+      } else {
+        rankBadge.textContent = '';
+      }
+
+      const stopLoss = document.getElementById('result-stop-loss');
+      if (data.stop_loss_recommendation != null && !isNaN(data.stop_loss_recommendation)) {
+        stopLoss.textContent = '推奨損切り: ' + Number(data.stop_loss_recommendation).toLocaleString() + ' 円';
+      } else {
+        stopLoss.textContent = '';
+      }
+
+      detail.classList.remove('hidden');
       msg.textContent = '';
     }).catch(e => {
       loading.classList.add('hidden');

@@ -3,19 +3,19 @@
   "name": "Sanyo Industries, Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 36.30446328640886,
+    "value_score": 36.51913235340477,
     "safety_score": 100.0,
-    "momentum_score": 87.0409110340859,
-    "total_score": 71.92996752138072
+    "momentum_score": 48.11492397447708,
+    "total_score": 64.23063773625732
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.5802653989628789,
-    "r_squared": 0.14395188407016632,
-    "alpha": 0.0006194746597348258
+    "beta": 0.5780997001335886,
+    "r_squared": 0.14397381496956907,
+    "alpha": 0.0006144554055870205
   },
   "risk_metrics": {
-    "atr_percent": 5.057084309133489
+    "atr_percent": 4.8107949545321205
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 4880.0,
+      "last_close": 4870.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 2804027.0,
-      "book_value_per_share": 7221.168,
-      "eps_ttm": 479.66,
+      "book_value_per_share": 7221.4,
+      "eps_ttm": 479.67,
       "sector": "Industrials",
       "long_name": "Sanyo Industries, Ltd."
     },
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 0.6757909523777871,
-      "target_pe": 10.17387316015511,
-      "time_z_pb": 2.456817764173274,
-      "time_z_pe": 2.4568177641732736,
-      "space_z_pb": -2.86834214984078,
-      "space_z_pe": -1.4465691141220354
+      "target_pb": 0.6743844683856316,
+      "target_pe": 10.152813392540704,
+      "time_z_pb": 2.4214361204468515,
+      "time_z_pe": 2.4214361204468515,
+      "space_z_pb": -2.9160308188207567,
+      "space_z_pe": -1.3940914496917494
     }
   }
 }

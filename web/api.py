@@ -22,7 +22,6 @@ CONFIG_PATH = PROJECT_ROOT / "config.yaml"
 CONFIG_EXAMPLE_PATH = PROJECT_ROOT / "config_example.yaml"
 LAST_REPORT_PATH = DATA_DIR / "last_report.json"
 PREVIOUS_REPORT_PATH = DATA_DIR / "previous_report.json"
-POSITIONS_PATH = DATA_DIR / "positions.json"
 WATCHLIST_PATH = DATA_DIR / "watchlist.json"
 PORTFOLIO_STATE_PATH = PROJECT_ROOT / "portfolio_state.json"
 RUN_STATUS_PATH = DATA_DIR / "run_status.json"
@@ -57,13 +56,33 @@ def _write_run_status(status: str, message: str, step: Optional[int] = None, tot
     _write_json(RUN_STATUS_PATH, payload)
 
 
+def _get_cash_yen() -> float:
+    """portfolio_state.json から現金残高を取得。"""
+    state = _read_json(PORTFOLIO_STATE_PATH)
+    if not isinstance(state, dict):
+        return 0.0
+    try:
+        return float(state.get("cash_yen", 0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _get_positions_from_watchlist() -> dict:
+    """watchlist の HOLDING から positions 相当を返す。"""
+    try:
+        from core.utils.watchlist_io import positions_from_watchlist
+        return positions_from_watchlist(path=str(WATCHLIST_PATH))
+    except ImportError:
+        return {}
+
+
 def _merge_report_data() -> dict[str, Any]:
     """Load last_report, previous_report, positions and merge: unrealized_pnl, rank_change, price_change."""
     last = _read_json(LAST_REPORT_PATH)
     if not last:
         return {"report": None, "holdings_merged": [], "watchlist_merged": [], "purge": None, "draft": None}
     prev = _read_json(PREVIOUS_REPORT_PATH)
-    positions = _read_json(POSITIONS_PATH) or {}
+    positions = _get_positions_from_watchlist()
 
     last_prices = last.get("last_prices") or {}
     ticker_names = last.get("ticker_names") or {}
@@ -284,11 +303,11 @@ def analyze_ticker(body: dict) -> dict:
     """Run DVC for one ticker and add to watchlist (using core)."""
     raw = (body.get("ticker") or "").strip()
     if not raw:
-        raise HTTPException(status_code=400, detail="ticker を指定してください。")
+        raise HTTPException(status_code=400, detail="コードを指定してください。")
     # 英数字とドットのみ許可（例: 7203, AAPL, 7203.T）
     normalized = re.sub(r"[^A-Za-z0-9.]", "", raw)
     if not normalized or len(normalized) < 2 or len(normalized) > 20:
-        raise HTTPException(status_code=400, detail="ticker は 2〜20 文字の英数字で指定してください（例: 7203, AAPL）。")
+        raise HTTPException(status_code=400, detail="コードは 2〜20 文字の英数字で指定してください（例: 7203, AAPL）。")
     # 4桁数字のみの場合は日本株として .T を付与
     if re.fullmatch(r"[0-9]{4}", normalized):
         ticker = f"{normalized}.T"
@@ -329,30 +348,253 @@ def analyze_ticker(body: dict) -> dict:
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"分析に失敗しました: {e}") from e
-    output_dir = Path(cfg.get("output_dir", "output"))
+    output_dir = Path(cfg.get("output_dir", "output")).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    save_output_json(result, str(output_dir / f"{ticker}.json"))
+    saved_path = output_dir / f"{ticker}.json"
+    save_output_json(result, str(saved_path))
     max_items = int(cfg.get("watchlist_max_items", 30))
-    before_count = len(load_watchlist(WATCHLIST_PATH))
-    add_to_watchlist(ticker, path=WATCHLIST_PATH, scores_by_ticker={ticker: result}, max_items=max_items)
-    after_count = len(load_watchlist(WATCHLIST_PATH))
+    before_count = len(load_watchlist(str(WATCHLIST_PATH)))
+    add_to_watchlist(ticker, path=str(WATCHLIST_PATH), scores_by_ticker={ticker: result}, max_items=max_items)
+    after_count = len(load_watchlist(str(WATCHLIST_PATH)))
     evicted = before_count >= max_items and after_count == max_items
     scores = result.scores
+    # 保存済みJSONから再読み込み（確実に全フィールド取得＋JSONシリアライズ可能な型）
+    d = {}
+    if saved_path.exists():
+        try:
+            d = json.loads(saved_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    s = d.get("scores") or {}
+    ml = d.get("market_linkage") or {}
+    rm = d.get("risk_metrics") or {}
+    ao = d.get("data_overview") or {}
+    fund = ao.get("fundamentals") or {}
+    ph = ao.get("price_history") or {}
+    vi = ao.get("value_inputs") or {}
+    sp = ao.get("sector_peers") or {}
+    last_close = ph.get("last_close")
+    bps = fund.get("book_value_per_share")
+    eps = fund.get("eps_ttm")
+    pb = (float(last_close) / float(bps)) if (last_close is not None and bps and float(bps) > 0) else None
+    pe = (float(last_close) / float(eps)) if (last_close is not None and eps and float(eps) > 0) else None
+    last_report = _read_json(LAST_REPORT_PATH) or {}
+    portfolio_scores = last_report.get("portfolio_scores") or {}
+    wl = load_watchlist(str(WATCHLIST_PATH))
+    wl_tickers = [it.get("ticker") or it.get("ticker_symbol", "") for it in wl if (it.get("ticker") or it.get("ticker_symbol"))]
+    ticker_scores = {}
+    for t in wl_tickers:
+        if t == ticker:
+            ticker_scores[t] = float(scores.total_score or 0)
+        elif t in portfolio_scores:
+            ticker_scores[t] = float(portfolio_scores[t])
+        else:
+            op_path = output_dir / f"{t}.json"
+            if op_path.exists():
+                try:
+                    j = json.loads(op_path.read_text(encoding="utf-8"))
+                    ticker_scores[t] = float((j.get("scores") or {}).get("total_score") or 0)
+                except Exception:
+                    ticker_scores[t] = 0.0
+            else:
+                ticker_scores[t] = 0.0
+    sorted_tickers = sorted(ticker_scores.keys(), key=lambda t: -(ticker_scores.get(t) or 0))
+    watchlist_rank = sorted_tickers.index(ticker) + 1 if ticker in sorted_tickers else 0
     return {
         "ok": True,
         "ticker": ticker,
-        "name": result.name,
-        "value_score": scores.value_score,
-        "safety_score": scores.safety_score,
-        "momentum_score": scores.momentum_score,
-        "total_score": scores.total_score,
+        "name": d.get("name") or result.name,
+        "sector": d.get("sector") or result.sector,
+        "value_score": s.get("value_score"),
+        "safety_score": s.get("safety_score"),
+        "momentum_score": s.get("momentum_score"),
+        "total_score": s.get("total_score"),
+        "last_close": last_close,
+        "beta": ml.get("beta"),
+        "r_squared": ml.get("r_squared"),
+        "alpha": ml.get("alpha"),
+        "atr_percent": rm.get("atr_percent"),
+        "stop_loss_recommendation": (d.get("ai_analysis") or {}).get("stop_loss_recommendation"),
+        "pb": pb,
+        "pe": pe,
+        "bps": bps,
+        "eps": eps,
+        "date_min": ph.get("date_min"),
+        "date_max": ph.get("date_max"),
+        "rows": ph.get("rows"),
+        "benchmark": ml.get("benchmark"),
+        "peer_count": sp.get("peer_count"),
+        "time_z_pb": vi.get("time_z_pb"),
+        "time_z_pe": vi.get("time_z_pe"),
+        "space_z_pb": vi.get("space_z_pb"),
+        "space_z_pe": vi.get("space_z_pe"),
+        "target_pb": vi.get("target_pb"),
+        "target_pe": vi.get("target_pe"),
+        "watchlist_rank": watchlist_rank,
+        "watchlist_total": len(sorted_tickers),
         "message": "ウォッチリストに自動追加されました。" + ("（上限超過のため最下位をパージしました）" if evicted else ""),
     }
 
 
+def _run_dvc_for_ticker(ticker: str) -> None:
+    """銘柄の DVC を実行し output/<ticker>.json に保存。scores_history も更新。"""
+    from core.utils.config_loader import get_validated_config, load_config
+    from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data, _now_jst
+    from core.dpa.dpa_scores import update_scores_history_for_date
+    from core.dvc.scoring import run_dvc_for_ticker
+    from core.utils.io_utils import save_output_json
+
+    cfg = get_validated_config(load_config(None, use_example_as_base=True))
+    sector_peers_path = str(Path(cfg.get("sector_peers_path", "data/sector_peers.json")).resolve())
+    bench_df, peers_data, _ = get_macro_and_peers_data(
+        benchmark_ticker=cfg.get("benchmark_ticker", "1306.T"),
+        years=int(cfg.get("years", 5)),
+        sector_peers_path=sector_peers_path,
+        cache_path=str(Path(cfg.get("cache_path", DEFAULT_CACHE_PATH)).resolve()),
+        vi_ticker=cfg.get("vi_ticker"),
+    )
+    result = run_dvc_for_ticker(
+        ticker=ticker,
+        benchmark_ticker=cfg.get("benchmark_ticker", "1306.T"),
+        years=int(cfg.get("years", 5)),
+        sector_peers_path=sector_peers_path,
+        llm_enabled=False,
+        llm_client=None,
+        bench_df=bench_df,
+        peers_data=peers_data,
+    )
+    output_dir = Path(cfg.get("output_dir", "output"))
+    output_dir.mkdir(parents=True, exist_ok=True)
+    save_output_json(result, str(output_dir / f"{ticker}.json"))
+    scores_path = str(Path(cfg.get("scores_history_path", "data/scores_history.json")).resolve())
+    today_key = _now_jst().date().isoformat()
+    update_scores_history_for_date(today_key, {ticker: result}, path=scores_path)
+
+
+@router.post("/trade/purchase")
+def trade_purchase(body: dict) -> dict:
+    """購入を記録。HOLDING 追加、現金から購入額を控除。"""
+    raw = (body.get("ticker") or "").strip()
+    if not raw:
+        raise HTTPException(status_code=400, detail="コードを指定してください。")
+    normalized = re.sub(r"[^A-Za-z0-9.]", "", raw)
+    if not normalized or len(normalized) < 2 or len(normalized) > 20:
+        raise HTTPException(status_code=400, detail="コードは 2〜20 文字の英数字で指定してください。")
+    ticker = f"{normalized}.T" if re.fullmatch(r"[0-9]{4}", normalized) else normalized
+
+    try:
+        shares = int(body.get("shares", 0))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="株数を指定してください。")
+    if shares < 1:
+        raise HTTPException(status_code=400, detail="株数は 1 以上で指定してください。")
+
+    try:
+        avg_price = float(body.get("avg_price", 0))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="取得単価を指定してください。")
+    if avg_price <= 0:
+        raise HTTPException(status_code=400, detail="取得単価を正の数で指定してください。")
+
+    cost = shares * avg_price
+    state = _read_json(PORTFOLIO_STATE_PATH) or {}
+    if not isinstance(state, dict):
+        state = {}
+    cash = float(state.get("cash_yen", 0))
+    if cash < cost:
+        raise HTTPException(status_code=400, detail=f"現金不足です。使える現金: {cash:,.0f} 円、購入額: {cost:,.0f} 円")
+
+    wl = _read_json(WATCHLIST_PATH)
+    if not isinstance(wl, list):
+        wl = []
+    existing_tickers = {x.get("ticker") or x.get("ticker_symbol") or "" for x in wl}
+    if ticker not in existing_tickers:
+        try:
+            _run_dvc_for_ticker(ticker)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"{ticker} の企業分析に失敗しました: {e}") from e
+
+    try:
+        from core.utils.watchlist_io import update_holdings_bulk
+        last_report = _read_json(LAST_REPORT_PATH) or {}
+        portfolio_scores = last_report.get("portfolio_scores") or {}
+        cfg = _load_config_raw()
+        max_items = int((cfg.get("watchlist") or {}).get("max_items", 30))
+        update_holdings_bulk(
+            {ticker: {"shares": shares, "avg_price": avg_price}},
+            path=str(WATCHLIST_PATH),
+            portfolio_scores=portfolio_scores,
+            max_items=max_items,
+        )
+    except ImportError as e:
+        raise HTTPException(status_code=500, detail=f"core の読み込みに失敗しました: {e}") from e
+
+    state["cash_yen"] = cash - cost
+    _write_json(PORTFOLIO_STATE_PATH, state)
+    return {"ok": True, "cash_yen": state["cash_yen"]}
+
+
+@router.post("/trade/sale")
+def trade_sale(body: dict) -> dict:
+    """売却を記録。HOLDING の株数を減らし（0 なら WATCHING に）、現金に売却代金を加算。"""
+    ticker = (body.get("ticker") or "").strip()
+    if not ticker:
+        raise HTTPException(status_code=400, detail="銘柄を選択してください。")
+    try:
+        shares_to_sell = int(body.get("shares", 0))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="売却株数を指定してください。")
+    if shares_to_sell < 1:
+        raise HTTPException(status_code=400, detail="売却株数は 1 以上で指定してください。")
+
+    last_report = _read_json(LAST_REPORT_PATH) or {}
+    last_prices = last_report.get("last_prices") or {}
+    current_price = last_prices.get(ticker)
+    try:
+        price = float(current_price) if current_price is not None else 0.0
+    except (TypeError, ValueError):
+        price = 0.0
+    if price <= 0:
+        raise HTTPException(status_code=400, detail=f"{ticker} の株価データがありません。日次バッチを実行してから売却を記録してください。")
+
+    wl = _read_json(WATCHLIST_PATH)
+    if not isinstance(wl, list):
+        raise HTTPException(status_code=400, detail="ウォッチリストの読み込みに失敗しました。")
+    ticker_to_item = {x.get("ticker") or x.get("ticker_symbol") or "": x for x in wl}
+    if ticker not in ticker_to_item:
+        raise HTTPException(status_code=400, detail=f"{ticker} は保有銘柄にありません。")
+    item = ticker_to_item[ticker]
+    if (item.get("status") or "WATCHING") != "HOLDING":
+        raise HTTPException(status_code=400, detail=f"{ticker} は保有銘柄ではありません。")
+    current_shares = int(item.get("shares") or item.get("shares_held") or 0)
+    if shares_to_sell > current_shares:
+        raise HTTPException(status_code=400, detail=f"売却株数は保有株数（{current_shares}）以下で指定してください。")
+
+    proceeds = shares_to_sell * price
+    new_shares = current_shares - shares_to_sell
+
+    for i in wl:
+        if (i.get("ticker") or i.get("ticker_symbol")) == ticker:
+            i["shares"] = new_shares
+            if new_shares <= 0:
+                i["status"] = "WATCHING"
+                if "shares" in i:
+                    del i["shares"]
+            break
+    _write_json(WATCHLIST_PATH, wl)
+
+    state = _read_json(PORTFOLIO_STATE_PATH) or {}
+    if not isinstance(state, dict):
+        state = {}
+    cash = float(state.get("cash_yen", 0))
+    state["cash_yen"] = cash + proceeds
+    _write_json(PORTFOLIO_STATE_PATH, state)
+    return {"ok": True, "cash_yen": state["cash_yen"]}
+
+
 @router.post("/positions/update")
 def update_positions(body: dict) -> dict:
-    """Update positions.json with provided { ticker: { shares, avg_price? } }."""
+    """watchlist の HOLDING 銘柄の shares/avg_price を一括更新。新規銘柄は DVC を実行してから追加。"""
     if not isinstance(body.get("positions"), dict):
         raise HTTPException(status_code=400, detail="positions オブジェクトを送信してください。")
     positions = {}
@@ -372,7 +614,35 @@ def update_positions(body: dict) -> dict:
         positions[ticker] = {"shares": shares}
         if avg is not None:
             positions[ticker]["avg_price"] = avg
-    _write_json(POSITIONS_PATH, positions)
+
+    wl = _read_json(WATCHLIST_PATH)
+    if not isinstance(wl, list):
+        wl = []
+    existing_tickers = {x.get("ticker") or x.get("ticker_symbol") or "" for x in wl}
+    new_tickers = [t for t in positions.keys() if t not in existing_tickers]
+
+    for ticker in new_tickers:
+        try:
+            _run_dvc_for_ticker(ticker)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"{ticker} の企業分析に失敗しました: {e}") from e
+
+    try:
+        from core.utils.watchlist_io import update_holdings_bulk
+        last_report = _read_json(LAST_REPORT_PATH) or {}
+        portfolio_scores = last_report.get("portfolio_scores") or {}
+        cfg = _load_config_raw()
+        wl_cfg = cfg.get("watchlist") or {}
+        max_items = int(wl_cfg.get("max_items", 30))
+        update_holdings_bulk(
+            positions,
+            path=str(WATCHLIST_PATH),
+            portfolio_scores=portfolio_scores,
+            max_items=max_items,
+        )
+    except ImportError as e:
+        raise HTTPException(status_code=500, detail=f"core の読み込みに失敗しました: {e}") from e
+
     return {"ok": True, "positions": positions}
 
 
@@ -420,7 +690,7 @@ def get_watchlist() -> dict:
     wl = _read_json(WATCHLIST_PATH)
     if not isinstance(wl, list):
         wl = []
-    pos = _read_json(POSITIONS_PATH) or {}
+    pos = _get_positions_from_watchlist()
     return {"watchlist": wl, "positions": pos}
 
 

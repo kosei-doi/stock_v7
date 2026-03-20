@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+{% block title %}取引 - DPA{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+  <!-- ヘッダー -->
+  <div class="flex items-baseline justify-between">
+    <h2 class="text-xl md:text-2xl font-bold text-slate-100">取引</h2>
+  </div>
+
+  <!-- 現金残高カード -->
+  <div class="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-800/80 border border-slate-600/50 p-6 shadow-lg">
+    <p class="text-sm font-medium text-slate-400 mb-1">使える現金</p>
+    <p id="cash-display" class="text-3xl md:text-4xl font-bold tabular-nums text-amber-400">
+      {{ "{:,.0f}".format((cash_yen or 0)|float) }} 円
+    </p>
+  </div>
+
+  <!-- 購入・売却タブ -->
+  <div class="flex gap-2 border-b border-slate-700 pb-2">
+    <button id="tab-buy" type="button" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all"
+      data-tab="buy">購入</button>
+    <button id="tab-sell" type="button" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all text-slate-400 hover:text-slate-200"
+      data-tab="sell">売却</button>
+  </div>
+
+  <!-- 購入パネル -->
+  <section id="panel-buy" class="panel space-y-4">
+    <div class="rounded-xl border border-slate-700 bg-slate-800/50 p-5">
+      <h3 class="text-sm font-semibold text-emerald-400 mb-4 flex items-center gap-2">
+        <i class="fas fa-arrow-down"></i>
+        購入を記録
+      </h3>
+      <p class="text-xs text-slate-500 mb-4">銘柄コード・株数・取得単価を入力。新規銘柄は企業分析を自動実行します。</p>
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+        <div class="sm:col-span-3">
+          <label class="block text-xs text-slate-400 mb-1">コード</label>
+          <input id="purchase-ticker" type="text" placeholder="7203 または AAPL"
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-xs text-slate-400 mb-1">株数</label>
+          <input id="purchase-shares" type="number" min="1" step="1" placeholder="100"
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-emerald-500/50" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-xs text-slate-400 mb-1">単価（円）</label>
+          <input id="purchase-avg" type="number" min="0" step="0.01" placeholder="2500"
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-emerald-500/50" />
+        </div>
+        <div class="sm:col-span-3 flex flex-col justify-end">
+          <p id="purchase-cost" class="text-xs text-slate-500 mb-1.5">購入額: —</p>
+          <button id="btn-purchase" type="button"
+            class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg text-sm transition">
+            購入を記録
+          </button>
+        </div>
+      </div>
+      <p id="purchase-msg" class="mt-3 text-xs min-h-[1.25rem]"></p>
+    </div>
+  </section>
+
+  <!-- 売却パネル -->
+  <section id="panel-sell" class="panel hidden space-y-4">
+    <div class="rounded-xl border border-slate-700 bg-slate-800/50 p-5">
+      <h3 class="text-sm font-semibold text-rose-400 mb-4 flex items-center gap-2">
+        <i class="fas fa-arrow-up"></i>
+        売却を記録
+      </h3>
+      {% if holdings %}
+      <p class="text-xs text-slate-500 mb-4">保有銘柄を選択し、売却株数を入力。空欄で全売り。</p>
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+        <div class="sm:col-span-4">
+          <label class="block text-xs text-slate-400 mb-1">銘柄</label>
+          <select id="sale-ticker"
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-rose-500/50">
+            <option value="">選択してください</option>
+            {% for h in holdings %}
+            <option value="{{ h.ticker }}" data-shares="{{ h.shares }}" data-price="{{ h.last_price or '' }}">
+              {{ h.ticker }} {{ h.name }} ({{ h.shares }}株)
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-xs text-slate-400 mb-1">売却株数</label>
+          <input id="sale-shares" type="number" min="0" step="1" placeholder="全売り"
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-slate-100 text-sm focus:ring-2 focus:ring-rose-500/50" />
+        </div>
+        <div class="sm:col-span-3 flex flex-col justify-end">
+          <p id="sale-proceeds" class="text-xs text-slate-500 mb-1.5">売却代金: —</p>
+          <button id="btn-sale" type="button"
+            class="w-full py-2.5 bg-rose-600/90 hover:bg-rose-500 text-white font-medium rounded-lg text-sm transition">
+            売却を記録
+          </button>
+        </div>
+      </div>
+      <p id="sale-msg" class="mt-3 text-xs min-h-[1.25rem]"></p>
+      {% else %}
+      <p class="text-slate-500 text-sm py-4">保有銘柄がありません。購入を記録するとここに表示されます。</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- 保有銘柄一覧 -->
+  <section class="rounded-xl border border-slate-700 overflow-hidden">
+    <h3 class="px-4 py-3 bg-slate-800/50 border-b border-slate-700 text-sm font-semibold text-slate-300">
+      保有銘柄
+    </h3>
+    {% if holdings %}
+    <div class="divide-y divide-slate-700">
+      {% for h in holdings %}
+      <div class="px-4 py-3 flex flex-wrap items-center justify-between gap-2 hover:bg-slate-800/30 transition">
+        <div class="min-w-0">
+          <span class="font-mono text-slate-200">{{ h.ticker }}</span>
+          <span class="ml-2 text-slate-500 text-sm truncate">{{ h.name }}</span>
+        </div>
+        <div class="flex gap-4 text-sm tabular-nums">
+          <span class="text-slate-400">{{ h.shares }}株</span>
+          <span class="text-slate-500">@ {{ h.avg_price or '-' }}円</span>
+          <span class="text-amber-400/80">{{ (h.last_price|int) if h.last_price else '-' }}円</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="px-4 py-8 text-center text-slate-500 text-sm">
+      保有銘柄はありません
+    </div>
+    {% endif %}
+  </section>
+</div>
+
+<script>
+(function() {
+  const initialCash = {{ (cash_yen or 0)|int }};
+  const cashDisplay = document.getElementById('cash-display');
+  const tabBuy = document.getElementById('tab-buy');
+  const tabSell = document.getElementById('tab-sell');
+  const panelBuy = document.getElementById('panel-buy');
+  const panelSell = document.getElementById('panel-sell');
+  const purchaseTicker = document.getElementById('purchase-ticker');
+  const purchaseShares = document.getElementById('purchase-shares');
+  const purchaseAvg = document.getElementById('purchase-avg');
+  const purchaseCost = document.getElementById('purchase-cost');
+  const purchaseMsg = document.getElementById('purchase-msg');
+  const btnPurchase = document.getElementById('btn-purchase');
+  const saleTicker = document.getElementById('sale-ticker');
+  const saleShares = document.getElementById('sale-shares');
+  const saleProceeds = document.getElementById('sale-proceeds');
+  const saleMsg = document.getElementById('sale-msg');
+  const btnSale = document.getElementById('btn-sale');
+
+  function fmt(n) { return (n || 0).toLocaleString(); }
+  function setCash(v) {
+    if (cashDisplay) cashDisplay.textContent = fmt(v) + ' 円';
+  }
+  setCash(initialCash);
+
+  function normalizeTicker(raw) {
+    const toHalf = (raw || '').replace(/[０-９Ａ-Ｚａ-ｚ]/g, c =>
+      String.fromCharCode(c.charCodeAt(0) - (c >= '\uff10' && c <= '\uff19' ? 0xFEE0 : 0)));
+    const cleaned = toHalf.replace(/[^A-Za-z0-9.]/g, '');
+    return /^[0-9]{4}$/.test(cleaned) ? cleaned + '.T' : cleaned;
+  }
+
+  // タブ切り替え
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const tab = this.dataset.tab;
+      tabBtns.forEach(b => {
+        b.classList.toggle('bg-amber-500', b.dataset.tab === tab);
+        b.classList.toggle('text-slate-900', b.dataset.tab === tab);
+        b.classList.toggle('text-slate-400', b.dataset.tab !== tab);
+      });
+      panelBuy.classList.toggle('hidden', tab !== 'buy');
+      panelSell.classList.toggle('hidden', tab !== 'sell');
+    });
+  });
+  tabBuy.classList.add('bg-amber-500', 'text-slate-900');
+  tabSell.classList.add('text-slate-400');
+
+  // 購入額のリアルタイム表示
+  function updatePurchaseCost() {
+    const sh = parseInt(purchaseShares?.value, 10) || 0;
+    const avg = parseFloat(purchaseAvg?.value) || 0;
+    const cost = sh * avg;
+    if (purchaseCost) purchaseCost.textContent = '購入額: ' + (cost ? fmt(cost) + ' 円' : '—');
+  }
+  purchaseShares?.addEventListener('input', updatePurchaseCost);
+  purchaseAvg?.addEventListener('input', updatePurchaseCost);
+
+  function msg(el, text, type) {
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'mt-3 text-xs min-h-[1.25rem] ' +
+      (type === 'err' ? 'text-rose-400' : type === 'ok' ? 'text-emerald-400' : 'text-slate-400');
+  }
+
+  // 購入
+  btnPurchase?.addEventListener('click', function() {
+    const ticker = normalizeTicker(purchaseTicker?.value?.trim());
+    if (!ticker || ticker.length < 2) {
+      msg(purchaseMsg, 'コードを入力してください。', 'err');
+      return;
+    }
+    const shares = parseInt(purchaseShares?.value, 10) || 0;
+    const avg = parseFloat(purchaseAvg?.value);
+    if (!shares || shares < 1) {
+      msg(purchaseMsg, '株数を入力してください。', 'err');
+      return;
+    }
+    if (!avg || avg <= 0) {
+      msg(purchaseMsg, '取得単価を入力してください。', 'err');
+      return;
+    }
+    msg(purchaseMsg, '記録中…');
+    fetch('/api/trade/purchase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ticker, shares, avg_price: avg })
+    }).then(r => {
+      if (!r.ok) return r.json().then(d => { throw new Error(d.detail || r.statusText); });
+      return r.json();
+    }).then(data => {
+      msg(purchaseMsg, '購入を記録しました。', 'ok');
+      setCash(data.cash_yen);
+      purchaseTicker.value = '';
+      purchaseShares.value = '';
+      purchaseAvg.value = '';
+      updatePurchaseCost();
+      setTimeout(() => location.reload(), 800);
+    }).catch(e => {
+      msg(purchaseMsg, e.message || '記録に失敗しました。', 'err');
+    });
+  });
+
+  // 売却で得られる現金
+  function updateSaleProceeds() {
+    if (!saleTicker || !saleProceeds) return;
+    const opt = saleTicker.options[saleTicker.selectedIndex];
+    if (!opt?.value) {
+      saleProceeds.textContent = '売却代金: —';
+      return;
+    }
+    const maxShares = parseInt(opt.dataset.shares, 10) || 0;
+    const price = parseFloat(opt.dataset.price) || 0;
+    const sellShares = saleShares?.value ? parseInt(saleShares.value, 10) : maxShares;
+    const validSell = Math.min(Math.max(0, sellShares), maxShares);
+    const proceeds = validSell * price;
+    saleProceeds.textContent = '売却代金: ' + (price ? fmt(proceeds) + ' 円' : '（株価データなし）');
+  }
+  saleTicker?.addEventListener('change', function() {
+    const opt = saleTicker.options[saleTicker.selectedIndex];
+    if (opt) saleShares.placeholder = '全売り（' + (opt.dataset.shares || 0) + ' 株）';
+    updateSaleProceeds();
+  });
+  saleShares?.addEventListener('input', updateSaleProceeds);
+
+  // 売却
+  btnSale?.addEventListener('click', function() {
+    const ticker = saleTicker?.value;
+    if (!ticker) {
+      msg(saleMsg, '銘柄を選択してください。', 'err');
+      return;
+    }
+    const opt = saleTicker.options[saleTicker.selectedIndex];
+    const maxShares = parseInt(opt?.dataset.shares, 10) || 0;
+    const sellShares = saleShares?.value ? parseInt(saleShares.value, 10) : maxShares;
+    if (sellShares <= 0 || sellShares > maxShares) {
+      msg(saleMsg, '株数を確認してください。', 'err');
+      return;
+    }
+    msg(saleMsg, '記録中…');
+    fetch('/api/trade/sale', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ticker, shares: sellShares })
+    }).then(r => {
+      if (!r.ok) return r.json().then(d => { throw new Error(d.detail || r.statusText); });
+      return r.json();
+    }).then(data => {
+      msg(saleMsg, '売却を記録しました。', 'ok');
+      setCash(data.cash_yen);
+      setTimeout(() => location.reload(), 800);
+    }).catch(e => {
+      msg(saleMsg, e.message || '記録に失敗しました。', 'err');
+    });
+  });
+})();
+</script>
+{% endblock %}

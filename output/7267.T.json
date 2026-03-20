@@ -3,19 +3,19 @@
   "name": "Honda Motor Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 58.20800726309393,
+    "value_score": 60.46859169888164,
     "safety_score": 100.0,
-    "momentum_score": 33.15942016715467,
-    "total_score": 69.91508693866851
+    "momentum_score": 49.058169086205275,
+    "total_score": 73.99907049679372
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.135597297397271,
-    "r_squared": 0.47879854083254725,
-    "alpha": -0.0003032254113324236
+    "beta": 1.1312427987686349,
+    "r_squared": 0.4803051067802523,
+    "alpha": -0.00034414736084624025
   },
   "risk_metrics": {
-    "atr_percent": 3.161026403867609
+    "atr_percent": 3.294382269036647
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -25,8 +25,8 @@
   "data_overview": {
     "price_history": {
       "rows": 1223,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1344.5,
+      "last_close": 1302.0,
       "empty": false
     },
     "benchmark": {
       "rows": 1222,
-      "date_min": "2021-03-16 00:00:00",
-      "date_max": "2026-03-16 00:00:00",
+      "date_min": "2021-03-19 00:00:00",
+      "date_max": "2026-03-19 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,13 +50,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3790.0,
+      "last_close": 3791.0,
       "empty": false
     },
     "fundamentals": {
       "shares_outstanding": 3892551549.0,
       "book_value_per_share": 3202.44,
-      "eps_ttm": 124.76,
+      "eps_ttm": 124.82,
       "sector": "Consumer Cyclical",
       "long_name": "Honda Motor Co., Ltd."
     },
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 0.419836124954722,
-      "target_pe": 10.776691247194613,
-      "time_z_pb": -0.0941925218637004,
-      "time_z_pe": -0.09419252186369913,
-      "space_z_pb": -1.073037916483578,
-      "space_z_pe": -0.6963863336988055
+      "target_pb": 0.40656499419192865,
+      "target_pe": 10.431020669764461,
+      "time_z_pb": -0.2765399040308757,
+      "time_z_pe": -0.2765399040308757,
+      "space_z_pb": -1.0812969623350588,
+      "space_z_pe": -0.7062312502927234
     }
   }
 }

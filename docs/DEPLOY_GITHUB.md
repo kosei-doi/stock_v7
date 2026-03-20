@@ -124,6 +124,48 @@ curl -I https://github.com
 
 ---
 
+## VPS で `git pull` が失敗するとき
+
+`config.yaml` / `token.json`（未追跡 or ローカル変更）や `data/`（ローカル変更）があると、pull が止まることがあります。
+
+### まとめて対処する（推奨）
+
+VPS のブラウザコンソールで次を**1回**実行します。`data/` / `config.yaml` / `token.json` / `output/` / `portfolio_state.json` をいったん退避して pull し、VPS 固有のものだけ復元します。
+
+```bash
+cd /opt/dpa_app
+
+# 退避（mv で Git の対象から外す）
+cp -r data data.bak 2>/dev/null || true
+mv config.yaml config.yaml.bak 2>/dev/null || true
+mv token.json token.json.bak 2>/dev/null || true
+mv output output.bak 2>/dev/null || true
+mv portfolio_state.json portfolio_state.json.bak 2>/dev/null || true
+
+# 追跡済みの変更を破棄
+git restore data/ 2>/dev/null || true
+git restore token.json 2>/dev/null || true
+
+# pull 実行
+git pull origin main && source venv/bin/activate && pip install -r requirements.txt && deactivate && systemctl restart dpa_web
+
+# VPS 固有の設定・データを復元
+cp config.yaml.bak config.yaml 2>/dev/null || true
+cp token.json.bak token.json 2>/dev/null || true
+cp portfolio_state.json.bak portfolio_state.json 2>/dev/null || true
+cp -r data.bak/* data/ 2>/dev/null || true
+```
+
+- `config.yaml` / `token.json` / `portfolio_state.json` は VPS 専用なので必ず復元してください。
+- `data/` は日次バッチの履歴を保持したい場合に復元。不要なら `cp -r data.bak/* data/` は省略可。
+- `output/` は再生成されるため、復元しなくても問題ありません。
+
+### 同じエラーを避けたい場合
+
+リポジトリで `config.yaml` と `token.json` を .gitignore に追加し、サーバーごとにローカルで持つ運用にすると、今後 pull 時に衝突しにくくなります（Mac の `config_example.yaml` をコピーして `config.yaml` を作る想定）。同様に `data/` を .gitignore に含めれば、pull 時の衝突はなくなります。
+
+---
+
 ## 補足：.gitignore で除外しているもの
 
 次のものだけ GitHub に上げません（それ以外は Push されます）。

@@ -221,7 +221,7 @@ def build_report_html() -> str:
             price_str = f"{float(price):,.0f}" if price is not None else "-"
             stop_str = f"{float(stop):,.0f}" if stop is not None else "-"
             purge_rows.append([ticker, name, reason, price_str, stop_str])
-        html_parts.append(_table(["ティッカー", "銘柄名", "理由", "現在価格", "損切り目安"], [[_esc(str(c)) for c in row] for row in purge_rows]))
+        html_parts.append(_table(["コード", "銘柄名", "理由", "現在価格", "損切り目安"], [[_esc(str(c)) for c in row] for row in purge_rows]))
     html_parts.append("")
 
     recs = (draft.get("recommendations") or []) if isinstance(draft, dict) else []
@@ -240,12 +240,12 @@ def build_report_html() -> str:
             except (TypeError, ValueError):
                 budget_str = "-"
             rows.append([ticker, name, f"{shares} 株", budget_str])
-        html_parts.append(_table(["ティッカー", "銘柄名", "株数", "予算（円）"], [[_esc(x) for x in row] for row in rows]))
+        html_parts.append(_table(["コード", "銘柄名", "株数", "予算（円）"], [[_esc(x) for x in row] for row in rows]))
     html_parts.append("")
 
     html_parts.append("<h3 style=\"margin: 1em 0 0.3em 0; padding: 6px 0; border-bottom: 2px solid #1976d2; color: #1565c0;\">保有銘柄の状況</h3>")
     if current_weights:
-        hold_headers = ["銘柄", "名前", "現在%", "目標%", "スコア", "株価(円)"]
+        hold_headers = ["コード", "銘柄名", "現在%", "目標%", "スコア", "株価(円)"]
         hold_rows = []
         hold_changes = []
         for ticker in sorted(current_weights.keys(), key=lambda t: -(current_weights.get(t) or 0)):
@@ -272,7 +272,7 @@ def build_report_html() -> str:
     wl_tickers = [w["ticker"] for w in watchlist if isinstance(w, dict) and w.get("ticker")]
     if wl_tickers and portfolio_scores:
         wl_sorted = sorted(wl_tickers, key=lambda t: -(portfolio_scores.get(t) or 0))
-        wl_headers = ["順位", "銘柄", "名前", "状態", "スコア", "株価(円)"]
+        wl_headers = ["順位", "コード", "銘柄名", "状態", "スコア", "株価(円)"]
         wl_rows = []
         wl_changes = []
         for i, ticker in enumerate(wl_sorted, 1):

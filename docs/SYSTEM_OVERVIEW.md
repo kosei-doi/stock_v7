@@ -39,16 +39,21 @@ flowchart LR
 ```text
 stock_v7/
 ├── daily_routine.py      # 日次バッチのエントリポイント
+├── send_daily_report.py  # 日次レポートメール送信（cron）
 ├── config_example.yaml   # 設定のひな形
-├── portfolio_state.json  # 現金残高（設定で変更可能）
+├── portfolio_state.json  # 現金残高（dpa.portfolio_path で変更可能）
 │
 ├── data/                 # 永続化データ（JSON）
-│   ├── watchlist.json
-│   ├── positions.json
+│   ├── watchlist.json    # ウォッチ＋保有（HOLDING に株数・単価）
 │   ├── sector_peers.json
 │   ├── daily_cache.json
 │   ├── scores_history.json
-│   └── last_report.json
+│   ├── last_report.json
+│   └── previous_report.json  # 前回実行の退避（Web の比較表示用）
+│
+├── web/                  # FastAPI + Jinja2（ダッシュボード・レポート・取引など）
+│   ├── main.py
+│   └── api.py
 │
 ├── core/
 │   ├── dvc/              # DVC（Dynamic Value & Catalyst）
@@ -79,7 +84,8 @@ stock_v7/
 └── docs/
 ```
 
-デフォルトの JSON パスや設定キー一覧は、`DATA_AND_LOGIC.md` の「デフォルトパス一覧」を参照してください（本ドキュメントでは概要のみに留めます）。
+デフォルトの JSON パス・設定のネスト構造（`dpa:` / `watchlist:` 等）は、`DATA_AND_LOGIC.md` の「デフォルトパス一覧」「設定の読み込み」を参照してください。  
+**ポジション**は別ファイルではなく `watchlist.json` の `HOLDING` 行に保持し、`positions_from_watchlist()` が内部表現に変換します。
 
 ---
 
@@ -243,16 +249,15 @@ flowchart TD
 ```mermaid
 flowchart LR
   subgraph purge [売却: パージ]
-    P1["保有銘柄のみの\nターゲット比率"]
-    P2["現在比率 w_i との差分"]
-    P3["オーバーウェイト > しきい値\n→ 売却候補"]
+    P1["目標 w_i^* と\n現在比率 w"]
+    P2["over = max(0, w - w_i^*)"]
+    P3["over > しきい値\n→ 売却候補"]
     P1 --> P2 --> P3
   end
 ```
 
 - 対象は **保有銘柄のみ**。
-- 「保有銘柄だけで山分けしたターゲット比率」と現在比率との差分 `over` を計算し、  
-  `over > over_weight_threshold`（デフォルト 2%）の銘柄を売却候補にする。
+- 「保有銘柄だけで山分けしたターゲット比率」は使わない。`compute_target_weights` の **全ウォッチ対象向け** `w_i^*` と、総資産に対する現在比率 `w` を比較し、`over = max(0, w - w_i^*)` が `over_weight_threshold`（デフォルト 2%pt）を超えた銘柄を売却候補にする（`dpa_purge.run_purge`）。
 - フェーズが PANIC のときは理由を `MACRO_PANIC`、それ以外は `SCORE_DECAY` として DpaPurgeOutput に載せる。
 
 ### 5.2 購入（ドラフト）― 仮想組入 & 動的N最適化
@@ -343,7 +348,7 @@ flowchart TD
    ウォッチリスト全銘柄に対して `run_dvc_for_watchlist` を実行し、  
    `output/<ticker>.json` と `scores_history.json` を更新。
 2. **ステップ2: 現在ポートフォリオ読込**  
-   `watchlist`, `positions`, `portfolio_state` を読み、  
+   `watchlist`・`portfolio_state` を読み、`positions_from_watchlist` で保有を取得。  
    `current_prices`・`holdings`・`current_weights`・`total_capital` を算出。
 3. **ステップ3: マクロ判定**  
    `get_macro_and_peers_data` から bench_df・vi_series を取得し、  
@@ -355,7 +360,7 @@ flowchart TD
 6. **ステップ6: ドラフト（購入）**  
    WATCHING かつ未保有銘柄を対象に、**仮想組入＋動的N最適化**付きの `run_draft` で購入候補を決める。
 7. **ステップ7: レポート生成**  
-   `DpaDailyReport` を組み立て、JSON とテキストレポートを生成。
+   `DpaDailyReport` を組み立て、`data/last_report.json` に保存（必要に応じ `previous_report.json` に退避）、テキストを出力。
 
 ---
 
