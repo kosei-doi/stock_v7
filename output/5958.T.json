@@ -3,10 +3,10 @@
   "name": "Sanyo Industries, Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 36.51913235340477,
+    "value_score": 36.52357322637391,
     "safety_score": 100.0,
     "momentum_score": 48.11492397447708,
-    "total_score": 64.23063773625732
+    "total_score": 64.23241408544499
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 2804027.0,
       "book_value_per_share": 7221.4,
-      "eps_ttm": 479.67,
+      "eps_ttm": 479.7,
       "sector": "Industrials",
       "long_name": "Sanyo Industries, Ltd."
     },
@@ -80,11 +80,11 @@
     },
     "value_inputs": {
       "target_pb": 0.6743844683856316,
-      "target_pe": 10.152813392540704,
+      "target_pe": 10.152178444861372,
       "time_z_pb": 2.4214361204468515,
-      "time_z_pe": 2.4214361204468515,
+      "time_z_pe": 2.421436120446852,
       "space_z_pb": -2.9160308188207567,
-      "space_z_pe": -1.3940914496917494
+      "space_z_pe": -1.3952016679340329
     }
   }
 }

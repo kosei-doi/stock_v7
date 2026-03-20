@@ -3,10 +3,10 @@
   "name": "Ceres Inc.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 69.88220692450506,
+    "value_score": 69.88997549425585,
     "safety_score": 100.0,
     "momentum_score": 52.31912396585207,
-    "total_score": 78.41670756297243
+    "total_score": 78.41981499087275
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 11540396.0,
       "book_value_per_share": 1152.564,
-      "eps_ttm": 216.53,
+      "eps_ttm": 216.61,
       "sector": "Industrials",
       "long_name": "Ceres Inc."
     },
@@ -80,11 +80,11 @@
     },
     "value_inputs": {
       "target_pb": 1.3005785362027618,
-      "target_pe": 6.922828245508706,
+      "target_pe": 6.920271455611467,
       "time_z_pb": -0.4446793126035909,
-      "time_z_pe": -0.44467931260359106,
+      "time_z_pe": -0.4446793126035905,
       "space_z_pb": -1.6452132787698552,
-      "space_z_pe": -1.9913005145456384
+      "space_z_pe": -1.9932426569833328
     }
   }
 }

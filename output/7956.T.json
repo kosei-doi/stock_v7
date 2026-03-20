@@ -3,10 +3,10 @@
   "name": "Pigeon Corporation",
   "sector": "Consumer Defensive",
   "scores": {
-    "value_score": 60.31167523929493,
+    "value_score": 60.31137259339371,
     "safety_score": 100.0,
     "momentum_score": 22.025217202613064,
-    "total_score": 68.52971353624059
+    "total_score": 68.5295924778801
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 119630131.0,
       "book_value_per_share": 693.103,
-      "eps_ttm": 71.63,
+      "eps_ttm": 71.58,
       "sector": "Consumer Defensive",
       "long_name": "Pigeon Corporation"
     },
@@ -75,11 +75,11 @@
     },
     "value_inputs": {
       "target_pb": 2.3156731394900905,
-      "target_pe": 22.406812787938016,
+      "target_pe": 22.42246437552389,
       "time_z_pb": -0.6810823326197062,
       "time_z_pe": -0.6810823326197063,
       "space_z_pb": -0.1608126597292351,
-      "space_z_pe": -0.3738591522353792
+      "space_z_pe": -0.37378349076007544
     }
   }
 }

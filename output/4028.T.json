@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 38255219.0,
       "book_value_per_share": 3157.078,
-      "eps_ttm": 348.54,
+      "eps_ttm": 348.75,
       "sector": "Basic Materials",
       "long_name": "Ishihara Sangyo Kaisha,Ltd."
     },
@@ -69,9 +69,9 @@
     },
     "value_inputs": {
       "target_pb": 0.9597482228820448,
-      "target_pe": 8.693406782578757,
+      "target_pe": 8.688172043010752,
       "time_z_pb": 2.7452489997062437,
-      "time_z_pe": 2.7452489997062437,
+      "time_z_pe": 2.745248999706243,
       "space_z_pb": null,
       "space_z_pe": null
     }

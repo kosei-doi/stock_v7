@@ -3,10 +3,10 @@
   "name": "Nippon Tungsten Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 29.88968265555833,
+    "value_score": 29.901426711264214,
     "safety_score": 100.0,
     "momentum_score": 77.99017665228811,
-    "total_score": 67.55390839268095
+    "total_score": 67.5586060149633
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 4857181.0,
       "book_value_per_share": 2704.042,
-      "eps_ttm": 128.63,
+      "eps_ttm": 128.75,
       "sector": "Industrials",
       "long_name": "Nippon Tungsten Co., Ltd."
     },
@@ -80,11 +80,11 @@
     },
     "value_inputs": {
       "target_pb": 0.8487294206229046,
-      "target_pe": 17.841872036072456,
+      "target_pe": 17.825242718446603,
       "time_z_pb": 5.110559773580982,
       "time_z_pe": 5.110559773580982,
       "space_z_pb": -2.5622097995721895,
-      "space_z_pe": 0.027579336110417907
+      "space_z_pe": 0.024643322183946218
     }
   }
 }

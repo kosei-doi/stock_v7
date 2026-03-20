@@ -3,10 +3,10 @@
   "name": "DENSO Corporation",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 63.87410690166435,
+    "value_score": 63.875393625632526,
     "safety_score": 100.0,
     "momentum_score": 44.08615578578328,
-    "total_score": 74.36687391782239
+    "total_score": 74.36738860740967
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 2689424320.0,
       "book_value_per_share": 1964.915,
-      "eps_ttm": 127.14,
+      "eps_ttm": 127.19,
       "sector": "Consumer Cyclical",
       "long_name": "DENSO Corporation"
     },
@@ -86,11 +86,11 @@
     },
     "value_inputs": {
       "target_pb": 0.9748513294468208,
-      "target_pe": 15.066068900424728,
+      "target_pe": 15.060146237911786,
       "time_z_pb": -0.669188063948335,
-      "time_z_pe": -0.6691880639483351,
+      "time_z_pe": -0.6691880639483337,
       "space_z_pb": -0.8701045385702965,
-      "space_z_pe": -0.5908579950007852
+      "space_z_pe": -0.5911796759928315
     }
   }
 }

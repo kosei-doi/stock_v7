@@ -3,10 +3,10 @@
   "name": "Toyota Motor Corporation",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 38.141611588691156,
+    "value_score": 38.14271387482907,
     "safety_score": 100.0,
     "momentum_score": 37.2383787201248,
-    "total_score": 62.704320379501425
+    "total_score": 62.704761293956594
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -54,9 +54,9 @@
       "empty": false
     },
     "fundamentals": {
-      "shares_outstanding": 13033385908.0,
+      "shares_outstanding": 13033385148.0,
       "book_value_per_share": 2990.373,
-      "eps_ttm": 284.23,
+      "eps_ttm": 284.29,
       "sector": "Consumer Cyclical",
       "long_name": "Toyota Motor Corporation"
     },
@@ -86,11 +86,11 @@
     },
     "value_inputs": {
       "target_pb": 1.111901425006178,
-      "target_pe": 11.698272525771381,
+      "target_pe": 11.695803580850539,
       "time_z_pb": 1.4861523788122222,
-      "time_z_pe": 1.4861523788122217,
+      "time_z_pe": 1.4861523788122233,
       "space_z_pb": -0.8191725698376843,
-      "space_z_pe": -0.6746874637717702
+      "space_z_pe": -0.6749630353062505
     }
   }
 }

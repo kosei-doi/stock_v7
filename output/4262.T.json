@@ -3,7 +3,7 @@
   "name": "NIFTY Lifestyle Co., Ltd.",
   "sector": "Real Estate",
   "scores": {
-    "value_score": 14.554942688973867,
+    "value_score": 14.554942688973858,
     "safety_score": 100.0,
     "momentum_score": 32.30683576949013,
     "total_score": 52.28334422948757
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 6351117.0,
       "book_value_per_share": 937.795,
-      "eps_ttm": 112.61,
+      "eps_ttm": 112.58,
       "sector": "Real Estate",
       "long_name": "NIFTY Lifestyle Co., Ltd."
     },
@@ -69,9 +69,9 @@
     },
     "value_inputs": {
       "target_pb": 1.5195218571222922,
-      "target_pe": 12.654293579611046,
+      "target_pe": 12.657665659975128,
       "time_z_pb": 1.7722528655513061,
-      "time_z_pe": 1.7722528655513075,
+      "time_z_pe": 1.7722528655513086,
       "space_z_pb": null,
       "space_z_pe": null
     }

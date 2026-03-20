@@ -3,10 +3,10 @@
   "name": "Fujitsu Limited",
   "sector": "Technology",
   "scores": {
-    "value_score": 41.088887847196645,
+    "value_score": 41.082039260706935,
     "safety_score": 100.0,
     "momentum_score": 48.06034405725344,
-    "total_score": 66.04762395032934
+    "total_score": 66.04488451573346
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 1738388205.0,
       "book_value_per_share": 1138.321,
-      "eps_ttm": 162.63,
+      "eps_ttm": 162.66,
       "sector": "Technology",
       "long_name": "Fujitsu Limited"
     },
@@ -75,11 +75,11 @@
     },
     "value_inputs": {
       "target_pb": 2.934145992211336,
-      "target_pe": 20.53741622086946,
+      "target_pe": 20.533628427394564,
       "time_z_pb": 1.2752546954786659,
-      "time_z_pe": 1.2752546954786659,
+      "time_z_pe": 1.2752546954786657,
       "space_z_pb": -0.43670375471510114,
-      "space_z_pe": -1.1612822935200566
+      "space_z_pe": -1.1595701468976305
     }
   }
 }

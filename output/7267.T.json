@@ -3,10 +3,10 @@
   "name": "Honda Motor Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 60.46859169888164,
+    "value_score": 60.46875835065197,
     "safety_score": 100.0,
     "momentum_score": 49.058169086205275,
-    "total_score": 73.99907049679372
+    "total_score": 73.99913715750185
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 3892551549.0,
       "book_value_per_share": 3202.44,
-      "eps_ttm": 124.82,
+      "eps_ttm": 124.73,
       "sector": "Consumer Cyclical",
       "long_name": "Honda Motor Co., Ltd."
     },
@@ -86,11 +86,11 @@
     },
     "value_inputs": {
       "target_pb": 0.40656499419192865,
-      "target_pe": 10.431020669764461,
+      "target_pe": 10.438547262086106,
       "time_z_pb": -0.2765399040308757,
-      "time_z_pe": -0.2765399040308757,
+      "time_z_pe": -0.27653990403087436,
       "space_z_pb": -1.0812969623350588,
-      "space_z_pe": -0.7062312502927234
+      "space_z_pe": -0.7062729132353075
     }
   }
 }

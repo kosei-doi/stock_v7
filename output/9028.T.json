@@ -3,10 +3,10 @@
   "name": "ZERO Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 34.97010040346779,
+    "value_score": 34.97159951606129,
     "safety_score": 100.0,
     "momentum_score": 31.351679011974753,
-    "total_score": 60.25837596378207
+    "total_score": 60.25897560881947
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 16803262.0,
       "book_value_per_share": 2672.1,
-      "eps_ttm": 395.82,
+      "eps_ttm": 396.05,
       "sector": "Consumer Cyclical",
       "long_name": "ZERO Co., Ltd."
     },
@@ -86,11 +86,11 @@
     },
     "value_inputs": {
       "target_pb": 1.2518244077691703,
-      "target_pe": 8.450810974685464,
+      "target_pe": 8.445903295038505,
       "time_z_pb": 1.76005648927116,
       "time_z_pe": 1.7600564892711614,
       "space_z_pb": -0.7671729491590398,
-      "space_z_pe": -0.7555216195213894
+      "space_z_pe": -0.7558963976697665
     }
   }
 }

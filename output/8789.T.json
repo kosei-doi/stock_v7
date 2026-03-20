@@ -3,10 +3,10 @@
   "name": "FinTech Global Incorporated",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 26.00373105671298,
+    "value_score": 25.996375941186344,
     "safety_score": 100.0,
     "momentum_score": 36.265116284257445,
-    "total_score": 57.654515679536686
+    "total_score": 57.65157363332603
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -79,7 +79,7 @@
       "time_z_pb": 1.714170548153243,
       "time_z_pe": 1.7141705481532432,
       "space_z_pb": 6.4517905041013055,
-      "space_z_pe": -1.6434444086379736
+      "space_z_pe": -1.6416056297563149
     }
   }
 }

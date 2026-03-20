@@ -3,10 +3,10 @@
   "name": "Goldwin Inc.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 63.918619381648554,
+    "value_score": 63.91830739284812,
     "safety_score": 100.0,
     "momentum_score": 67.78501244230779,
-    "total_score": 79.12445024112098
+    "total_score": 79.12432544560082
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 136740731.0,
       "book_value_per_share": 865.428,
-      "eps_ttm": 173.29,
+      "eps_ttm": 173.15,
       "sector": "Consumer Cyclical",
       "long_name": "Goldwin Inc."
     },
@@ -86,11 +86,11 @@
     },
     "value_inputs": {
       "target_pb": 2.696353711689476,
-      "target_pe": 13.465866466616655,
+      "target_pe": 13.476754259312735,
       "time_z_pb": -0.8728744479344873,
-      "time_z_pe": -0.8728744479344877,
+      "time_z_pe": -0.8728744479344871,
       "space_z_pb": -0.23034208420903088,
-      "space_z_pe": -0.6306894173996457
+      "space_z_pe": -0.6306114201995379
     }
   }
 }

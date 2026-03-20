@@ -3,10 +3,10 @@
   "name": "Rakuten Bank, Ltd.",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 24.65515236417444,
+    "value_score": 24.59504440322393,
     "safety_score": 100.0,
     "momentum_score": 18.085263551397,
-    "total_score": 53.47911365594918
+    "total_score": 53.45507047156897
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 174498536.0,
       "book_value_per_share": 2028.916,
-      "eps_ttm": 358.53,
+      "eps_ttm": 358.34,
       "sector": "Financial Services",
       "long_name": "Rakuten Bank, Ltd."
     },
@@ -75,11 +75,11 @@
     },
     "value_inputs": {
       "target_pb": 3.024275031593225,
-      "target_pe": 17.114327950241265,
+      "target_pe": 17.123402355305018,
       "time_z_pb": 0.7831647145730863,
-      "time_z_pe": 0.7831647145730866,
+      "time_z_pe": 0.7831647145730862,
       "space_z_pb": 13.257008438361263,
-      "space_z_pe": 1.4867177652371313
+      "space_z_pe": 1.5017447554747587
     }
   }
 }

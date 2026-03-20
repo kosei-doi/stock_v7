@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 12331075.0,
       "book_value_per_share": 47.909,
-      "eps_ttm": -29.51,
+      "eps_ttm": -29.5,
       "sector": "Technology",
       "long_name": "FLIGHT SOLUTIONS Inc."
     },
@@ -75,11 +75,11 @@
     },
     "value_inputs": {
       "target_pb": 3.0683170176793504,
-      "target_pe": -4.981362250084717,
+      "target_pe": -4.983050847457627,
       "time_z_pb": -1.5018789869374058,
       "time_z_pe": 1.5018789869374058,
       "space_z_pb": -0.3831753191590015,
-      "space_z_pe": -4.795019068233291
+      "space_z_pe": -4.793695602872779
     }
   }
 }

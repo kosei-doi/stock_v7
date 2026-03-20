@@ -3,10 +3,10 @@
   "name": "Japan Investment Adviser Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 39.172940402004485,
+    "value_score": 39.17829984949377,
     "safety_score": 50.0,
     "momentum_score": 60.60516041796702,
-    "total_score": 47.7902082443952
+    "total_score": 47.79235202339091
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 60546362.0,
       "book_value_per_share": 1213.822,
-      "eps_ttm": 174.16,
+      "eps_ttm": 174.2,
       "sector": "Industrials",
       "long_name": "Japan Investment Adviser Co., Ltd."
     },
@@ -80,11 +80,11 @@
     },
     "value_inputs": {
       "target_pb": 1.5718943963777228,
-      "target_pe": 10.955443270555811,
+      "target_pe": 10.95292766934558,
       "time_z_pb": 1.6823501231509759,
-      "time_z_pe": 1.6823501231509763,
+      "time_z_pe": 1.6823501231509759,
       "space_z_pb": -1.0945965103832385,
-      "space_z_pe": -1.2456889595708112
+      "space_z_pe": -1.247028821443132
     }
   }
 }

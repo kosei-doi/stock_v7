@@ -3,10 +3,10 @@
   "name": "Asahi Group Holdings, Ltd.",
   "sector": "Consumer Defensive",
   "scores": {
-    "value_score": 66.3088537592268,
+    "value_score": 66.30893927331931,
     "safety_score": 100.0,
     "momentum_score": 30.65420388965885,
-    "total_score": 72.65438228162249
+    "total_score": 72.6544164872595
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 1462866952.0,
       "book_value_per_share": 1870.335,
-      "eps_ttm": 115.41,
+      "eps_ttm": 115.52,
       "sector": "Consumer Defensive",
       "long_name": "Asahi Group Holdings, Ltd."
     },
@@ -75,11 +75,11 @@
     },
     "value_inputs": {
       "target_pb": 0.8426297962664442,
-      "target_pe": 13.655662420934062,
+      "target_pe": 13.642659279778394,
       "time_z_pb": -0.8142297580438849,
-      "time_z_pe": -0.8142297580438812,
+      "time_z_pe": -0.8142297580438838,
       "space_z_pb": -1.0425782683173181,
-      "space_z_pe": -0.5919458973577325
+      "space_z_pe": -0.5919672758808572
     }
   }
 }

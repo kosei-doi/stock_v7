@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 176067978.0,
       "book_value_per_share": 1625.011,
-      "eps_ttm": 178.71,
+      "eps_ttm": 178.84,
       "sector": "Basic Materials",
       "long_name": "Kansai Paint Co., Ltd."
     },
@@ -69,7 +69,7 @@
     },
     "value_inputs": {
       "target_pb": 1.4892206883522634,
-      "target_pe": 13.541491802361367,
+      "target_pe": 13.531648400805189,
       "time_z_pb": 0.39969524166759524,
       "time_z_pe": 0.39969524166759485,
       "space_z_pb": null,

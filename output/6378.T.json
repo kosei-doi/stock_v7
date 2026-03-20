@@ -3,10 +3,10 @@
   "name": "Kimura Chemical Plants Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 24.952151544120657,
+    "value_score": 24.9374025463959,
     "safety_score": 100.0,
     "momentum_score": 95.24187090179797,
-    "total_score": 69.02923479800785
+    "total_score": 69.02333519891795
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 19806297.0,
       "book_value_per_share": 1000.779,
-      "eps_ttm": 106.29,
+      "eps_ttm": 106.15,
       "sector": "Industrials",
       "long_name": "Kimura Chemical Plants Co., Ltd."
     },
@@ -80,11 +80,11 @@
     },
     "value_inputs": {
       "target_pb": 1.6756946338802072,
-      "target_pe": 15.777589613322043,
+      "target_pe": 15.79839849269901,
       "time_z_pb": 5.176514720257207,
       "time_z_pe": 5.176514720257206,
       "space_z_pb": -0.8839411093516703,
-      "space_z_pe": -0.35409677667849376
+      "space_z_pe": -0.350409527247305
     }
   }
 }

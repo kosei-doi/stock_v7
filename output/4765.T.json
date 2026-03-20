@@ -3,7 +3,7 @@
   "name": "SBI Global Asset Management Co., Ltd.",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 25.753962183061127,
+    "value_score": 25.75396218306112,
     "safety_score": 100.0,
     "momentum_score": 66.96485119623027,
     "total_score": 63.6945551124705
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 137970974.0,
       "book_value_per_share": 221.789,
-      "eps_ttm": 19.9,
+      "eps_ttm": 19.89,
       "sector": "Financial Services",
       "long_name": "SBI Global Asset Management Co., Ltd."
     },
@@ -75,11 +75,11 @@
     },
     "value_inputs": {
       "target_pb": 2.7097827214153996,
-      "target_pe": 30.20100502512563,
+      "target_pe": 30.21618903971845,
       "time_z_pb": 0.35383648474490614,
-      "time_z_pe": 0.35383648474490614,
+      "time_z_pe": 0.3538364847449073,
       "space_z_pb": 10.84684937454447,
-      "space_z_pe": 9.222515478604674
+      "space_z_pe": 9.260466301430927
     }
   }
 }

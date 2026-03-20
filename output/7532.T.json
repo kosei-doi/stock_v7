@@ -3,10 +3,10 @@
   "name": "Pan Pacific International Holdings Corporation",
   "sector": "Consumer Defensive",
   "scores": {
-    "value_score": 26.36418694801761,
+    "value_score": 26.369222281958443,
     "safety_score": 100.0,
     "momentum_score": 26.84269027090281,
-    "total_score": 55.91421283338761
+    "total_score": 55.91622696696394
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 2988513375.0,
       "book_value_per_share": 220.167,
-      "eps_ttm": 33.43,
+      "eps_ttm": 33.45,
       "sector": "Consumer Defensive",
       "long_name": "Pan Pacific International Holdings Corporation"
     },
@@ -75,11 +75,11 @@
     },
     "value_inputs": {
       "target_pb": 4.494769768339204,
-      "target_pe": 29.60215302380908,
+      "target_pe": 29.584453679699177,
       "time_z_pb": 1.6533001853156992,
-      "time_z_pe": 1.6533001853157,
+      "time_z_pe": 1.6533001853156992,
       "space_z_pb": 1.1435973387603016,
-      "space_z_pe": -0.19454463171180356
+      "space_z_pe": -0.19580346519700978
     }
   }
 }

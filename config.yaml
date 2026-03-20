@@ -6,8 +6,12 @@ llm:
   provider: openai
   model: gpt-4.1-mini
 dpa:
-  total_capital_jpy: 5000000.0
   vi_ticker: ^VIX
   mu_cash: 0.4
   a_vi: 0.2
   b_macd: 0.2
+  total_capital_jpy: 5000000.0
+watchlist:
+  max_items: 45
+daily_report:
+  enabled: true

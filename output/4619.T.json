@@ -3,10 +3,10 @@
   "name": "Nihon Tokushu Toryo Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 29.035818295551252,
+    "value_score": 29.03668332220192,
     "safety_score": 100.0,
     "momentum_score": 49.33435634453461,
-    "total_score": 61.48119858712742
+    "total_score": 61.48154459778769
   },
   "market_linkage": {
     "benchmark": "1306.T",
@@ -56,7 +56,7 @@
     "fundamentals": {
       "shares_outstanding": 21546122.0,
       "book_value_per_share": 2728.238,
-      "eps_ttm": 249.29,
+      "eps_ttm": 249.26,
       "sector": "Consumer Cyclical",
       "long_name": "Nihon Tokushu Toryo Co., Ltd."
     },
@@ -86,11 +86,11 @@
     },
     "value_inputs": {
       "target_pb": 0.8397361227282958,
-      "target_pe": 9.190099883669623,
+      "target_pe": 9.191205969670225,
       "time_z_pb": 2.299494162448114,
-      "time_z_pe": 2.299494162448114,
+      "time_z_pe": 2.2994941624481133,
       "space_z_pb": -0.920317443973984,
-      "space_z_pe": -0.7371196172581729
+      "space_z_pe": -0.7373358739208371
     }
   }
 }

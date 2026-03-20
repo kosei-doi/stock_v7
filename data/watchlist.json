@@ -29,26 +29,22 @@
   },
   {
     "ticker": "4765.T",
-    "status": "HOLDING",
-    "shares": 100,
+    "status": "WATCHING",
     "avg_price": 638.0
   },
   {
     "ticker": "8789.T",
-    "status": "HOLDING",
-    "shares": 100,
+    "status": "WATCHING",
     "avg_price": 147.0
   },
   {
     "ticker": "3753.T",
-    "status": "HOLDING",
-    "shares": 100,
+    "status": "WATCHING",
     "avg_price": 160.0
   },
   {
     "ticker": "4259.T",
-    "status": "HOLDING",
-    "shares": 100,
+    "status": "WATCHING",
     "avg_price": 636.0
   },
   {
