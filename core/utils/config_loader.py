@@ -28,7 +28,7 @@ DEFAULT_MIN_CASH_RATIO = 0.2
 DEFAULT_MAX_CASH_RATIO = 0.8
 DEFAULT_MOMENTUM_THRESHOLD = 50.0
 DEFAULT_LOT_SIZE = 100
-DEFAULT_OVER_WEIGHT_THRESHOLD = 0.02
+DEFAULT_PURGE_LOT_THRESHOLD = 0.5
 DEFAULT_MAX_POSITION_PCT = 0.15
 DEFAULT_MAX_POSITION_JPY = 750_000.0
 DEFAULT_MAX_DRAFT_CANDIDATES = 5
@@ -134,7 +134,8 @@ def get_validated_config(cfg: dict[str, Any]) -> dict[str, Any]:
     cache_cutoff_hour, cache_cutoff_minute, market_tz, llm_enabled, llm_model,
     total_capital_jpy, portfolio_path, scores_history_path, vi_ticker, mu_cash, a_vi, b_macd,
     macd_scale, min_cash_ratio, max_cash_ratio, momentum_threshold, lot_size,
-    over_weight_threshold, max_position_pct, max_position_jpy, max_draft_candidates などを含む。
+    purge_lot_threshold, max_position_pct, max_position_jpy,
+    max_draft_candidates などを含む。
     vi_ticker は空文字のとき None に正規化する。
     """
     out: dict[str, Any] = {}
@@ -195,8 +196,8 @@ def get_validated_config(cfg: dict[str, Any]) -> dict[str, Any]:
     else:
         out["momentum_threshold"] = DEFAULT_MOMENTUM_THRESHOLD
     out["lot_size"] = _coerce_int(dpa_cfg.get("lot_size"), DEFAULT_LOT_SIZE)
-    out["over_weight_threshold"] = _coerce_float(
-        dpa_cfg.get("over_weight_threshold"), DEFAULT_OVER_WEIGHT_THRESHOLD
+    out["purge_lot_threshold"] = _coerce_float(
+        dpa_cfg.get("purge_lot_threshold"), DEFAULT_PURGE_LOT_THRESHOLD
     )
     out["max_position_pct"] = _coerce_float(dpa_cfg.get("max_position_pct"), DEFAULT_MAX_POSITION_PCT)
     out["max_position_jpy"] = _coerce_float(dpa_cfg.get("max_position_jpy"), DEFAULT_MAX_POSITION_JPY)

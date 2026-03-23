@@ -3,19 +3,19 @@
   "name": "NIFTY Lifestyle Co., Ltd.",
   "sector": "Real Estate",
   "scores": {
-    "value_score": 15.192983885603141,
+    "value_score": 15.003881465714608,
     "safety_score": 100.0,
-    "momentum_score": 26.596626964811094,
-    "total_score": 51.396518947203475
+    "momentum_score": 33.69564085125215,
+    "total_score": 52.74068075653627
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.5165635079490424,
-    "r_squared": 0.1116144904637155,
-    "alpha": -0.00034772228809724985
+    "beta": 0.516177587072766,
+    "r_squared": 0.11145074244781823,
+    "alpha": -0.00034612395618535604
   },
   "risk_metrics": {
-    "atr_percent": 1.8725460585925704
+    "atr_percent": 1.8950437317784254
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1419.0,
+      "last_close": 1421.0,
       "empty": false
     },
     "benchmark": {
@@ -68,10 +68,10 @@
       "peer_pe_count": 0
     },
     "value_inputs": {
-      "target_pb": 1.5131238703554615,
-      "target_pe": 12.60437022561734,
-      "time_z_pb": 1.7403508057198425,
-      "time_z_pe": 1.7403508057198434,
+      "target_pb": 1.5152565326110718,
+      "target_pe": 12.622135370403269,
+      "time_z_pb": 1.7498059267142692,
+      "time_z_pe": 1.7498059267142696,
       "space_z_pb": null,
       "space_z_pe": null
     }

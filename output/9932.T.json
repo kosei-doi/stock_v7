@@ -3,19 +3,19 @@
   "name": "Sugimoto & Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 61.669036305239736,
+    "value_score": 62.01380248324058,
     "safety_score": 100.0,
-    "momentum_score": 24.260027783593777,
-    "total_score": 69.51962007881465
+    "momentum_score": 33.892027741684174,
+    "total_score": 71.58392654163306
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.0417907615799906,
-    "r_squared": 0.351532606683965,
-    "alpha": -0.0002827910816583966
+    "beta": 1.042923848951469,
+    "r_squared": 0.3521438894121502,
+    "alpha": -0.00028722113524288595
   },
   "risk_metrics": {
-    "atr_percent": 2.938840349483717
+    "atr_percent": 2.9529130087789306
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1259.0,
+      "last_close": 1253.0,
       "empty": false
     },
     "benchmark": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 0.6592603298082019,
-      "target_pe": 13.085957800644424,
-      "time_z_pb": 0.09848198572150933,
-      "time_z_pe": 0.09848198572150837,
-      "space_z_pb": -2.9963040014295874,
-      "space_z_pe": -0.7127050334744599
+      "target_pb": 0.6561185013897355,
+      "target_pe": 13.023594220974951,
+      "time_z_pb": 0.07383217641355637,
+      "time_z_pe": 0.07383217641355602,
+      "space_z_pb": -3.0033661005162156,
+      "space_z_pe": -0.7249471500508148
     }
   }
 }

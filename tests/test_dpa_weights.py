@@ -75,3 +75,23 @@ def test_compute_target_weights_allocation_holdings_only():
     assert w.get("C", 0) == 0.0
     assert w["A"] + w["B"] == pytest.approx(0.8)
     assert w["A"] > w["B"]
+
+
+def test_compute_target_weights_uses_trend_globally():
+    """trend は常に有効。level が同じなら trend が高い銘柄の重みが増える。"""
+    dvc_results = {
+        "A": _make_output("A", 80.0),
+        "B": _make_output("B", 80.0),
+    }
+    score_trends = {
+        "A": {"level": 0.8, "trend": 1.0},
+        "B": {"level": 0.8, "trend": -1.0},
+    }
+    macro = MacroState(phase="cruise", phase_name_ja="巡航", target_cash_ratio=0.2, vi_z=None, macd_trend=None)
+    w = compute_target_weights(
+        dvc_results,
+        score_trends,
+        macro,
+        portfolio_scores={"A": 80.0, "B": 80.0},
+    )
+    assert w["A"] > w["B"]

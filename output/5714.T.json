@@ -5,17 +5,17 @@
   "scores": {
     "value_score": 0.0,
     "safety_score": 100.0,
-    "momentum_score": 26.32617228568029,
-    "total_score": 45.26523445713606
+    "momentum_score": 57.0228185426161,
+    "total_score": 51.40456370852322
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.1025053792093,
-    "r_squared": 0.3677002359968025,
-    "alpha": 0.00011869644707153881
+    "beta": 1.0979140389451933,
+    "r_squared": 0.36634757164166876,
+    "alpha": 0.00013664729879454417
   },
   "risk_metrics": {
-    "atr_percent": 7.291823583563478
+    "atr_percent": 7.145317369197966
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 8535.0,
+      "last_close": 8710.0,
       "empty": false
     },
     "benchmark": {
@@ -68,10 +68,10 @@
       "peer_pe_count": 0
     },
     "value_inputs": {
-      "target_pb": 1.256644683605285,
-      "target_pe": 25.153247671814217,
-      "time_z_pb": 3.2023061586335047,
-      "time_z_pe": 3.2023061586335038,
+      "target_pb": 1.2824106847336885,
+      "target_pe": 25.66898502888129,
+      "time_z_pb": 3.3638693395584363,
+      "time_z_pe": 3.3638693395584367,
       "space_z_pb": null,
       "space_z_pe": null
     }

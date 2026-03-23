@@ -3,19 +3,19 @@
   "name": "Japan Tobacco Inc.",
   "sector": "Consumer Defensive",
   "scores": {
-    "value_score": 26.88106340561365,
+    "value_score": 27.17774700438536,
     "safety_score": 100.0,
-    "momentum_score": 42.28378781712611,
-    "total_score": 59.20918292567068
+    "momentum_score": 90.9365376538991,
+    "total_score": 69.05840633253396
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.607042515891904,
-    "r_squared": 0.32416548573242504,
-    "alpha": 0.0005773888023946534
+    "beta": 0.608040919541272,
+    "r_squared": 0.32489216429249407,
+    "alpha": 0.0005734853243602273
   },
   "risk_metrics": {
-    "atr_percent": 2.1939578700117446
+    "atr_percent": 2.24712052395172
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 5717.0,
+      "last_close": 5693.0,
       "empty": false
     },
     "benchmark": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.483499088181811,
-      "target_pe": 20.327833878537902,
-      "time_z_pb": 2.068438615098511,
-      "time_z_pe": 2.068438615098511,
-      "space_z_pb": -0.011968755601280632,
-      "space_z_pe": -0.4136129410976637
+      "target_pb": 2.4730733442398196,
+      "target_pe": 20.242497511022613,
+      "time_z_pb": 2.046666666824508,
+      "time_z_pe": 2.0466666668245077,
+      "space_z_pb": -0.018585599998725662,
+      "space_z_pe": -0.4158511515711377
     }
   }
 }

@@ -3,19 +3,19 @@
   "name": "PAL GROUP Holdings CO., LTD.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 44.85922898649671,
+    "value_score": 44.835159922456675,
     "safety_score": 100.0,
-    "momentum_score": 48.94204195048236,
-    "total_score": 67.73209998469517
+    "momentum_score": 60.29489806597793,
+    "total_score": 69.99304358217826
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.40531611162028325,
-    "r_squared": 0.0422200276138708,
-    "alpha": 0.001114183883560005
+    "beta": 0.4051470802866645,
+    "r_squared": 0.042185750648383556,
+    "alpha": 0.0011148447486302878
   },
   "risk_metrics": {
-    "atr_percent": 3.303258145363409
+    "atr_percent": 3.300941695051092
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1425.0,
+      "last_close": 1426.0,
       "empty": false
     },
     "benchmark": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 3.106470177886292,
-      "target_pe": 19.609192238888124,
-      "time_z_pb": 0.6060456882347232,
-      "time_z_pe": 0.6060456882347226,
-      "space_z_pb": -0.06127647837855933,
-      "space_z_pe": -0.47166783294978604
+      "target_pb": 3.1086501569584932,
+      "target_pe": 19.62295307554699,
+      "time_z_pb": 0.6076620121004305,
+      "time_z_pe": 0.6076620121004304,
+      "space_z_pb": -0.060455298612268366,
+      "space_z_pe": -0.4713207183031909
     }
   }
 }

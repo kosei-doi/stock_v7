@@ -3,19 +3,19 @@
   "name": "Abalance Corporation",
   "sector": "Technology",
   "scores": {
-    "value_score": 74.35651242190119,
+    "value_score": 74.27553101068082,
     "safety_score": 50.0,
-    "momentum_score": 27.96672888899947,
-    "total_score": 55.33595074656037
+    "momentum_score": 30.22757689207507,
+    "total_score": 55.755727782687345
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.2662270324114104,
-    "r_squared": 0.07147794234372537,
-    "alpha": 7.10751094849841e-05
+    "beta": 1.260743449082775,
+    "r_squared": 0.0708938712326223,
+    "alpha": 9.251438115313003e-05
   },
   "risk_metrics": {
-    "atr_percent": 7.08222168324036
+    "atr_percent": 6.917791992418858
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 589.0,
+      "last_close": 603.0,
       "empty": false
     },
     "benchmark": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 0.3000358107257963,
-      "target_pe": 1.6549592582186008,
-      "time_z_pb": -0.7084853843893629,
-      "time_z_pe": -0.7084853843893629,
-      "space_z_pb": -1.4636719523072064,
-      "space_z_pe": -4.030384436238957
+      "target_pb": 0.3071673919654587,
+      "target_pe": 1.6942961506041023,
+      "time_z_pb": -0.7027221995128735,
+      "time_z_pe": -0.7027221995128736,
+      "space_z_pb": -1.4607161541315858,
+      "space_z_pe": -4.0241471232226225
     }
   }
 }

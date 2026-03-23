@@ -71,7 +71,7 @@ python -m core.dvc.dvc_phase1 --ticker 7203.T --config config.yaml --dry-run
 - **core/utils/** — 共通: `watchlist_io.py`, `io_utils.py`, `daily_cache.py`, `config_loader.py`
 - **data/** — ウォッチリスト・ポジション・キャッシュ・スコア履歴・レポート等の JSON
 
-詳細な処理フローは `docs/DVC_FLOWCHARTS.md` を参照してください。
+詳細は `docs/ARCHITECTURE.md`（構成図）、`docs/LOGIC.md`（ロジック仕様）、`docs/OPERATIONS.md`（運用手順）を参照してください。
 
 ## テスト
 
@@ -82,4 +82,4 @@ pytest tests/ -v
 
 ## 改善履歴
 
-`docs/IMPROVEMENTS.md` に過去の改善指摘をまとめてあります。多くは本リポジトリで対応済みです。
+ドキュメントは `docs/ARCHITECTURE.md`（構成図）、`docs/LOGIC.md`（ロジック仕様）、`docs/OPERATIONS.md`（運用手順）を正本とします。

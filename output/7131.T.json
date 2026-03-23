@@ -3,19 +3,19 @@
   "name": "Nomura Corporation",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 28.135415762206087,
+    "value_score": 28.9168880266479,
     "safety_score": 100.0,
-    "momentum_score": 34.110301315963326,
-    "total_score": 58.0762265680751
+    "momentum_score": 50.91578194443671,
+    "total_score": 61.7499115995465
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.4166550005254076,
-    "r_squared": 0.043121804354411104,
-    "alpha": 0.0012053936992335714
+    "beta": 0.4201359720009049,
+    "r_squared": 0.04373691573755689,
+    "alpha": 0.0011909177164126654
   },
   "risk_metrics": {
-    "atr_percent": 7.6592082616179
+    "atr_percent": 7.764449291166849
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3320.0,
+      "last_close": 3275.0,
       "empty": false
     },
     "benchmark": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 1.8546387755808873,
-      "target_pe": 8.634590377113135,
-      "time_z_pb": 2.249159031383145,
-      "time_z_pe": 2.2491590313831455,
-      "space_z_pb": -0.5328308302021958,
-      "space_z_pe": -0.7485002044987609
+      "target_pb": 1.8295005994058453,
+      "target_pe": 8.517555266579974,
+      "time_z_pb": 2.1881768523859413,
+      "time_z_pe": 2.188176852385941,
+      "space_z_pb": -0.5423001695640457,
+      "space_z_pe": -0.7514523942557523
     }
   }
 }

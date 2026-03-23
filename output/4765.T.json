@@ -3,19 +3,19 @@
   "name": "SBI Global Asset Management Co., Ltd.",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 27.856566630430894,
+    "value_score": 27.707641776052874,
     "safety_score": 100.0,
-    "momentum_score": 65.26274840956359,
-    "total_score": 64.19517633408508
+    "momentum_score": 77.43636650657123,
+    "total_score": 66.5703300117354
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.7785504147658856,
-    "r_squared": 0.3552227174726303,
-    "alpha": -0.00016446300352897383
+    "beta": 0.7781456958156737,
+    "r_squared": 0.35494410647768543,
+    "alpha": -0.00016288066603124162
   },
   "risk_metrics": {
-    "atr_percent": 1.9712825504989047
+    "atr_percent": 1.9679300291545188
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 587.0,
+      "last_close": 588.0,
       "empty": false
     },
     "benchmark": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.646659663013044,
-      "target_pe": 29.512317747611863,
-      "time_z_pb": 0.17861944746409217,
-      "time_z_pe": 0.17861944746409186,
-      "space_z_pb": 12.09870956919235,
-      "space_z_pe": 10.285550742584276
+      "target_pb": 2.6511684528989266,
+      "target_pe": 29.56259426847662,
+      "time_z_pb": 0.1910298519955942,
+      "time_z_pe": 0.1910298519955934,
+      "space_z_pb": 12.137234216357449,
+      "space_z_pe": 10.318608154192455
     }
   }
 }

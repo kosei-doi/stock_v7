@@ -29,3 +29,15 @@ def test_flat_to_config_repairs_null_dpa(monkeypatch):
     cfg = api._flat_to_config({"vi_ticker": "^VIX"})
     assert isinstance(cfg["dpa"], dict)
     assert cfg["dpa"]["vi_ticker"] == "^VIX"
+
+
+def test_flat_to_config_accepts_purge_lot_threshold(monkeypatch):
+    import web.api as api
+
+    monkeypatch.setattr(
+        api,
+        "_load_config_raw",
+        lambda: {"benchmark_ticker": "1306.T", "dpa": {}},
+    )
+    cfg = api._flat_to_config({"purge_lot_threshold": 0.65})
+    assert cfg["dpa"]["purge_lot_threshold"] == 0.65

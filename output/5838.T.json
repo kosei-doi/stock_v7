@@ -3,19 +3,19 @@
   "name": "Rakuten Bank, Ltd.",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 22.79550907827188,
+    "value_score": 22.667644034428413,
     "safety_score": 100.0,
-    "momentum_score": 63.51355118281801,
-    "total_score": 61.820913867872356
+    "momentum_score": 66.41726898718093,
+    "total_score": 62.350511411207556
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.05280635229314,
-    "r_squared": 0.16829971139142813,
-    "alpha": 0.001305231327375608
+    "beta": 1.0522171687074455,
+    "r_squared": 0.1681190436198922,
+    "alpha": 0.0013080115679020969
   },
   "risk_metrics": {
-    "atr_percent": 4.528040238800357
+    "atr_percent": 4.521775858832363
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 6078.0,
+      "last_close": 6088.0,
       "empty": false
     },
     "benchmark": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.995688338009065,
-      "target_pe": 16.961544901490207,
-      "time_z_pb": 0.7559515667702484,
-      "time_z_pe": 0.7559515667702484,
-      "space_z_pb": 15.080930274758002,
-      "space_z_pe": 2.0332680301212847
+      "target_pb": 3.000617078282196,
+      "target_pe": 16.989451359044484,
+      "time_z_pb": 0.7604907109571938,
+      "time_z_pe": 0.7604907109571939,
+      "space_z_pb": 15.123043122062178,
+      "space_z_pe": 2.0516168585213146
     }
   }
 }

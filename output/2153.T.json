@@ -3,19 +3,19 @@
   "name": "E J Holdings Inc.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 55.4824731702318,
+    "value_score": 55.713913114448076,
     "safety_score": 100.0,
-    "momentum_score": 19.56069641272183,
-    "total_score": 66.10512855063708
+    "momentum_score": 43.41725565272934,
+    "total_score": 70.9690163763251
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.7486551510662109,
-    "r_squared": 0.31844827213960797,
-    "alpha": 0.00011528285905536701
+    "beta": 0.7492051478758828,
+    "r_squared": 0.31878850574693757,
+    "alpha": 0.0001131325259041244
   },
   "risk_metrics": {
-    "atr_percent": 2.5977792509115014
+    "atr_percent": 2.6121262458471763
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1724.0,
+      "last_close": 1720.0,
       "empty": false
     },
     "benchmark": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 0.8850057237899189,
-      "target_pe": 8.394196124257475,
-      "time_z_pb": 0.9173238089826306,
-      "time_z_pe": 0.9173238089826309,
-      "space_z_pb": -2.4888808935098496,
-      "space_z_pe": -1.6337088259959933
+      "target_pb": 0.8829523462405224,
+      "target_pe": 8.374720031161749,
+      "time_z_pb": 0.9008500527924095,
+      "time_z_pe": 0.9008500527924101,
+      "space_z_pb": -2.493496408358103,
+      "space_z_pe": -1.637532028631145
     }
   }
 }

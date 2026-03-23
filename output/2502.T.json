@@ -3,19 +3,19 @@
   "name": "Asahi Group Holdings, Ltd.",
   "sector": "Consumer Defensive",
   "scores": {
-    "value_score": 66.68273742247042,
+    "value_score": 67.73122380313498,
     "safety_score": 100.0,
-    "momentum_score": 7.926438760051388,
-    "total_score": 68.25838272099844
+    "momentum_score": 36.49061623629557,
+    "total_score": 74.39061276851311
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.6238755047365793,
-    "r_squared": 0.2349279451299764,
-    "alpha": -0.00020959080275572282
+    "beta": 0.6260362314162001,
+    "r_squared": 0.2364496541690352,
+    "alpha": -0.00021803863759450355
   },
   "risk_metrics": {
-    "atr_percent": 1.7976455615653832
+    "atr_percent": 1.8206833295115799
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1571.5,
+      "last_close": 1557.5,
       "empty": false
     },
     "benchmark": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 0.8402238101730438,
-      "target_pe": 13.603704986149586,
-      "time_z_pb": -0.8419379633727954,
-      "time_z_pe": -0.8419379633727955,
-      "space_z_pb": -1.0548964236172194,
-      "space_z_pe": -0.5899740418819981
+      "target_pb": 0.8327385201046871,
+      "target_pe": 13.482513850415513,
+      "time_z_pb": -0.9266687427753868,
+      "time_z_pe": -0.9266687427753857,
+      "space_z_pb": -1.059647067784929,
+      "space_z_pe": -0.5931526546726541
     }
   }
 }

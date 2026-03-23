@@ -617,7 +617,7 @@ CONFIG_KEYS = {
     "vi_ticker", "mu_cash", "a_vi", "b_macd", "daily_report_email_enabled",
     "watchlist_max_items",
     # DPA 売却・購入（UI は % 表示、YAML は小数・円で保存）
-    "over_weight_threshold_pct",
+    "purge_lot_threshold",
     "max_position_percent",
     "max_position_jpy",
     "ignition_momentum_threshold",
@@ -724,9 +724,6 @@ def _config_to_flat(cfg: dict) -> dict:
     od = cfg.get("output_dir")
     if not od:
         od = "output"
-    ow = dpa.get("over_weight_threshold")
-    if ow is None:
-        ow = 0.02
     mp = dpa.get("max_position_pct")
     if mp is None:
         mp = 0.15
@@ -745,7 +742,7 @@ def _config_to_flat(cfg: dict) -> dict:
         "a_vi": _dpa_float("a_vi", 0.2),
         "b_macd": _dpa_float("b_macd", 0.2),
         "daily_report_email_enabled": bool(email_cfg.get("enabled", True)),
-        "over_weight_threshold_pct": round(float(ow) * 100.0, 4),
+        "purge_lot_threshold": _dpa_float("purge_lot_threshold", 0.5),
         "max_position_percent": round(float(mp) * 100.0, 4),
         "max_position_jpy": _dpa_float("max_position_jpy", 750_000.0),
         "ignition_momentum_threshold": _ignite,
@@ -795,11 +792,11 @@ def _flat_to_config(flat: dict) -> dict:
             pass
     if "daily_report_email_enabled" in flat:
         _ensure_nested_dict(cfg, "daily_report")["enabled"] = bool(flat["daily_report_email_enabled"])
-    if "over_weight_threshold_pct" in flat:
+    if "purge_lot_threshold" in flat:
         try:
-            v = float(flat["over_weight_threshold_pct"])
-            if 0 < v <= 100:
-                dpa["over_weight_threshold"] = v / 100.0
+            v = float(flat["purge_lot_threshold"])
+            if 0 <= v <= 1:
+                dpa["purge_lot_threshold"] = v
         except (TypeError, ValueError):
             pass
     if "max_position_percent" in flat:

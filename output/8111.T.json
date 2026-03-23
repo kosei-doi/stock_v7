@@ -3,19 +3,19 @@
   "name": "Goldwin Inc.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 64.83801730434487,
+    "value_score": 65.41107619723792,
     "safety_score": 100.0,
-    "momentum_score": 33.53036279718286,
-    "total_score": 72.64127948117452
+    "momentum_score": 59.20130196016616,
+    "total_score": 78.0046908709284
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.8385682763623891,
-    "r_squared": 0.24298151164465231,
-    "alpha": -0.0002720613587625847
+    "beta": 0.8411220728836637,
+    "r_squared": 0.24422238654923245,
+    "alpha": -0.00028204598635433857
   },
   "risk_metrics": {
-    "atr_percent": 2.7654798278979857
+    "atr_percent": 2.878888153540702
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 2291.0,
+      "last_close": 2266.5,
       "empty": false
     },
     "benchmark": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 2.6472450625586417,
-      "target_pe": 13.231302339012416,
-      "time_z_pb": -0.9475642153203054,
-      "time_z_pe": -0.9475642153203057,
-      "space_z_pb": -0.2342627137459272,
-      "space_z_pe": -0.6325489663793757
+      "target_pb": 2.6189353707067484,
+      "target_pe": 13.08980652613341,
+      "time_z_pb": -0.9905747133197422,
+      "time_z_pe": -0.990574713319741,
+      "space_z_pb": -0.2449267363666743,
+      "space_z_pe": -0.6361181729835788
     }
   }
 }

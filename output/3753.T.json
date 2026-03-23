@@ -3,19 +3,19 @@
   "name": "FLIGHT SOLUTIONS Inc.",
   "sector": "Technology",
   "scores": {
-    "value_score": 61.33446258458636,
+    "value_score": 61.12683594326589,
     "safety_score": 100.0,
-    "momentum_score": 41.2963996290671,
-    "total_score": 72.79306495964796
+    "momentum_score": 64.335193687606,
+    "total_score": 77.31777311482756
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.817314582650976,
-    "r_squared": 0.08135657360141448,
-    "alpha": -0.0010842490078590973
+    "beta": 0.8073865790151663,
+    "r_squared": 0.07935831428953057,
+    "alpha": -0.0010454333002616668
   },
   "risk_metrics": {
-    "atr_percent": 5.41871921182266
+    "atr_percent": 5.723746452223273
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 145.0,
+      "last_close": 151.0,
       "empty": false
     },
     "benchmark": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 3.026571207915006,
-      "target_pe": -4.915254237288136,
-      "time_z_pb": -1.514638402782809,
-      "time_z_pe": 1.5146384027828088,
-      "space_z_pb": -0.33361564614658923,
-      "space_z_pe": -5.072166734494908
+      "target_pb": 3.1518086372080405,
+      "target_pe": -5.11864406779661,
+      "time_z_pb": -1.4718826338250384,
+      "time_z_pe": 1.4718826338250388,
+      "space_z_pb": -0.2817089858164732,
+      "space_z_pe": -5.10441651225539
     }
   }
 }

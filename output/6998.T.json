@@ -3,19 +3,19 @@
   "name": "Nippon Tungsten Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 30.221158978240467,
+    "value_score": 30.50779851058026,
     "safety_score": 100.0,
-    "momentum_score": 54.14508177129507,
-    "total_score": 62.9174799455552
+    "momentum_score": 67.46264666586376,
+    "total_score": 65.69564873740485
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.5506373372493644,
-    "r_squared": 0.15152957843245027,
-    "alpha": 0.0005297186647619131
+    "beta": 0.5556186427773097,
+    "r_squared": 0.1526800374459147,
+    "alpha": 0.0005102431583137906
   },
   "risk_metrics": {
-    "atr_percent": 9.860248447204969
+    "atr_percent": 10.156735482980045
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 2116.0,
+      "last_close": 2069.0,
       "empty": false
     },
     "benchmark": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 0.7825322239817282,
-      "target_pe": 16.434951456310678,
-      "time_z_pb": 4.221182221248801,
-      "time_z_pe": 4.221182221248798,
-      "space_z_pb": -2.7192174724094222,
-      "space_z_pe": -0.055289744560115664
+      "target_pb": 0.7651508371541567,
+      "target_pe": 16.06990291262136,
+      "time_z_pb": 4.000316501952816,
+      "time_z_pe": 4.000316501952816,
+      "space_z_pb": -2.758286784825674,
+      "space_z_pe": -0.12694962764506307
     }
   }
 }
