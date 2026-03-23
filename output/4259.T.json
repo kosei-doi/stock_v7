@@ -5,17 +5,17 @@
   "scores": {
     "value_score": 50.0,
     "safety_score": 100.0,
-    "momentum_score": 21.41426852769799,
-    "total_score": 64.2828537055396
+    "momentum_score": 9.482420861589842,
+    "total_score": 61.89648417231797
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.3749269169541443,
-    "r_squared": 0.16172969068833715,
-    "alpha": -0.0005715699657381544
+    "beta": 1.367798267828344,
+    "r_squared": 0.16184735041713527,
+    "alpha": -0.0005420784012438118
   },
   "risk_metrics": {
-    "atr_percent": 6.458238247375628
+    "atr_percent": 6.317774634606317
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1035,
+      "rows": 1036,
       "date_min": "2021-12-23 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 626.0,
+      "last_close": 606.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 14.16033297140789,
-      "target_pe": -28.98148148148148,
-      "time_z_pb": 1.0883619013571004,
-      "time_z_pe": -1.0883619013571004,
-      "space_z_pb": 4.04205925809279,
-      "space_z_pe": -8.211589707789184
+      "target_pb": 13.707926167209555,
+      "target_pe": -28.055555555555554,
+      "time_z_pb": 0.9424439575153855,
+      "time_z_pe": -0.9424439575153853,
+      "space_z_pb": 4.093443156220079,
+      "space_z_pe": -8.741325477382999
     }
   }
 }

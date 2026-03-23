@@ -3,19 +3,19 @@
   "name": "DENSO Corporation",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 63.875393625632526,
+    "value_score": 67.24832421104114,
     "safety_score": 100.0,
-    "momentum_score": 44.08615578578328,
-    "total_score": 74.36738860740967
+    "momentum_score": 14.750901787958696,
+    "total_score": 69.84951004200819
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.2076196696226233,
-    "r_squared": 0.5297092962689496,
-    "alpha": -0.0004981611832676266
+    "beta": 1.202334784613893,
+    "r_squared": 0.5310999427791478,
+    "alpha": -0.000453536083637998
   },
   "risk_metrics": {
-    "atr_percent": 3.3131968527426636
+    "atr_percent": 3.4277950310559
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1915.5,
+      "last_close": 1840.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 0.9748513294468208,
-      "target_pe": 15.060146237911786,
-      "time_z_pb": -0.669188063948335,
-      "time_z_pe": -0.6691880639483337,
-      "space_z_pb": -0.8701045385702965,
-      "space_z_pe": -0.5911796759928315
+      "target_pb": 0.9364272754801098,
+      "target_pe": 14.466546112115733,
+      "time_z_pb": -0.943992505585626,
+      "time_z_pe": -0.9439925055856253,
+      "space_z_pb": -0.8787133731465824,
+      "space_z_pe": -0.6013901628568225
     }
   }
 }

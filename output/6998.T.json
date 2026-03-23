@@ -3,19 +3,19 @@
   "name": "Nippon Tungsten Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 29.901426711264214,
+    "value_score": 30.221158978240467,
     "safety_score": 100.0,
-    "momentum_score": 77.99017665228811,
-    "total_score": 67.5586060149633
+    "momentum_score": 54.14508177129507,
+    "total_score": 62.9174799455552
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.535871672776774,
-    "r_squared": 0.1447733501359439,
-    "alpha": 0.0005977658944242666
+    "beta": 0.5506373372493644,
+    "r_squared": 0.15152957843245027,
+    "alpha": 0.0005297186647619131
   },
   "risk_metrics": {
-    "atr_percent": 8.69281045751634
+    "atr_percent": 9.860248447204969
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 2295.0,
+      "last_close": 2116.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 0.8487294206229046,
-      "target_pe": 17.825242718446603,
-      "time_z_pb": 5.110559773580982,
-      "time_z_pe": 5.110559773580982,
-      "space_z_pb": -2.5622097995721895,
-      "space_z_pe": 0.024643322183946218
+      "target_pb": 0.7825322239817282,
+      "target_pe": 16.434951456310678,
+      "time_z_pb": 4.221182221248801,
+      "time_z_pe": 4.221182221248798,
+      "space_z_pb": -2.7192174724094222,
+      "space_z_pe": -0.055289744560115664
     }
   }
 }

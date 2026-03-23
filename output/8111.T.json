@@ -3,19 +3,19 @@
   "name": "Goldwin Inc.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 63.91830739284812,
+    "value_score": 64.83801730434487,
     "safety_score": 100.0,
-    "momentum_score": 67.78501244230779,
-    "total_score": 79.12432544560082
+    "momentum_score": 33.53036279718286,
+    "total_score": 72.64127948117452
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.8437676356649142,
-    "r_squared": 0.24368623002836862,
-    "alpha": -0.00030209844720399296
+    "beta": 0.8385682763623891,
+    "r_squared": 0.24298151164465231,
+    "alpha": -0.0002720613587625847
   },
   "risk_metrics": {
-    "atr_percent": 2.7839848174110013
+    "atr_percent": 2.7654798278979857
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 2333.5,
+      "last_close": 2291.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 2.696353711689476,
-      "target_pe": 13.476754259312735,
-      "time_z_pb": -0.8728744479344873,
-      "time_z_pe": -0.8728744479344871,
-      "space_z_pb": -0.23034208420903088,
-      "space_z_pe": -0.6306114201995379
+      "target_pb": 2.6472450625586417,
+      "target_pe": 13.231302339012416,
+      "time_z_pb": -0.9475642153203054,
+      "time_z_pe": -0.9475642153203057,
+      "space_z_pb": -0.2342627137459272,
+      "space_z_pe": -0.6325489663793757
     }
   }
 }

@@ -3,19 +3,19 @@
   "name": "Toyota Motor Corporation",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 38.14271387482907,
+    "value_score": 40.4244613354346,
     "safety_score": 100.0,
-    "momentum_score": 37.2383787201248,
-    "total_score": 62.704761293956594
+    "momentum_score": 20.10397373524356,
+    "total_score": 60.190579281222554
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.216879282741956,
-    "r_squared": 0.5437631756401229,
-    "alpha": 4.039149203048751e-05
+    "beta": 1.2110786259480422,
+    "r_squared": 0.5436491980155992,
+    "alpha": 7.182984524909037e-05
   },
   "risk_metrics": {
-    "atr_percent": 4.103114930182599
+    "atr_percent": 3.8562120473383277
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 3325.0,
+      "last_close": 3223.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 1.111901425006178,
-      "target_pe": 11.695803580850539,
-      "time_z_pb": 1.4861523788122222,
-      "time_z_pe": 1.4861523788122233,
-      "space_z_pb": -0.8191725698376843,
-      "space_z_pe": -0.6749630353062505
+      "target_pb": 1.0777919677578682,
+      "target_pe": 11.337015019874071,
+      "time_z_pb": 1.2998930584279234,
+      "time_z_pe": 1.2998930584279245,
+      "space_z_pb": -0.8254624835179781,
+      "space_z_pe": -0.6803320256244427
     }
   }
 }

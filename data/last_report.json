@@ -1,16 +1,15 @@
 {
-  "created_at": "2026-03-20 17:38:21 JST",
-  "data_date": "2026-03-20",
-  "target_cash_ratio": 0.4793112758121327,
-  "phase": "caution",
-  "phase_name_ja": "警戒モード【ロー・ベータ・シフト】",
-  "vi_z": 1.396556379060663,
-  "macd_trend": 1.0,
-  "cash_yen": 2422234.0,
-  "total_capital_yen": 2943384.0,
-  "equity_value_yen": 521150.0,
+  "created_at": "2026-03-23 10:29:32 JST",
+  "data_date": "2026-03-23",
+  "target_cash_ratio": 0.8,
+  "phase": "panic",
+  "phase_name_ja": "パニック防衛モード【キャッシュ・イズ・キング】",
+  "vi_z": 2.044826130154219,
+  "macd_trend": -0.4782293535374818,
+  "cash_yen": 1000000.0,
+  "total_capital_yen": 1514100.0,
+  "equity_value_yen": 514100.0,
   "ticker_names": {
-    "9432.T": "NTT, Inc.",
     "7131.T": "Nomura Corporation",
     "7267.T": "Honda Motor Co., Ltd.",
     "4765.T": "SBI Global Asset Management Co., Ltd.",
@@ -39,48 +38,48 @@
     "1719.T": "Hazama Ando Corporation",
     "3856.T": "Abalance Corporation",
     "2185.T": "CMC Corporation",
-    "2153.T": "E J Holdings Inc."
+    "2153.T": "E J Holdings Inc.",
+    "5714.T": "Dowa Holdings Co., Ltd."
   },
   "last_prices": {
-    "9432.T": 158.60000610351562,
-    "7131.T": 3505.0,
-    "7267.T": 1302.0,
-    "4765.T": 601.0,
-    "8789.T": 128.0,
-    "3753.T": 147.0,
-    "4259.T": 626.0,
-    "5838.T": 6136.0,
-    "5958.T": 4870.0,
-    "9932.T": 1288.0,
-    "3696.T": 1499.0,
-    "6902.T": 1915.5,
-    "6378.T": 1677.0,
-    "4619.T": 2291.0,
-    "6998.T": 2295.0,
-    "8111.T": 2333.5,
-    "2726.T": 1439.0,
-    "2502.T": 1576.0,
-    "7172.T": 1908.0,
-    "3023.T": 1981.0,
-    "4262.T": 1425.0,
-    "9264.T": 1685.0,
-    "2914.T": 5847.0,
-    "4028.T": 3030.0,
-    "7956.T": 1605.0,
-    "7203.T": 3325.0,
-    "1719.T": 1905.5,
-    "3856.T": 621.0,
-    "2185.T": 1870.0,
-    "2153.T": 1769.0
+    "7131.T": 3320.0,
+    "7267.T": 1272.5,
+    "4765.T": 587.0,
+    "8789.T": 120.0,
+    "3753.T": 145.0,
+    "4259.T": 606.0,
+    "5838.T": 6078.0,
+    "5958.T": 4665.0,
+    "9932.T": 1259.0,
+    "3696.T": 1445.0,
+    "6902.T": 1840.0,
+    "6378.T": 1663.0,
+    "4619.T": 2227.0,
+    "6998.T": 2116.0,
+    "8111.T": 2291.0,
+    "2726.T": 1425.0,
+    "2502.T": 1571.5,
+    "7172.T": 1861.0,
+    "3023.T": 1891.0,
+    "4262.T": 1419.0,
+    "9264.T": 1629.0,
+    "2914.T": 5717.0,
+    "4028.T": 2837.0,
+    "7956.T": 1576.0,
+    "7203.T": 3223.0,
+    "1719.T": 1868.5,
+    "3856.T": 589.0,
+    "2185.T": 1850.0,
+    "2153.T": 1724.0,
+    "5714.T": 8535.0
   },
   "current_weights": {
-    "8111.T": 0.07927949598149613,
-    "2726.T": 0.09777861128551354
+    "8111.T": 0.15131100984082954,
+    "2726.T": 0.1882306320586487
   },
   "target_weights": {
-    "8111.T": 0.2446465102073007,
-    "2726.T": 0.2760422139805666,
-    "9432.T": 0.0,
+    "2726.T": 0.10863774898238451,
+    "8111.T": 0.09136225101761543,
     "7131.T": 0.0,
     "7267.T": 0.0,
     "4765.T": 0.0,
@@ -107,229 +106,205 @@
     "1719.T": 0.0,
     "3856.T": 0.0,
     "2185.T": 0.0,
-    "2153.T": 0.0
+    "2153.T": 0.0,
+    "5714.T": 0.0
   },
   "score_trends": {
-    "9432.T": {
-      "last": 73.53173100319891,
-      "level": 0.7353173100319892,
-      "trend": null
-    },
     "7131.T": {
-      "last": 55.82883889283026,
-      "level": 0.5582883889283026,
+      "last": 58.0762265680751,
+      "level": 0.580762265680751,
       "trend": null
     },
     "7267.T": {
-      "last": 73.99913715750185,
-      "level": 0.7399913715750185,
+      "last": 67.99227781173518,
+      "level": 0.6799227781173518,
       "trend": null
     },
     "4765.T": {
-      "last": 63.6945551124705,
-      "level": 0.6369455511247051,
+      "last": 64.19517633408508,
+      "level": 0.6419517633408508,
       "trend": null
     },
     "8789.T": {
-      "last": 57.65157363332603,
-      "level": 0.5765157363332603,
+      "last": 56.99329240406317,
+      "level": 0.5699329240406317,
       "trend": null
     },
     "3753.T": {
-      "last": 73.92457942031601,
-      "level": 0.7392457942031601,
+      "last": 72.79306495964796,
+      "level": 0.7279306495964797,
       "trend": null
     },
     "4259.T": {
-      "last": 64.2828537055396,
-      "level": 0.6428285370553959,
+      "last": 61.89648417231797,
+      "level": 0.6189648417231797,
       "trend": null
     },
     "5838.T": {
-      "last": 53.45507047156897,
-      "level": 0.5345507047156898,
+      "last": 61.820913867872356,
+      "level": 0.6182091386787235,
       "trend": null
     },
     "5958.T": {
-      "last": 64.23241408544499,
-      "level": 0.6423241408544499,
+      "last": 64.17468744410418,
+      "level": 0.6417468744410418,
       "trend": null
     },
     "9932.T": {
-      "last": 71.04323101409481,
-      "level": 0.7104323101409481,
+      "last": 69.51962007881465,
+      "level": 0.6951962007881466,
       "trend": null
     },
     "3696.T": {
-      "last": 78.41981499087275,
-      "level": 0.7841981499087275,
+      "last": 74.43314624589159,
+      "level": 0.7443314624589159,
       "trend": null
     },
     "6902.T": {
-      "last": 74.36738860740967,
-      "level": 0.7436738860740967,
+      "last": 69.84951004200819,
+      "level": 0.6984951004200819,
       "trend": null
     },
     "6378.T": {
-      "last": 69.02333519891795,
-      "level": 0.6902333519891795,
+      "last": 62.88730873616571,
+      "level": 0.628873087361657,
       "trend": null
     },
     "4619.T": {
-      "last": 61.48154459778769,
-      "level": 0.6148154459778769,
+      "last": 58.32920332630935,
+      "level": 0.5832920332630934,
       "trend": null
     },
     "6998.T": {
-      "last": 67.5586060149633,
-      "level": 0.6755860601496331,
+      "last": 62.9174799455552,
+      "level": 0.629174799455552,
       "trend": null
     },
     "8111.T": {
-      "last": 79.12432544560082,
-      "level": 0.7912432544560082,
+      "last": 72.64127948117452,
+      "level": 0.7264127948117453,
       "trend": null
     },
     "2726.T": {
-      "last": 70.7338546716786,
-      "level": 0.707338546716786,
+      "last": 67.73209998469517,
+      "level": 0.6773209998469517,
       "trend": null
     },
     "2502.T": {
-      "last": 72.6544164872595,
-      "level": 0.726544164872595,
+      "last": 68.25838272099844,
+      "level": 0.6825838272099845,
       "trend": null
     },
     "7172.T": {
-      "last": 47.79235202339091,
-      "level": 0.4779235202339091,
+      "last": 47.33583767647391,
+      "level": 0.4733583767647391,
       "trend": null
     },
     "3023.T": {
-      "last": 52.48074126819519,
-      "level": 0.5248074126819519,
+      "last": 49.96520036688595,
+      "level": 0.49965200366885953,
       "trend": null
     },
     "4262.T": {
-      "last": 52.28334422948757,
-      "level": 0.5228334422948757,
+      "last": 51.396518947203475,
+      "level": 0.5139651894720347,
       "trend": null
     },
     "9264.T": {
-      "last": 73.03660966153993,
-      "level": 0.7303660966153993,
+      "last": 72.08899768309018,
+      "level": 0.7208899768309018,
       "trend": null
     },
     "2914.T": {
-      "last": 68.3000684273591,
-      "level": 0.683000684273591,
+      "last": 59.20918292567068,
+      "level": 0.5920918292567068,
       "trend": null
     },
     "4028.T": {
-      "last": 47.20392327520093,
-      "level": 0.47203923275200926,
+      "last": 42.61133026666009,
+      "level": 0.4261133026666009,
       "trend": null
     },
     "7956.T": {
-      "last": 68.5295924778801,
-      "level": 0.685295924778801,
+      "last": 65.36973469122607,
+      "level": 0.6536973469122607,
       "trend": null
     },
     "7203.T": {
-      "last": 62.704761293956594,
-      "level": 0.6270476129395659,
+      "last": 60.190579281222554,
+      "level": 0.6019057928122256,
       "trend": null
     },
     "1719.T": {
-      "last": 59.19773333086328,
-      "level": 0.5919773333086328,
+      "last": 55.35017922005363,
+      "level": 0.5535017922005363,
       "trend": null
     },
     "3856.T": {
-      "last": 55.62284717328121,
-      "level": 0.5562284717328121,
+      "last": 55.33595074656037,
+      "level": 0.5533595074656037,
       "trend": null
     },
     "2185.T": {
-      "last": 62.92761419113564,
-      "level": 0.6292761419113564,
+      "last": 58.7935156538813,
+      "level": 0.587935156538813,
       "trend": null
     },
     "2153.T": {
-      "last": 67.82740864257073,
-      "level": 0.6782740864257073,
+      "last": 66.10512855063708,
+      "level": 0.6610512855063707,
+      "trend": null
+    },
+    "5714.T": {
+      "last": 45.26523445713606,
+      "level": 0.4526523445713606,
       "trend": null
     }
   },
   "portfolio_scores": {
-    "9432.T": 72.10523542958897,
-    "7131.T": 64.05866637497381,
-    "7267.T": 68.34912225039956,
-    "4765.T": 60.4931743212396,
-    "8789.T": 58.51462051930528,
-    "3753.T": 71.38279933364198,
-    "4259.T": 57.714115921088734,
-    "5838.T": 61.191713046992554,
-    "5958.T": 66.93767609403919,
-    "9932.T": 67.1199860866604,
-    "3696.T": 72.58995768141173,
-    "6902.T": 67.75621606725042,
-    "6378.T": 68.37070636024032,
-    "4619.T": 61.43663772949775,
-    "6998.T": 68.6354435093736,
-    "8111.T": 76.36672081749023,
-    "2726.T": 78.99524252095635,
-    "2502.T": 70.32166435664996,
-    "7172.T": 45.49010863236542,
-    "3023.T": 52.21533935474701,
-    "4262.T": 50.8137868750155,
-    "9264.T": 71.37017902083,
-    "2914.T": 70.46051412290359,
-    "4028.T": 44.32622373274578,
-    "7956.T": 66.93894394651998,
-    "7203.T": 55.98586215089598,
-    "1719.T": 59.41278317474826,
-    "3856.T": 51.012754433835894,
-    "2185.T": 63.42724532041328,
-    "2153.T": 65.49125824793809
+    "7131.T": 58.09492221579426,
+    "7267.T": 56.02809903792304,
+    "4765.T": 57.486937786646386,
+    "8789.T": 53.086932421709086,
+    "3753.T": 67.77961290735088,
+    "4259.T": 47.69036631526964,
+    "5838.T": 61.596819620855925,
+    "5958.T": 61.372423959622736,
+    "9932.T": 61.35362750231677,
+    "3696.T": 61.24430853882089,
+    "6902.T": 55.436858686303985,
+    "6378.T": 55.040796898502435,
+    "4619.T": 53.9796199654965,
+    "6998.T": 56.39095567983453,
+    "8111.T": 67.06072092697615,
+    "2726.T": 70.35743828653274,
+    "2502.T": 63.47611165095303,
+    "7172.T": 37.862641690756504,
+    "3023.T": 44.4843808612207,
+    "4262.T": 48.41151934923295,
+    "9264.T": 68.779583473578,
+    "2914.T": 55.697874142649354,
+    "4028.T": 28.962118081916962,
+    "7956.T": 62.12711038878108,
+    "7203.T": 45.47406958513635,
+    "1719.T": 50.91740449008156,
+    "3856.T": 44.33706133233295,
+    "2185.T": 57.08370239799462,
+    "2153.T": 60.08637328818174,
+    "5714.T": 33.18882905986128
   },
   "purge": {
-    "phase": "caution",
+    "phase": "panic",
     "items": [],
     "total_count": 0,
     "estimated_cash_generated": 0.0
   },
   "draft": {
-    "phase": "caution",
-    "draft_budget_cap": 1011436.8597549817,
-    "raw_available_budget": 1011436.8597549817,
-    "available_budget": 619740.0115966797,
-    "recommendations": [
-      {
-        "ticker": "3696.T",
-        "name": "Ceres Inc.",
-        "shares": 100,
-        "limit_price": null,
-        "score": 72.58995768141173,
-        "budget_used": 149900.0
-      },
-      {
-        "ticker": "9432.T",
-        "name": "NTT, Inc.",
-        "shares": 1900,
-        "limit_price": null,
-        "score": 72.10523542958897,
-        "budget_used": 301340.0115966797
-      },
-      {
-        "ticker": "9264.T",
-        "name": "Puequ CO.,LTD.",
-        "shares": 100,
-        "limit_price": null,
-        "score": 71.37017902083,
-        "budget_used": 168500.0
-      }
-    ]
+    "phase": "panic",
+    "draft_budget_cap": 0.0,
+    "raw_available_budget": 0.0,
+    "available_budget": 0.0,
+    "recommendations": []
   },
-  "report_text": "========== DPA 日次レポート ==========\n\n## 本日の目標現金比率: 48%\n## マクロフェーズ: 警戒モード【ロー・ベータ・シフト】\n  - VI Zスコア: 1.396556379060663\n  - MACDトレンド: 1.0\n\n## ポートフォリオ概要\n  - 総資産: 2,943,384 円\n  - 現金: 2,422,234 円\n  - 株式評価額: 521,150 円\n  - 本日新規購入に使える新規購入枠: 1,011,437 円\n\n## 売却指示\n  （なし）\n\n## 保有銘柄の状況\n  - 2726.T   PAL GROUP Holdings CO., LTD.             現在=  9.8%  目標= 27.6% (-17.8)  score=  70.7  level=0.71  trend=   -  株価=    1439 円\n  - 8111.T   Goldwin Inc.                             現在=  7.9%  目標= 24.5% (-16.5)  score=  79.1  level=0.79  trend=   -  株価=    2334 円\n\n## ウォッチリスト優先度（保有すべき順）\n  - 2726.T   PAL GROUP Holdings CO., LTD.             [HOLDING ] score=  70.7  trend=   -  株価=    1439 円\n  - 8111.T   Goldwin Inc.                             [HOLDING ] score=  79.1  trend=   -  株価=    2334 円\n  - 3696.T   Ceres Inc.                               [WATCHING] score=  78.4  trend=   -  株価=    1499 円\n  - 9432.T   NTT, Inc.                                [WATCHING] score=  73.5  trend=   -  株価=     159 円\n  - 3753.T   FLIGHT SOLUTIONS Inc.                    [WATCHING] score=  73.9  trend=   -  株価=     147 円\n  - 9264.T   Puequ CO.,LTD.                           [WATCHING] score=  73.0  trend=   -  株価=    1685 円\n  - 2914.T   Japan Tobacco Inc.                       [WATCHING] score=  68.3  trend=   -  株価=    5847 円\n  - 2502.T   Asahi Group Holdings, Ltd.               [WATCHING] score=  72.7  trend=   -  株価=    1576 円\n  - 6998.T   Nippon Tungsten Co., Ltd.                [WATCHING] score=  67.6  trend=   -  株価=    2295 円\n  - 6378.T   Kimura Chemical Plants Co., Ltd.         [WATCHING] score=  69.0  trend=   -  株価=    1677 円\n  - 7267.T   Honda Motor Co., Ltd.                    [WATCHING] score=  74.0  trend=   -  株価=    1302 円\n  - 6902.T   DENSO Corporation                        [WATCHING] score=  74.4  trend=   -  株価=    1916 円\n  - 9932.T   Sugimoto & Co., Ltd.                     [WATCHING] score=  71.0  trend=   -  株価=    1288 円\n  - 7956.T   Pigeon Corporation                       [WATCHING] score=  68.5  trend=   -  株価=    1605 円\n  - 5958.T   Sanyo Industries, Ltd.                   [WATCHING] score=  64.2  trend=   -  株価=    4870 円\n  - 2153.T   E J Holdings Inc.                        [WATCHING] score=  67.8  trend=   -  株価=    1769 円\n  - 7131.T   Nomura Corporation                       [WATCHING] score=  55.8  trend=   -  株価=    3505 円\n  - 2185.T   CMC Corporation                          [WATCHING] score=  62.9  trend=   -  株価=    1870 円\n  - 4619.T   Nihon Tokushu Toryo Co., Ltd.            [WATCHING] score=  61.5  trend=   -  株価=    2291 円\n  - 5838.T   Rakuten Bank, Ltd.                       [WATCHING] score=  53.5  trend=   -  株価=    6136 円\n  - 4765.T   SBI Global Asset Management Co., Ltd.    [WATCHING] score=  63.7  trend=   -  株価=     601 円\n  - 1719.T   Hazama Ando Corporation                  [WATCHING] score=  59.2  trend=   -  株価=    1906 円\n  - 8789.T   FinTech Global Incorporated              [WATCHING] score=  57.7  trend=   -  株価=     128 円\n  - 4259.T   ExaWizards Inc.                          [WATCHING] score=  64.3  trend=   -  株価=     626 円\n  - 7203.T   Toyota Motor Corporation                 [WATCHING] score=  62.7  trend=   -  株価=    3325 円\n  - 3023.T   Rasa Corporation                         [WATCHING] score=  52.5  trend=   -  株価=    1981 円\n  - 3856.T   Abalance Corporation                     [WATCHING] score=  55.6  trend=   -  株価=     621 円\n  - 4262.T   NIFTY Lifestyle Co., Ltd.                [WATCHING] score=  52.3  trend=   -  株価=    1425 円\n  - 7172.T   Japan Investment Adviser Co., Ltd.       [WATCHING] score=  47.8  trend=   -  株価=    1908 円\n  - 4028.T   Ishihara Sangyo Kaisha,Ltd.              [WATCHING] score=  47.2  trend=   -  株価=    3030 円\n\n## 新規購入推奨\n  推奨買付合計（消費額）: 619,740 円\n  - 3696.T (Ceres Inc.): 100 株 (予算: 149,900 円)\n  - 9432.T (NTT, Inc.): 1900 株 (予算: 301,340 円)\n  - 9264.T (Puequ CO.,LTD.): 100 株 (予算: 168,500 円)\n\n======================================"
+  "report_text": "========== DPA 日次レポート ==========\n\n## 本日の目標現金比率: 80%\n## マクロフェーズ: パニック防衛モード【キャッシュ・イズ・キング】\n  - VI Zスコア: 2.044826130154219\n  - MACDトレンド: -0.4782293535374818\n\n## ポートフォリオ概要\n  - 総資産: 1,514,100 円\n  - 現金: 1,000,000 円\n  - 株式評価額: 514,100 円\n  - 本日新規購入に使える理論上の最大額（売却見込み反映）: 0 円\n  - マクロ防衛（PANIC）により新規買付枠: 0 円\n\n## 売却指示\n  （なし）\n\n## 保有銘柄の状況\n  - 2726.T   PAL GROUP Holdings CO., LTD.             現在= 18.8%  目標= 10.9% ( +8.0)  score=  67.7  level=0.68  trend=   -  株価=    1425 円\n  - 8111.T   Goldwin Inc.                             現在= 15.1%  目標=  9.1% ( +6.0)  score=  72.6  level=0.73  trend=   -  株価=    2291 円\n\n## ウォッチリスト優先度（保有すべき順）\n  - 2726.T   PAL GROUP Holdings CO., LTD.             [HOLDING ] score=  67.7  trend=   -  株価=    1425 円\n  - 9264.T   Puequ CO.,LTD.                           [WATCHING] score=  72.1  trend=   -  株価=    1629 円\n  - 3753.T   FLIGHT SOLUTIONS Inc.                    [WATCHING] score=  72.8  trend=   -  株価=     145 円\n  - 8111.T   Goldwin Inc.                             [HOLDING ] score=  72.6  trend=   -  株価=    2291 円\n  - 2502.T   Asahi Group Holdings, Ltd.               [WATCHING] score=  68.3  trend=   -  株価=    1572 円\n  - 7956.T   Pigeon Corporation                       [WATCHING] score=  65.4  trend=   -  株価=    1576 円\n  - 5838.T   Rakuten Bank, Ltd.                       [WATCHING] score=  61.8  trend=   -  株価=    6078 円\n  - 5958.T   Sanyo Industries, Ltd.                   [WATCHING] score=  64.2  trend=   -  株価=    4665 円\n  - 9932.T   Sugimoto & Co., Ltd.                     [WATCHING] score=  69.5  trend=   -  株価=    1259 円\n  - 3696.T   Ceres Inc.                               [WATCHING] score=  74.4  trend=   -  株価=    1445 円\n  - 2153.T   E J Holdings Inc.                        [WATCHING] score=  66.1  trend=   -  株価=    1724 円\n  - 7131.T   Nomura Corporation                       [WATCHING] score=  58.1  trend=   -  株価=    3320 円\n  - 4765.T   SBI Global Asset Management Co., Ltd.    [WATCHING] score=  64.2  trend=   -  株価=     587 円\n  - 2185.T   CMC Corporation                          [WATCHING] score=  58.8  trend=   -  株価=    1850 円\n  - 6998.T   Nippon Tungsten Co., Ltd.                [WATCHING] score=  62.9  trend=   -  株価=    2116 円\n  - 7267.T   Honda Motor Co., Ltd.                    [WATCHING] score=  68.0  trend=   -  株価=    1272 円\n  - 2914.T   Japan Tobacco Inc.                       [WATCHING] score=  59.2  trend=   -  株価=    5717 円\n  - 6902.T   DENSO Corporation                        [WATCHING] score=  69.8  trend=   -  株価=    1840 円\n  - 6378.T   Kimura Chemical Plants Co., Ltd.         [WATCHING] score=  62.9  trend=   -  株価=    1663 円\n  - 4619.T   Nihon Tokushu Toryo Co., Ltd.            [WATCHING] score=  58.3  trend=   -  株価=    2227 円\n  - 8789.T   FinTech Global Incorporated              [WATCHING] score=  57.0  trend=   -  株価=     120 円\n  - 1719.T   Hazama Ando Corporation                  [WATCHING] score=  55.4  trend=   -  株価=    1868 円\n  - 4262.T   NIFTY Lifestyle Co., Ltd.                [WATCHING] score=  51.4  trend=   -  株価=    1419 円\n  - 4259.T   ExaWizards Inc.                          [WATCHING] score=  61.9  trend=   -  株価=     606 円\n  - 7203.T   Toyota Motor Corporation                 [WATCHING] score=  60.2  trend=   -  株価=    3223 円\n  - 3023.T   Rasa Corporation                         [WATCHING] score=  50.0  trend=   -  株価=    1891 円\n  - 3856.T   Abalance Corporation                     [WATCHING] score=  55.3  trend=   -  株価=     589 円\n  - 7172.T   Japan Investment Adviser Co., Ltd.       [WATCHING] score=  47.3  trend=   -  株価=    1861 円\n  - 5714.T   Dowa Holdings Co., Ltd.                  [WATCHING] score=  45.3  trend=   -  株価=    8535 円\n  - 4028.T   Ishihara Sangyo Kaisha,Ltd.              [WATCHING] score=  42.6  trend=   -  株価=    2837 円\n\n## 新規購入推奨\n  （なし）\n\n======================================"
 }

@@ -186,7 +186,7 @@ flowchart LR
 flowchart TD
   viHist["VIヒストリ\n(120日程度)"] --> viZ["VI Zスコア\n(直近 vs 過去60日)"]
   benchDf["TOPIX株価履歴"] --> macd["MACDとシグナル"]
-  macd --> macdTrend["spreadの5日平均 vs 過去5日"]
+  macd --> macdTrend["spreadの5日MA → 60日ローリングZ → ±3クリップ → /3 で -1〜1"]
 
   viZ --> cash["現金比率 = f(VI_Z, MACD_trend)"]
   macdTrend --> cash

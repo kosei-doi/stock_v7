@@ -3,19 +3,19 @@
   "name": "Pigeon Corporation",
   "sector": "Consumer Defensive",
   "scores": {
-    "value_score": 60.31137259339371,
+    "value_score": 60.85179907785035,
     "safety_score": 100.0,
-    "momentum_score": 22.025217202613064,
-    "total_score": 68.5295924778801
+    "momentum_score": 5.145075300429608,
+    "total_score": 65.36973469122607
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.5018061253181919,
-    "r_squared": 0.10861369599605745,
-    "alpha": -0.0008773485203611649
+    "beta": 0.5012093155756774,
+    "r_squared": 0.1092587098415109,
+    "alpha": -0.0008779160768293023
   },
   "risk_metrics": {
-    "atr_percent": 2.1940364931019136
+    "atr_percent": 2.291062364031907
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1605.0,
+      "last_close": 1576.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.3156731394900905,
-      "target_pe": 22.42246437552389,
-      "time_z_pb": -0.6810823326197062,
-      "time_z_pe": -0.6810823326197063,
-      "space_z_pb": -0.1608126597292351,
-      "space_z_pe": -0.37378349076007544
+      "target_pb": 2.273832316408961,
+      "target_pe": 22.017323274657727,
+      "time_z_pb": -0.7328707368595974,
+      "time_z_pe": -0.732870736859597,
+      "space_z_pb": -0.145036708531515,
+      "space_z_pe": -0.36930085035228216
     }
   }
 }

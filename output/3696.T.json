@@ -3,19 +3,19 @@
   "name": "Ceres Inc.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 69.88997549425585,
+    "value_score": 70.61947094892878,
     "safety_score": 100.0,
-    "momentum_score": 52.31912396585207,
-    "total_score": 78.41981499087275
+    "momentum_score": 30.926789331600382,
+    "total_score": 74.43314624589159
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.4031633756147406,
-    "r_squared": 0.16922420329511145,
-    "alpha": -0.0009563979151435886
+    "beta": 1.3951909408064762,
+    "r_squared": 0.1689435892692046,
+    "alpha": -0.000902572982509002
   },
   "risk_metrics": {
-    "atr_percent": 3.778709615934433
+    "atr_percent": 3.929807217004449
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1499.0,
+      "last_close": 1445.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 1.3005785362027618,
-      "target_pe": 6.920271455611467,
-      "time_z_pb": -0.4446793126035909,
-      "time_z_pe": -0.4446793126035905,
-      "space_z_pb": -1.6452132787698552,
-      "space_z_pe": -1.9932426569833328
+      "target_pb": 1.2537264741914549,
+      "target_pe": 6.670975485896311,
+      "time_z_pb": -0.5076014032544629,
+      "time_z_pe": -0.5076014032544629,
+      "space_z_pb": -1.660082459029286,
+      "space_z_pe": -1.9719810684395194
     }
   }
 }

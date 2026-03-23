@@ -3,19 +3,19 @@
   "name": "FLIGHT SOLUTIONS Inc.",
   "sector": "Technology",
   "scores": {
-    "value_score": 61.532701276636004,
+    "value_score": 61.33446258458636,
     "safety_score": 100.0,
-    "momentum_score": 46.55749454830807,
-    "total_score": 73.92457942031601
+    "momentum_score": 41.2963996290671,
+    "total_score": 72.79306495964796
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.8220822265813168,
-    "r_squared": 0.0815801435587614,
-    "alpha": -0.0010979018577012532
+    "beta": 0.817314582650976,
+    "r_squared": 0.08135657360141448,
+    "alpha": -0.0010842490078590973
   },
   "risk_metrics": {
-    "atr_percent": 5.199222546161321
+    "atr_percent": 5.41871921182266
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 147.0,
+      "last_close": 145.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 3.0683170176793504,
-      "target_pe": -4.983050847457627,
-      "time_z_pb": -1.5018789869374058,
-      "time_z_pe": 1.5018789869374058,
-      "space_z_pb": -0.3831753191590015,
-      "space_z_pe": -4.793695602872779
+      "target_pb": 3.026571207915006,
+      "target_pe": -4.915254237288136,
+      "time_z_pb": -1.514638402782809,
+      "time_z_pe": 1.5146384027828088,
+      "space_z_pb": -0.33361564614658923,
+      "space_z_pe": -5.072166734494908
     }
   }
 }

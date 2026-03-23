@@ -3,19 +3,19 @@
   "name": "Japan Investment Adviser Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 39.17829984949377,
+    "value_score": 39.946752913158775,
     "safety_score": 50.0,
-    "momentum_score": 60.60516041796702,
-    "total_score": 47.79235202339091
+    "momentum_score": 56.78568255605199,
+    "total_score": 47.33583767647391
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.26423043859491,
-    "r_squared": 0.24862794843996755,
-    "alpha": 0.00031306869589663936
+    "beta": 1.256663403569501,
+    "r_squared": 0.24792698876218208,
+    "alpha": 0.00035080881705889817
   },
   "risk_metrics": {
-    "atr_percent": 3.3730158730158735
+    "atr_percent": 3.392953097413065
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1908.0,
+      "last_close": 1861.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 1.5718943963777228,
-      "target_pe": 10.95292766934558,
-      "time_z_pb": 1.6823501231509759,
-      "time_z_pe": 1.6823501231509759,
-      "space_z_pb": -1.0945965103832385,
-      "space_z_pe": -1.247028821443132
+      "target_pb": 1.533173727284561,
+      "target_pe": 10.683122847301952,
+      "time_z_pb": 1.5765496657830198,
+      "time_z_pe": 1.5765496657830194,
+      "space_z_pb": -1.031950069866912,
+      "space_z_pe": -1.1843871557718417
     }
   }
 }

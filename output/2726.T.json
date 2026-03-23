@@ -3,19 +3,19 @@
   "name": "PAL GROUP Holdings CO., LTD.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 44.59041956356602,
+    "value_score": 44.85922898649671,
     "safety_score": 100.0,
-    "momentum_score": 64.48843423126092,
-    "total_score": 70.7338546716786
+    "momentum_score": 48.94204195048236,
+    "total_score": 67.73209998469517
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.40744890794023547,
-    "r_squared": 0.04227608879427596,
-    "alpha": 0.0010994689397193142
+    "beta": 0.40531611162028325,
+    "r_squared": 0.0422200276138708,
+    "alpha": 0.001114183883560005
   },
   "risk_metrics": {
-    "atr_percent": 3.5540553956120324
+    "atr_percent": 3.303258145363409
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1439.0,
+      "last_close": 1425.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 3.1369898848971047,
-      "target_pe": 19.80184395211229,
-      "time_z_pb": 0.6306930058386547,
-      "time_z_pe": 0.6306930058386551,
-      "space_z_pb": -0.0665883290243154,
-      "space_z_pe": -0.4730955793831545
+      "target_pb": 3.106470177886292,
+      "target_pe": 19.609192238888124,
+      "time_z_pb": 0.6060456882347232,
+      "time_z_pe": 0.6060456882347226,
+      "space_z_pb": -0.06127647837855933,
+      "space_z_pe": -0.47166783294978604
     }
   }
 }

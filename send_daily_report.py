@@ -10,6 +10,15 @@ DPA 日次レポートを Gmail で自分宛てに送信するスクリプト。
 初回実行時は credentials.json を読み込み、ブラウザで OAuth 認証後に token.json を保存する。
 """
 
+import warnings
+
+# 依存ライブラリが出すノイズ（Python 3.9 EOL・macOS の LibreSSL）。動作自体は多くの場合問題なし。根本対応は Python 3.10+。
+warnings.filterwarnings("ignore", category=FutureWarning, module=r"google\.auth(\.|$)")
+warnings.filterwarnings("ignore", category=FutureWarning, module=r"google\.oauth2(\.|$)")
+warnings.filterwarnings("ignore", category=FutureWarning, module=r"google\.api_core(\.|$)")
+# urllib3 の LibreSSL 警告（exceptions を import より前に urllib3 が読み込まれるため module で抑制）
+warnings.filterwarnings("ignore", module=r"urllib3(\.|$)")
+
 import base64
 import json
 import os
@@ -20,6 +29,7 @@ from email.mime.text import MIMEText
 from typing import Optional
 from pathlib import Path
 
+from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -53,8 +63,18 @@ def load_credentials():
                 raise
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+            try:
+                creds.refresh(Request())
+            except RefreshError:
+                # invalid_grant: Token has been expired or revoked. など → 再認証が必要
+                print(
+                    "token.json の更新に失敗しました（期限切れまたは失効）。"
+                    "ブラウザで再認証します。",
+                    file=sys.stderr,
+                )
+                creds = None
+
+        if not creds or not creds.valid:
             if not CREDENTIALS_FILE.exists():
                 print(f"credentials.json が見つかりません: {CREDENTIALS_FILE}", file=sys.stderr)
                 sys.exit(1)
@@ -68,6 +88,7 @@ def load_credentials():
                 print("On your Mac: run  python send_daily_report.py  then copy  token.json  to this server.", file=sys.stderr)
                 print("Path on server: " + str(ROOT), file=sys.stderr)
                 sys.exit(1)
+
         with open(TOKEN_FILE, "w") as f:
             f.write(creds.to_json())
     return creds

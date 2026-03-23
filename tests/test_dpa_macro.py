@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
-from core.dpa.dpa_macro import compute_vi_z, _phase_from_cash, get_macro_state
+from core.dpa.dpa_macro import compute_macd_trend, compute_vi_z, _phase_from_cash, get_macro_state
 from core.dpa.dpa_schema import MacroPhase
 
 
@@ -26,6 +26,23 @@ def test_compute_vi_z():
     # 空
     assert compute_vi_z(pd.Series(dtype=float)) is None
     assert compute_vi_z(None) is None
+
+
+def test_compute_macd_trend_zscore_normalized():
+    """MACD スプレッドの Z（クリップ後 /3）が [-1, 1] に入る。"""
+    dates = pd.date_range("2024-01-01", periods=80, freq="B")
+    rng = np.random.default_rng(0)
+    close = pd.Series(100.0 + np.cumsum(rng.normal(0, 0.4, size=len(dates))), index=dates)
+    bench_df = pd.DataFrame({"close": close})
+    t = compute_macd_trend(bench_df, ma_window=5, z_window=60)
+    assert t is not None
+    assert -1.0 <= t <= 1.0
+
+
+def test_compute_macd_trend_returns_none_if_too_short():
+    dates = pd.date_range("2024-01-01", periods=20, freq="B")
+    bench_df = pd.DataFrame({"close": np.linspace(100, 101, len(dates))}, index=dates)
+    assert compute_macd_trend(bench_df, ma_window=5, z_window=60) is None
 
 
 def test_get_macro_state_returns_state():

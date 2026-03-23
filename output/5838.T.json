@@ -3,19 +3,19 @@
   "name": "Rakuten Bank, Ltd.",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 24.59504440322393,
+    "value_score": 22.79550907827188,
     "safety_score": 100.0,
-    "momentum_score": 18.085263551397,
-    "total_score": 53.45507047156897
+    "momentum_score": 63.51355118281801,
+    "total_score": 61.820913867872356
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.0649845764224306,
-    "r_squared": 0.16959563000318575,
-    "alpha": 0.0012477647022233929
+    "beta": 1.05280635229314,
+    "r_squared": 0.16829971139142813,
+    "alpha": 0.001305231327375608
   },
   "risk_metrics": {
-    "atr_percent": 4.749487800335258
+    "atr_percent": 4.528040238800357
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 711,
+      "rows": 712,
       "date_min": "2023-04-21 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 6136.0,
+      "last_close": 6078.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 3.024275031593225,
-      "target_pe": 17.123402355305018,
-      "time_z_pb": 0.7831647145730863,
-      "time_z_pe": 0.7831647145730862,
-      "space_z_pb": 13.257008438361263,
-      "space_z_pe": 1.5017447554747587
+      "target_pb": 2.995688338009065,
+      "target_pe": 16.961544901490207,
+      "time_z_pb": 0.7559515667702484,
+      "time_z_pe": 0.7559515667702484,
+      "space_z_pb": 15.080930274758002,
+      "space_z_pe": 2.0332680301212847
     }
   }
 }

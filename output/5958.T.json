@@ -3,19 +3,19 @@
   "name": "Sanyo Industries, Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 36.52357322637391,
+    "value_score": 39.145453725983366,
     "safety_score": 100.0,
-    "momentum_score": 48.11492397447708,
-    "total_score": 64.23241408544499
+    "momentum_score": 42.58252976855415,
+    "total_score": 64.17468744410418
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.5780997001335886,
-    "r_squared": 0.14397381496956907,
-    "alpha": 0.0006144554055870205
+    "beta": 0.5832851354063097,
+    "r_squared": 0.14723963152906486,
+    "alpha": 0.0005875898847219881
   },
   "risk_metrics": {
-    "atr_percent": 4.8107949545321205
+    "atr_percent": 5.045169193079161
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 4870.0,
+      "last_close": 4665.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 0.6743844683856316,
-      "target_pe": 10.152178444861372,
-      "time_z_pb": 2.4214361204468515,
-      "time_z_pe": 2.421436120446852,
-      "space_z_pb": -2.9160308188207567,
-      "space_z_pe": -1.3952016679340329
+      "target_pb": 0.645996621153793,
+      "target_pe": 9.724828017510944,
+      "time_z_pb": 2.1953797470349494,
+      "time_z_pe": 2.195379747034948,
+      "space_z_pb": -3.026117731620278,
+      "space_z_pe": -1.3725026726006861
     }
   }
 }

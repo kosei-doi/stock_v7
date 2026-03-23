@@ -3,19 +3,19 @@
   "name": "FinTech Global Incorporated",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 25.996375941186344,
+    "value_score": 29.961191248823447,
     "safety_score": 100.0,
-    "momentum_score": 36.265116284257445,
-    "total_score": 57.65157363332603
+    "momentum_score": 25.044079522668945,
+    "total_score": 56.99329240406317
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.0194273233726636,
-    "r_squared": 0.1557072428707028,
-    "alpha": 0.0004075641180801173
+    "beta": 1.021980177582161,
+    "r_squared": 0.15759589957207654,
+    "alpha": 0.00042110307924072383
   },
   "risk_metrics": {
-    "atr_percent": 4.129464285714286
+    "atr_percent": 4.583333333333333
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 128.0,
+      "last_close": 120.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.1362885324699166,
-      "target_pe": 11.819021237303785,
-      "time_z_pb": 1.714170548153243,
-      "time_z_pe": 1.7141705481532432,
-      "space_z_pb": 6.4517905041013055,
-      "space_z_pe": -1.6416056297563149
+      "target_pb": 2.002770499190547,
+      "target_pe": 11.0803324099723,
+      "time_z_pb": 1.4478004855295987,
+      "time_z_pe": 1.447800485529599,
+      "space_z_pb": 6.597099718761877,
+      "space_z_pe": -1.8336992687946585
     }
   }
 }

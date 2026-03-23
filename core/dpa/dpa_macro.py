@@ -42,26 +42,57 @@ def compute_vi_z(vi_series: Optional[pd.Series], window: int = 60) -> Optional[f
 
 def compute_macd_trend(
     bench_df: pd.DataFrame,
-    window: int = 5,
-    scale: float = 0.002,
+    ma_window: int = 5,
+    z_window: int = 60,
 ) -> Optional[float]:
-    """MACD とシグナルの差分 spread のトレンドを -1〜+1 に正規化した指標として返す。"""
-    if bench_df is None or bench_df.empty or len(bench_df) < window + 2:
+    """
+    ベンチマークの MACD スプレッドを、ローリング Z スコア化して -1.0〜+1.0 の連続値に落とす。
+
+    意図:
+    - 「直近5日 vs その前5日」の差分だけだとゲインが大きくバンバン制御になりやすい。
+    - スプレッドを平滑化し、過去60営業日の分布の中で「今どれだけ外れているか」
+      を Z で見たうえで [-3,3] にクリップし、/3 で線形に [-1,1] へ写すことで
+      後続の現金比率式（b_macd による重み）の偏りを抑える。
+
+    手順:
+    1) spread = macd - signal（MACD ヒストグラム相当）
+    2) spread_5d = spread の ma_window 日移動平均（ノイズ低減）
+    3) spread_5d のローリング z_window 日の平均・標準偏差で Z = (spread_5d - mean) / (std + eps)
+    4) 直近の Z を [-3, +3] にクリップ
+    5) macd_trend = clipped_z / 3.0  → 理論上 [-1, 1]（端は ±1 に張り付かないことも多い）
+
+    データ不足時（ローリングがまだ埋まらない等）は None。
+    """
+    _EPS = 1e-8
+    # 5日MA + 60日ローリングで最後の行が有効になる目安（index 0 始まりで spread_5d が 4 から有効なら 63 番目まで必要）
+    min_len = ma_window + z_window - 1
+    if bench_df is None or bench_df.empty or len(bench_df) < min_len:
         return None
+
     macd, signal = compute_macd(bench_df)
     spread = macd - signal
     if isinstance(spread, pd.DataFrame):
         spread = spread.iloc[:, 0]
     spread = spread.dropna()
-    if len(spread) < window + 1:
+    if len(spread) < min_len:
         return None
-    recent = spread.iloc[-window:]
-    old = spread.iloc[-window - 1 : -1]
-    diff = float(recent.mean() - old.mean())
-    if scale == 0.0:
+
+    # 2) スプレッドの移動平均（日々のノイズ抑制）
+    spread_ma = spread.rolling(window=ma_window, min_periods=ma_window).mean()
+
+    # 3) ローリング平均・標準偏差による Z（同じ z_window 内の分布に対する外れ度）
+    roll = spread_ma.rolling(window=z_window, min_periods=z_window)
+    roll_mean = roll.mean()
+    roll_std = roll.std(ddof=0)
+    z_score = (spread_ma - roll_mean) / (roll_std + _EPS)
+
+    z_last = z_score.iloc[-1]
+    if pd.isna(z_last) or not np.isfinite(z_last):
         return None
-    raw = diff / scale
-    return float(max(-1.0, min(1.0, raw)))
+
+    # 4) 外れ値の抑制  5) -1〜1 への線形正規化（±3σ を ±1 に対応づける）
+    z_clipped = float(np.clip(z_last, -3.0, 3.0))
+    return z_clipped / 3.0
 
 
 def _continuous_cash_ratio(
@@ -109,9 +140,12 @@ def get_macro_state(
     """
     TOPIX の MACD トレンドと VI シリーズから連続的に現金比率を計算し、
     フェーズ名は現金比率から後付けで決める。
+
+    macd_scale は後方互換のため受け取るが、macd_trend は Z スコア方式のため未使用。
     """
     vi_z = compute_vi_z(vi_series)
-    macd_trend = compute_macd_trend(bench_df, scale=macd_scale)
+    # macd_scale: 呼び出し元・config 互換のため引数に残す（macd_trend は Z スコア方式で未使用）
+    macd_trend = compute_macd_trend(bench_df)
     cash_ratio = _continuous_cash_ratio(
         vi_z=vi_z,
         macd_trend=macd_trend,

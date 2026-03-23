@@ -3,19 +3,19 @@
   "name": "Hazama Ando Corporation",
   "sector": "Industrials",
   "scores": {
-    "value_score": 30.965437849515293,
+    "value_score": 31.753584942504254,
     "safety_score": 100.0,
-    "momentum_score": 34.05779095528579,
-    "total_score": 59.19773333086328
+    "momentum_score": 13.24372621525968,
+    "total_score": 55.35017922005363
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.6523697044213935,
-    "r_squared": 0.27871121947576966,
-    "alpha": 0.0003657798740307781
+    "beta": 0.6517495941435026,
+    "r_squared": 0.28055480305048247,
+    "alpha": 0.00035703614231143507
   },
   "risk_metrics": {
-    "atr_percent": 2.989466581699592
+    "atr_percent": 2.870904851102871
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 1905.5,
+      "last_close": 1868.5,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 1.5924764575902333,
-      "target_pe": 11.286501214239175,
-      "time_z_pb": 2.3322568769069463,
-      "time_z_pe": 2.3322568769069463,
-      "space_z_pb": -1.0528266410351659,
-      "space_z_pe": -1.1853034520644956
+      "target_pb": 1.5615545846273162,
+      "target_pe": 11.06734585085589,
+      "time_z_pb": 2.212907851125035,
+      "time_z_pe": 2.212907851125035,
+      "space_z_pb": -0.9681565076405484,
+      "space_z_pe": -1.1089632813606203
     }
   }
 }

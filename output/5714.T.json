@@ -5,17 +5,17 @@
   "scores": {
     "value_score": 0.0,
     "safety_score": 100.0,
-    "momentum_score": 37.93467343653746,
-    "total_score": 47.58693468730749
+    "momentum_score": 26.32617228568029,
+    "total_score": 45.26523445713606
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.0949989189184424,
-    "r_squared": 0.3631192499403464,
-    "alpha": 0.00014075824695306872
+    "beta": 1.1025053792093,
+    "r_squared": 0.3677002359968025,
+    "alpha": 0.00011869644707153881
   },
   "risk_metrics": {
-    "atr_percent": 6.3978304081852775
+    "atr_percent": 7.291823583563478
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -24,9 +24,9 @@
   },
   "data_overview": {
     "price_history": {
-      "rows": 1223,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1222,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -35,13 +35,13 @@
         "open",
         "volume"
       ],
-      "last_close": 9271.0,
+      "last_close": 8535.0,
       "empty": false
     },
     "benchmark": {
-      "rows": 1222,
-      "date_min": "2021-03-19 00:00:00",
-      "date_max": "2026-03-19 00:00:00",
+      "rows": 1221,
+      "date_min": "2021-03-23 00:00:00",
+      "date_max": "2026-03-23 00:00:00",
       "columns": [
         "adj_close",
         "close",
@@ -50,7 +50,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3791.0,
+      "last_close": 3633.0,
       "empty": false
     },
     "fundamentals": {
@@ -68,10 +68,10 @@
       "peer_pe_count": 0
     },
     "value_inputs": {
-      "target_pb": 1.3650091226367425,
-      "target_pe": 27.322291642107746,
-      "time_z_pb": 3.9094301295218683,
-      "time_z_pe": 3.909430129521868,
+      "target_pb": 1.256644683605285,
+      "target_pe": 25.153247671814217,
+      "time_z_pb": 3.2023061586335047,
+      "time_z_pe": 3.2023061586335038,
       "space_z_pb": null,
       "space_z_pe": null
     }

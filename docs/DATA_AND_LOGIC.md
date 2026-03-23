@@ -278,7 +278,7 @@ stock_v7/
 | `mu_cash` | float | `0.4` | 目標現金比率のベースライン |
 | `a_vi` | float | `0.1` | VI Z スコアの係数（恐怖で現金増） |
 | `b_macd` | float | `0.1` | MACD トレンドの係数（上向きで現金減） |
-| `macd_scale` | float | `0.002` | MACD トレンドを -1〜+1 に正規化するスケール |
+| `macd_scale` | float | `0.002` | **互換用**。`macd_trend` はスプレッドのローリング Z スコア化で算出するため未使用 |
 | `min_cash_ratio` | float | `0.2` | 目標現金比率の下限 |
 | `max_cash_ratio` | float | `0.8` | 目標現金比率の上限 |
 | `momentum_threshold` | float | `50.0` | 購入「着火点」モメンタムスコア閾値 |
@@ -338,7 +338,7 @@ stock_v7/
 ### 5.1 マクロ判定（dpa_macro.get_macro_state）
 
 - **VI Z スコア**: `compute_vi_z(vi_series, window=60)`。直近の VI が過去 60 日の分布のどこにあるかを Z スコアで算出。
-- **MACD トレンド**: `compute_macd_trend(bench_df, window=5, scale=0.002)`。ベンチマークの MACD とシグナルの差（spread）の直近トレンドを -1〜+1 に正規化。
+- **MACD トレンド**: `compute_macd_trend(bench_df, ma_window=5, z_window=60)`。`spread = macd - signal` を 5 日移動平均で平滑化し、過去 60 営業日のローリング平均・標準偏差で Z スコア化。Z を **[-3, +3]** にクリップのうえ **`/ 3.0`** で **-1.0〜+1.0** に正規化（バンバン制御を避けた連続値）。設定の `macd_scale` は互換のため残すが **未使用**。
 - **目標現金比率（連続）**:  
   `cash = mu_cash + a_vi * max(vi_z, 0) - b_macd * macd_trend`  
   を `min_cash_ratio`〜`max_cash_ratio` にクリップ。
