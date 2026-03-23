@@ -95,6 +95,22 @@ def _merge_report_data() -> dict[str, Any]:
         return {"report": None, "holdings_merged": [], "watchlist_merged": [], "purge": None, "draft": None}
     prev = _read_json(PREVIOUS_REPORT_PATH)
     positions = _get_positions_from_watchlist()
+    from core.utils.watchlist_io import load_watchlist as get_watchlist
+    current_watchlist = get_watchlist(path=str(WATCHLIST_PATH))
+    watchlist_tickers = {
+        (
+            item.get("ticker")
+            if isinstance(item, dict)
+            else getattr(item, "ticker", None)
+        )
+        or (
+            item.get("ticker_symbol")
+            if isinstance(item, dict)
+            else getattr(item, "ticker_symbol", None)
+        )
+        for item in current_watchlist
+    }
+    watchlist_tickers = {t for t in watchlist_tickers if t}
 
     last_prices = last.get("last_prices") or {}
     ticker_names = last.get("ticker_names") or {}
@@ -111,7 +127,7 @@ def _merge_report_data() -> dict[str, Any]:
 
     # Ordered watchlist: by portfolio_scores desc, then target_weights
     tickers_ordered = sorted(
-        set(portfolio_scores.keys()) | set(target_weights.keys()),
+        set(portfolio_scores.keys()) | set(target_weights.keys()) | watchlist_tickers,
         key=lambda t: (float(portfolio_scores.get(t) or 0), float(target_weights.get(t) or 0)),
         reverse=True,
     )
