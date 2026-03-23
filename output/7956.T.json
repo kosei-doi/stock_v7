@@ -3,19 +3,19 @@
   "name": "Pigeon Corporation",
   "sector": "Consumer Defensive",
   "scores": {
-    "value_score": 60.85179907785035,
+    "value_score": 60.69408164439756,
     "safety_score": 100.0,
-    "momentum_score": 5.145075300429608,
-    "total_score": 65.36973469122607
+    "momentum_score": 22.588798919719082,
+    "total_score": 68.79539244170284
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.5012093155756774,
-    "r_squared": 0.1092587098415109,
-    "alpha": -0.0008779160768293023
+    "beta": 0.500300021784734,
+    "r_squared": 0.10889444865962444,
+    "alpha": -0.0008743609933297245
   },
   "risk_metrics": {
-    "atr_percent": 2.291062364031907
+    "atr_percent": 2.282373126241647
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1576.0,
+      "last_close": 1582.0,
       "empty": false
     },
     "benchmark": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.273832316408961,
-      "target_pe": 22.017323274657727,
-      "time_z_pb": -0.7328707368595974,
-      "time_z_pe": -0.732870736859597,
-      "space_z_pb": -0.145036708531515,
-      "space_z_pe": -0.36930085035228216
+      "target_pb": 2.2824890384257466,
+      "target_pe": 22.101145571388656,
+      "time_z_pb": -0.7222918204511266,
+      "time_z_pe": -0.7222918204511267,
+      "space_z_pb": -0.1395425986727161,
+      "space_z_pe": -0.3671023510732942
     }
   }
 }

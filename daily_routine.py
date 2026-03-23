@@ -281,7 +281,7 @@ def run_daily_routine(
     max_cash_ratio: float = 0.8,
     momentum_threshold: float = 50.0,
     lot_size: int = LOT_SIZE,
-    over_weight_threshold: float = 0.02,
+    purge_lot_threshold: float = 0.5,
     max_position_pct: float = 0.15,
     max_position_jpy: float = 750_000.0,
     max_draft_candidates: int = 5,
@@ -368,7 +368,12 @@ def run_daily_routine(
     history = load_scores_history(scores_history_path)
     score_trends: dict[str, dict] = {}
     for ticker in results.keys():
-        score_trends[ticker] = compute_score_trend(ticker, history)
+        score_trends[ticker] = compute_score_trend(
+            ticker=ticker,
+            history=history,
+            latest_dvc=results.get(ticker),
+            years=years,
+        )
     portfolio_scores = {t: compute_portfolio_total_score(results[t], macro) for t in results}
     holding_tickers = holding_tickers_from_holdings(holdings)
     target_weights = compute_target_weights(
@@ -389,12 +394,11 @@ def run_daily_routine(
     purge_out = run_purge(
         phase=macro.phase,
         holdings=holdings,
-        current_weights=current_w,
         target_weights=target_weights,
         current_prices=current_prices,
         total_capital_actual=total_cap,
         lot_size=lot_size,
-        over_weight_threshold=over_weight_threshold,
+        purge_lot_threshold=purge_lot_threshold,
     )
     est_cash = float(purge_out.estimated_cash_generated)
     print(
@@ -526,7 +530,7 @@ def main(argv: list[str] | None = None) -> int:
         max_cash_ratio=float(cfg.get("max_cash_ratio", 0.8)),
         momentum_threshold=float(cfg.get("momentum_threshold", 50.0)),
         lot_size=int(cfg.get("lot_size", LOT_SIZE)),
-        over_weight_threshold=float(cfg.get("over_weight_threshold", 0.02)),
+        purge_lot_threshold=float(cfg.get("purge_lot_threshold", 0.5)),
         max_position_pct=float(cfg.get("max_position_pct", 0.15)),
         max_position_jpy=float(cfg.get("max_position_jpy", 750_000.0)),
         max_draft_candidates=int(cfg.get("max_draft_candidates", 5)),

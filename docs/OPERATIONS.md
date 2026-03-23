@@ -46,7 +46,7 @@
 ### A. Mac：変更を GitHub に載せる
 
 ```bash
-cd /path/to/stock_v7   # 例: プロジェクトルート
+cd "/Users/user/Library/CloudStorage/Box-Box/Personal/dev/stock_v7"
 
 git status
 git add -A
@@ -65,8 +65,8 @@ cd /opt/dpa_app
 
 git pull origin main
 
-source venv/bin/activate
-pip install -r requirements.txt
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 deactivate
 
 sudo systemctl restart dpa_web
@@ -95,7 +95,8 @@ git pull origin main
 cd /opt/dpa_app
 git fetch origin
 git reset --hard origin/main
-source venv/bin/activate && pip install -r requirements.txt && deactivate
+git clean -fd -e .venv
+source .venv/bin/activate && python -m pip install -r requirements.txt && deactivate
 sudo systemctl restart dpa_web
 ```
 
@@ -107,7 +108,7 @@ sudo systemctl restart dpa_web
 ## Mac 側を GitHub に合わせる（サーバーで直したあとなど）
 
 ```bash
-cd /path/to/stock_v7
+cd "/Users/user/Library/CloudStorage/Box-Box/Personal/dev/stock_v7"
 git fetch origin
 git pull origin main
 ```
@@ -121,7 +122,7 @@ git pull origin main
 まだ `remote` がない場合の例です。
 
 ```bash
-cd /path/to/stock_v7
+cd "/Users/user/Library/CloudStorage/Box-Box/Personal/dev/stock_v7"
 git init
 git add .
 git commit -m "Initial deploy: DPA app"
@@ -184,11 +185,11 @@ curl -I https://github.com
 VPS で毎朝メールを送る例（パスは環境に合わせる）:
 
 ```cron
-0 7 * * * cd /opt/dpa_app && /opt/dpa_app/venv/bin/python send_daily_report.py
+0 7 * * * cd /opt/dpa_app && /opt/dpa_app/.venv/bin/python send_daily_report.py
 ```
 
 - タイムゾーンはサーバーの設定に依存します（JST なら 7:00 JST）。
-- **初回 OAuth** はブラウザが必要なので、**Mac で一度** `send_daily_report.py` を実行して `token.json` を生成し、**コミットして `push`** すれば VPS の `git pull` で同じ `token.json` が揃います（詳細は `docs/DAILY_REPORT_EMAIL.md`）。
+- **初回 OAuth** はブラウザが必要なので、**Mac で一度** `send_daily_report.py` を実行して `token.json` を生成し、**コミットして `push`** すれば VPS の `git pull` で同じ `token.json` が揃います。
 
 ---
 
@@ -207,7 +208,7 @@ VPS で毎朝メールを送る例（パスは環境に合わせる）:
 ## チェックリスト（デプロイ後）
 
 - [ ] `git log` で VPS と GitHub が同じコミットか確認（`git rev-parse HEAD`）
-- [ ] `pip install -r requirements.txt` 済み
+- [ ] `python -m pip install -r requirements.txt` 済み
 - [ ] `systemctl restart dpa_web`（または使っているプロセス管理）済み
 - [ ] `http://VPSのIP:8000` が開く
 - [ ] `git pull` 後に `config.yaml`・`token.json`・`data/` などが **GitHub の最新コミットと一致**している（必要なら `git status` でクリーン）
@@ -216,5 +217,5 @@ VPS で毎朝メールを送る例（パスは環境に合わせる）:
 
 ## 関連ドキュメント
 
-- メール: `docs/DAILY_REPORT_EMAIL.md`
-- データ構造・ロジック: `docs/DATA_AND_LOGIC.md`
+- ロジック: `docs/LOGIC.md`
+- 構成図: `docs/ARCHITECTURE.md`

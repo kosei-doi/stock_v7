@@ -3,19 +3,19 @@
   "name": "Japan Investment Adviser Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 39.946752913158775,
+    "value_score": 40.09795469629667,
     "safety_score": 50.0,
-    "momentum_score": 56.78568255605199,
-    "total_score": 47.33583767647391
+    "momentum_score": 63.3032906020013,
+    "total_score": 48.69983999891893
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.256663403569501,
-    "r_squared": 0.24792698876218208,
-    "alpha": 0.00035080881705889817
+    "beta": 1.25717333247742,
+    "r_squared": 0.24810310481078116,
+    "alpha": 0.0003488151381571432
   },
   "risk_metrics": {
-    "atr_percent": 3.392953097413065
+    "atr_percent": 3.400261558581429
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1861.0,
+      "last_close": 1857.0,
       "empty": false
     },
     "benchmark": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 1.533173727284561,
-      "target_pe": 10.683122847301952,
-      "time_z_pb": 1.5765496657830198,
-      "time_z_pe": 1.5765496657830194,
-      "space_z_pb": -1.031950069866912,
-      "space_z_pe": -1.1843871557718417
+      "target_pb": 1.5298783511915257,
+      "target_pe": 10.6601607347876,
+      "time_z_pb": 1.5679211021634523,
+      "time_z_pe": 1.5679211021634527,
+      "space_z_pb": -1.039357308390803,
+      "space_z_pe": -1.1888946721737212
     }
   }
 }

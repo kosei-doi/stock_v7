@@ -3,19 +3,19 @@
   "name": "Ceres Inc.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 70.61947094892878,
+    "value_score": 70.79995085973925,
     "safety_score": 100.0,
-    "momentum_score": 30.926789331600382,
-    "total_score": 74.43314624589159
+    "momentum_score": 52.26627260357307,
+    "total_score": 78.77323486461032
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.3951909408064762,
-    "r_squared": 0.1689435892692046,
-    "alpha": -0.000902572982509002
+    "beta": 1.3963267997948299,
+    "r_squared": 0.16918859384754187,
+    "alpha": -0.0009070138723375275
   },
   "risk_metrics": {
-    "atr_percent": 3.929807217004449
+    "atr_percent": 3.953904232068349
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1445.0,
+      "last_close": 1438.0,
       "empty": false
     },
     "benchmark": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 1.2537264741914549,
-      "target_pe": 6.670975485896311,
-      "time_z_pb": -0.5076014032544629,
-      "time_z_pe": -0.5076014032544629,
-      "space_z_pb": -1.660082459029286,
-      "space_z_pe": -1.9719810684395194
+      "target_pb": 1.2476530587455446,
+      "target_pe": 6.638659341673976,
+      "time_z_pb": -0.515976276100737,
+      "time_z_pe": -0.5159762761007365,
+      "space_z_pb": -1.6737340834850263,
+      "space_z_pe": -1.9783248031475797
     }
   }
 }

@@ -3,19 +3,19 @@
   "name": "Puequ CO.,LTD.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 51.14727766309619,
+    "value_score": 51.511480386295055,
     "safety_score": 100.0,
-    "momentum_score": 58.150433089258485,
-    "total_score": 72.08899768309018
+    "momentum_score": 69.17755162292437,
+    "total_score": 74.4401024791029
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.7990222971994182,
-    "r_squared": 0.07186559227728027,
-    "alpha": -0.0003002071479003591
+    "beta": 0.8001771272959277,
+    "r_squared": 0.07205761912071373,
+    "alpha": -0.00030472220943691475
   },
   "risk_metrics": {
-    "atr_percent": 3.1877576076471104
+    "atr_percent": 3.2123028113157663
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1629.0,
+      "last_close": 1621.0,
       "empty": false
     },
     "benchmark": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 1.8030023475555426,
-      "target_pe": 17.608907145173493,
-      "time_z_pb": -0.012180596810417834,
-      "time_z_pe": -0.012180596810417702,
-      "space_z_pb": -0.42543812874316506,
-      "space_z_pe": 0.1751605034003712
+      "target_pb": 1.7941478240561908,
+      "target_pe": 17.522430007566747,
+      "time_z_pb": -0.030237966236784247,
+      "time_z_pe": -0.030237966236784847,
+      "space_z_pb": -0.4453410368554489,
+      "space_z_pe": 0.1581848389920389
     }
   }
 }

@@ -3,19 +3,19 @@
   "name": "Ishihara Sangyo Kaisha,Ltd.",
   "sector": "Basic Materials",
   "scores": {
-    "value_score": 2.2168834231943393,
+    "value_score": 2.467357891360983,
     "safety_score": 100.0,
-    "momentum_score": 8.622884486911765,
-    "total_score": 42.61133026666009
+    "momentum_score": 34.220850702163006,
+    "total_score": 47.831113296976994
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.2575316895295259,
-    "r_squared": 0.4336762500858594,
-    "alpha": 0.0004994449008243064
+    "beta": 1.2580936210884504,
+    "r_squared": 0.43385478054982773,
+    "alpha": 0.0004972479061533628
   },
   "risk_metrics": {
-    "atr_percent": 6.415227352837505
+    "atr_percent": 6.4310954063604235
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 2837.0,
+      "last_close": 2830.0,
       "empty": false
     },
     "benchmark": {
@@ -68,10 +68,10 @@
       "peer_pe_count": 0
     },
     "value_inputs": {
-      "target_pb": 0.898615745318931,
-      "target_pe": 8.134767025089605,
-      "time_z_pb": 2.389155828840283,
-      "time_z_pe": 2.3891558288402828,
+      "target_pb": 0.8963985052000616,
+      "target_pe": 8.114695340501791,
+      "time_z_pb": 2.3766321054319515,
+      "time_z_pe": 2.37663210543195,
       "space_z_pb": null,
       "space_z_pe": null
     }

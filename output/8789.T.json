@@ -3,19 +3,19 @@
   "name": "FinTech Global Incorporated",
   "sector": "Financial Services",
   "scores": {
-    "value_score": 29.961191248823447,
+    "value_score": 28.689531143911243,
     "safety_score": 100.0,
-    "momentum_score": 25.044079522668945,
-    "total_score": 56.99329240406317
+    "momentum_score": 39.95097213756059,
+    "total_score": 59.466006885076624
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.021980177582161,
-    "r_squared": 0.15759589957207654,
-    "alpha": 0.00042110307924072383
+    "beta": 1.0181796136903278,
+    "r_squared": 0.15666285933330112,
+    "alpha": 0.000435962217305365
   },
   "risk_metrics": {
-    "atr_percent": 4.583333333333333
+    "atr_percent": 4.566744730679156
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 120.0,
+      "last_close": 122.0,
       "empty": false
     },
     "benchmark": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 2.002770499190547,
-      "target_pe": 11.0803324099723,
-      "time_z_pb": 1.4478004855295987,
-      "time_z_pe": 1.447800485529599,
-      "space_z_pb": 6.597099718761877,
-      "space_z_pe": -1.8336992687946585
+      "target_pb": 2.0361500075103893,
+      "target_pe": 11.265004616805172,
+      "time_z_pb": 1.513297435368823,
+      "time_z_pe": 1.5132974353688236,
+      "space_z_pb": 6.882305686019923,
+      "space_z_pe": -1.71227509208428
     }
   }
 }

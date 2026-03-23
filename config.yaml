@@ -11,7 +11,7 @@ dpa:
   mu_cash: 0.4
   a_vi: 0.2
   b_macd: 0.2
-  over_weight_threshold: 0.02
+  purge_lot_threshold: 0.5
   max_position_pct: 0.15
   max_position_jpy: 750000.0
   ignition_momentum_threshold: 50.0

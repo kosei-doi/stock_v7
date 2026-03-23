@@ -12,6 +12,7 @@ from core.utils.config_loader import (
     DEFAULT_YEARS,
     DEFAULT_SECTOR_PEERS_PATH,
     DEFAULT_CACHE_PATH,
+    DEFAULT_PURGE_LOT_THRESHOLD,
     DEFAULT_WATCHLIST_MAX_ITEMS,
 )
 
@@ -82,3 +83,4 @@ def test_get_validated_config_defaults():
     assert cfg["years"] == DEFAULT_YEARS
     assert cfg["sector_peers_path"] == DEFAULT_SECTOR_PEERS_PATH
     assert cfg["cache_path"] == DEFAULT_CACHE_PATH
+    assert cfg["purge_lot_threshold"] == DEFAULT_PURGE_LOT_THRESHOLD

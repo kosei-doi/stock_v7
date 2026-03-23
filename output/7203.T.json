@@ -3,19 +3,19 @@
   "name": "Toyota Motor Corporation",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 40.4244613354346,
+    "value_score": 39.79658286837193,
     "safety_score": 100.0,
-    "momentum_score": 20.10397373524356,
-    "total_score": 60.190579281222554
+    "momentum_score": 35.2889853143253,
+    "total_score": 62.976430210213834
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.2110786259480422,
-    "r_squared": 0.5436491980155992,
-    "alpha": 7.182984524909037e-05
+    "beta": 1.209030322040023,
+    "r_squared": 0.5423422835548742,
+    "alpha": 7.98381386060337e-05
   },
   "risk_metrics": {
-    "atr_percent": 3.8562120473383277
+    "atr_percent": 3.8229995166322452
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 3223.0,
+      "last_close": 3251.0,
       "empty": false
     },
     "benchmark": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 1.0777919677578682,
-      "target_pe": 11.337015019874071,
-      "time_z_pb": 1.2998930584279234,
-      "time_z_pe": 1.2998930584279245,
-      "space_z_pb": -0.8254624835179781,
-      "space_z_pe": -0.6803320256244427
+      "target_pb": 1.087155348178973,
+      "target_pe": 11.435505997397023,
+      "time_z_pb": 1.3502124227158945,
+      "time_z_pe": 1.3502124227158938,
+      "space_z_pb": -0.8219353769306048,
+      "space_z_pe": -0.6778476083100596
     }
   }
 }

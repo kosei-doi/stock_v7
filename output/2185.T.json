@@ -3,19 +3,19 @@
   "name": "CMC Corporation",
   "sector": "Technology",
   "scores": {
-    "value_score": 34.79167828432664,
+    "value_score": 36.52404504044418,
     "safety_score": 100.0,
-    "momentum_score": 24.384221700753212,
-    "total_score": 58.7935156538813
+    "momentum_score": 34.375276800668935,
+    "total_score": 61.484673376311456
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.49539371568231405,
-    "r_squared": 0.09486933150933054,
-    "alpha": 0.0002810237217290345
+    "beta": 0.49903575337972866,
+    "r_squared": 0.0961493050271344,
+    "alpha": 0.00026678437658901453
   },
   "risk_metrics": {
-    "atr_percent": 2.416988416988417
+    "atr_percent": 2.5639015210914224
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1850.0,
+      "last_close": 1822.0,
       "empty": false
     },
     "benchmark": {
@@ -74,12 +74,12 @@
       "peer_pe_count": 5
     },
     "value_inputs": {
-      "target_pb": 1.0953233246437684,
-      "target_pe": 11.267434070284427,
-      "time_z_pb": 2.4787109071101066,
-      "time_z_pe": 2.4787109071101066,
-      "space_z_pb": -1.1340522924119798,
-      "space_z_pe": -2.5062169021870004
+      "target_pb": 1.0787454581086193,
+      "target_pe": 11.096899933004446,
+      "time_z_pb": 2.336637331618861,
+      "time_z_pe": 2.3366373316188613,
+      "space_z_pb": -1.1409232549676271,
+      "space_z_pe": -2.53325703499062
     }
   }
 }

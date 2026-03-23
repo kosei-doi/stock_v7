@@ -3,19 +3,19 @@
   "name": "Hazama Ando Corporation",
   "sector": "Industrials",
   "scores": {
-    "value_score": 31.753584942504254,
+    "value_score": 31.97059621856926,
     "safety_score": 100.0,
-    "momentum_score": 13.24372621525968,
-    "total_score": 55.35017922005363
+    "momentum_score": 38.485475816615136,
+    "total_score": 60.48533365075073
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.6517495941435026,
-    "r_squared": 0.28055480305048247,
-    "alpha": 0.00035703614231143507
+    "beta": 0.6523240168151624,
+    "r_squared": 0.2809419737157885,
+    "alpha": 0.00035479031089573495
   },
   "risk_metrics": {
-    "atr_percent": 2.870904851102871
+    "atr_percent": 2.8778356836296752
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1868.5,
+      "last_close": 1864.0,
       "empty": false
     },
     "benchmark": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 1.5615545846273162,
-      "target_pe": 11.06734585085589,
-      "time_z_pb": 2.212907851125035,
-      "time_z_pe": 2.212907851125035,
-      "space_z_pb": -0.9681565076405484,
-      "space_z_pe": -1.1089632813606203
+      "target_pb": 1.5577938162939884,
+      "target_pe": 11.040691820174139,
+      "time_z_pb": 2.199385438300929,
+      "time_z_pe": 2.1993854383009284,
+      "space_z_pb": -0.9766098396098284,
+      "space_z_pe": -1.1141955299352713
     }
   }
 }

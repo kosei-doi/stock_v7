@@ -3,19 +3,19 @@
   "name": "Honda Motor Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 61.99659605637268,
+    "value_score": 61.398141471159214,
     "safety_score": 100.0,
-    "momentum_score": 15.968196945930494,
-    "total_score": 67.99227781173518
+    "momentum_score": 28.86394881979782,
+    "total_score": 70.33204635242325
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.1235508349912176,
-    "r_squared": 0.4791119182265593,
-    "alpha": -0.0002983067116372779
+    "beta": 1.1214024363549742,
+    "r_squared": 0.4776236997271795,
+    "alpha": -0.0002899070759878343
   },
   "risk_metrics": {
-    "atr_percent": 3.29497614369913
+    "atr_percent": 3.2654650645304852
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1272.5,
+      "last_close": 1284.0,
       "empty": false
     },
     "benchmark": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 0.39735326813304855,
-      "target_pe": 10.20203639862102,
-      "time_z_pb": -0.40280311382999123,
-      "time_z_pe": -0.4028031138299902,
-      "space_z_pb": -1.0817780140010678,
-      "space_z_pe": -0.7089616586021307
+      "target_pb": 0.4009442799865103,
+      "target_pe": 10.294235548785377,
+      "time_z_pb": -0.35415803540575447,
+      "time_z_pe": -0.3541580354057534,
+      "space_z_pb": -1.0804253100635952,
+      "space_z_pe": -0.7066359515089468
     }
   }
 }

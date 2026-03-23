@@ -3,19 +3,19 @@
   "name": "Kimura Chemical Plants Co., Ltd.",
   "sector": "Industrials",
   "scores": {
-    "value_score": 23.79670862002588,
+    "value_score": 24.10795214665748,
     "safety_score": 100.0,
-    "momentum_score": 66.84312644077679,
-    "total_score": 62.88730873616571
+    "momentum_score": 84.58511789664723,
+    "total_score": 66.56020443799244
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 1.0729915085099588,
-    "r_squared": 0.21770543136346865,
-    "alpha": 0.0005537715420768405
+    "beta": 1.0757473139318252,
+    "r_squared": 0.21874338506475474,
+    "alpha": 0.0005429971163841728
   },
   "risk_metrics": {
-    "atr_percent": 8.414225581994673
+    "atr_percent": 8.650503997219326
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 1663.0,
+      "last_close": 1644.0,
       "empty": false
     },
     "benchmark": {
@@ -79,12 +79,12 @@
       "peer_pe_count": 10
     },
     "value_inputs": {
-      "target_pb": 1.6617055313910465,
-      "target_pe": 15.66650965614696,
-      "time_z_pb": 5.035072400931769,
-      "time_z_pe": 5.035072400931766,
-      "space_z_pb": -0.7430404874568898,
-      "space_z_pe": -0.20613666754957916
+      "target_pb": 1.6427203208700423,
+      "target_pe": 15.487517663683466,
+      "time_z_pb": 4.924682208626818,
+      "time_z_pe": 4.924682208626817,
+      "space_z_pb": -0.7857148222779079,
+      "space_z_pe": -0.24127321438646243
     }
   }
 }

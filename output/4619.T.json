@@ -3,19 +3,19 @@
   "name": "Nihon Tokushu Toryo Co., Ltd.",
   "sector": "Consumer Cyclical",
   "scores": {
-    "value_score": 30.89645921919013,
+    "value_score": 30.64397256718321,
     "safety_score": 100.0,
-    "momentum_score": 29.853098193166463,
-    "total_score": 58.32920332630935
+    "momentum_score": 45.695772856504476,
+    "total_score": 61.39674359817418
   },
   "market_linkage": {
     "benchmark": "1306.T",
-    "beta": 0.7697054301853522,
-    "r_squared": 0.2647197327507395,
-    "alpha": 0.00031669874521852195
+    "beta": 0.7687498977533592,
+    "r_squared": 0.26420559095437585,
+    "alpha": 0.0003204346088262188
   },
   "risk_metrics": {
-    "atr_percent": 2.803258708063378
+    "atr_percent": 2.7919754663940712
   },
   "ai_analysis": {
     "catalyst_summary": "LLM未使用モードのため簡易出力です。",
@@ -35,7 +35,7 @@
         "open",
         "volume"
       ],
-      "last_close": 2227.0,
+      "last_close": 2236.0,
       "empty": false
     },
     "benchmark": {
@@ -85,12 +85,12 @@
       "peer_pe_count": 16
     },
     "value_inputs": {
-      "target_pb": 0.8162777587585834,
-      "target_pe": 8.934445960041725,
-      "time_z_pb": 2.146931426969933,
-      "time_z_pe": 2.146931426969934,
-      "space_z_pb": -0.9239726847241652,
-      "space_z_pe": -0.7409364009831684
+      "target_pb": 0.8195765911918242,
+      "target_pe": 8.970552836395731,
+      "time_z_pb": 2.1672541706653394,
+      "time_z_pe": 2.167254170665338,
+      "space_z_pb": -0.9227300423148385,
+      "space_z_pe": -0.7400256114769794
     }
   }
 }
