@@ -1,155 +1,167 @@
-# 運用手順（Operations）
+# GitHub 経由で Mac と VPS をそろえる（DPA / ConoHa VPS）
 
-このファイルは、日々の実行・監視・障害対応の実運用手順をまとめたものです。
+このドキュメントの目的は次のとおりです。
 
-## 1. 前提
+1. リポジトリ内のファイルを **Mac ↔ GitHub ↔ VPS** で同じ状態に保つ（全同期優先）。
+2. デプロイ手順（pull・依存・再起動）を迷わないようにする。
 
-- Python 3.9 以上（推奨 3.10+）
-- `pip install -r requirements.txt` 実施済み
-- `config.yaml`、`data/watchlist.json`、`portfolio_state.json` が存在
+## 1. まず結論（3ステップ）
 
-## 2. 日次運用の標準フロー
+| やりたいこと | どこで |
+|-------------|--------|
+| Mac の変更を VPS に反映 | Mac: `add/commit/push` → VPS: `pull/reset` → 依存更新 → 再起動 |
+| GitHub 最新を Mac に反映 | Mac: `git pull origin main` |
+| GitHub 最新を VPS に反映 | VPS: `git pull origin main`（失敗時は強制同期） |
 
-1. 日次バッチ実行（`daily_routine.py`）
-2. `data/last_report.json` 更新確認
-3. 必要なら Web 画面で内容確認（`/dashboard`, `/report`）
-4. メール運用時は `send_daily_report.py` 実行（成功/失敗通知）
+`main` ブランチを正とすると、追跡対象ファイルは `push/pull` で一致させられます。
 
-## 3. ローカル実行コマンド
+## 2. 全同期を優先する運用方針
 
-### 3.1 Web 起動
+このプロジェクトでは、必要に応じて次も Git 管理対象に含めて同期します。
+
+- `config.yaml`
+- `token.json`
+- `data/`
+- `output/`
+- `portfolio_state.json`
+
+運用のコツ:
+
+- 普段は **Mac で編集 -> push -> VPS は pull（または reset）だけ** にする
+- VPS でバッチ実行後の `data/` を同期したい場合は、VPS 側でも commit/push する
+- リポジトリはプライベート運用を前提にする
+
+## 3. 前提（VPS）
+
+- パス: `/opt/dpa_app`
+- Python 3.9+（推奨 3.10+）
+- Debian/Ubuntu で `externally-managed-environment` が出る場合は venv 必須
+
+### 3.1 依存インストール（PEP 668 対応）
 
 ```bash
-python3 -m uvicorn web.main:app --host 127.0.0.1 --port 8000
+cd "/opt/dpa_app"
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-### 3.2 日次バッチ実行
+補足:
+
+- `source .venv/bin/activate` が無い場合は `python3 -m venv .venv` を再実行
+- `python` コマンドが無い場合は `python3` を使う（venv 有効化後は `python` が使える）
+
+## 4. 日常の更新フロー
+
+### 4.1 Mac: 変更を GitHub に載せる
 
 ```bash
-python3 daily_routine.py --no-llm -v
+cd "/Users/user/Library/CloudStorage/Box-Box/Personal/dev/stock_v7"
+git status
+git add -A
+git commit -m "Sync DPA files"
+git push origin main
 ```
 
-### 3.3 1銘柄 DVC 検証
+### 4.2 VPS: GitHub に合わせる（通常）
 
 ```bash
-python3 -m core.dvc.dvc_phase1 --ticker 7203.T --dry-run
+cd "/opt/dpa_app"
+git pull origin main
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+sudo systemctl restart dpa_web
 ```
 
-### 3.4 メール送信（バッチ実行込み）
+## 5. VPS で `pull` が失敗するとき（強制同期）
+
+`main` を正として、VPS の未コミット変更を破棄して合わせます。
 
 ```bash
-python3 send_daily_report.py
-```
-
-## 4. Web 画面での運用
-
-- `dashboard`:
-  - `日次バッチ実行` ボタンで `/api/run_batch` 実行
-  - `/api/status` ポーリングで 1/7..7/7 進捗表示
-- `settings`:
-  - `config.yaml` と `portfolio_state.json` を更新
-  - 主要運用パラメータ（`watchlist_max_items`, `purge_lot_threshold` 等）を変更
-- `trade`:
-  - 購入/売却記録を反映し、現金残高を更新
-
-## 5. サーバー運用（手動デプロイ）
-
-```bash
-git pull
-pip install -r requirements.txt
-systemctl restart dpa_web
-```
-
-確認:
-
-- `http://<host>:8000` が応答すること
-- `/dashboard` の KPI が表示されること
-- `/api/status` が JSON を返すこと
-
-## 6. GitHub 経由の同期手順
-
-ローカル修正を GitHub 経由でサーバーへ反映する標準手順です。
-
-### 6.1 ローカル -> GitHub
-
-```bash
-git checkout -b feature/update-dpa-docs
-git add .
-git commit -m "Update DPA operations docs"
-git push -u origin feature/update-dpa-docs
-```
-
-その後、GitHub で Pull Request を作成し、`main`（または運用ブランチ）へマージします。
-
-### 6.2 GitHub -> サーバー反映（強制同期）
-
-```bash
-cd /path/to/stock_v7
+cd "/opt/dpa_app"
 git fetch origin
 git checkout main
 git reset --hard origin/main
-git clean -fd
-pip install -r requirements.txt
-systemctl restart dpa_web
+git clean -fd -e .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+sudo systemctl restart dpa_web
 ```
 
-### 6.3 同期時の注意点
+注意:
 
-- `token.json` や `credentials.json` は GitHub に含めない（サーバー固有）
-- `config.yaml` が環境ごとに異なる場合は、共通化できる項目のみ Git 管理する
-- 強制同期はサーバー側の未コミット変更を破棄するため、必要なら事前バックアップを取る
-- 反映後は `/dashboard` と `/report` の表示、`/api/status` を必ず確認する
+- この操作で VPS の未コミット変更は消える
+- 必要なら実行前にバックアップまたは `git stash` で退避する
 
-## 7. Cron / Timer 運用例
-
-### 6.1 バッチのみ（メールなし）
+## 6. Mac を GitHub に合わせる（サーバーで更新した後）
 
 ```bash
-0 6 * * 1-5 cd /path/to/stock_v7 && /usr/bin/python3 daily_routine.py --no-llm >> logs/daily_routine.log 2>&1
+cd "/Users/user/Library/CloudStorage/Box-Box/Personal/dev/stock_v7"
+git fetch origin
+git pull origin main
 ```
 
-### 6.2 メール込み（内部でバッチ実行）
+## 7. 初回セットアップ
+
+### 7.1 Mac から初回 push
 
 ```bash
-10 6 * * 1-5 cd /path/to/stock_v7 && /usr/bin/python3 send_daily_report.py >> logs/send_daily_report.log 2>&1
+cd "/Users/user/Library/CloudStorage/Box-Box/Personal/dev/stock_v7"
+git init
+git add .
+git commit -m "Initial deploy: DPA app"
+git remote add origin https://github.com/kosei-doi/stock_v7.git
+git branch -M main
+git push -u origin main
 ```
 
-## 8. OAuth 運用（Gmail）
+### 7.2 VPS 初回 clone
 
-- 必須ファイル:
-  - `credentials.json`（Google Cloud 発行）
-  - `token.json`（初回認証後に生成）
-- `token.json` が失効・破損した場合:
-  - `send_daily_report.py` 実行時に再認証へフォールバック
-- ヘッドレス環境でブラウザが開けない場合:
-  - ローカルで再認証して生成した `token.json` をサーバーへ配置
+```bash
+apt update && apt install -y git python3 python3-venv python3-pip
+git clone https://github.com/kosei-doi/stock_v7.git /opt/dpa_app
+cd /opt/dpa_app
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
 
-## 9. 監視ポイント
+## 8. GitHub 接続エラー（VPS）
 
-毎日確認する推奨ファイル:
+HTTPS 接続に失敗する場合は、送信 TCP 443 の許可を確認します。
 
-- `data/run_status.json`: 実行状態（`running/completed/failed`）
-- `data/last_report.json`: 生成結果
-- `data/previous_report.json`: 前日比較元
-- `data/scores_history.json`: スコア履歴更新
-- `output/*.json`: 銘柄別 DVC 出力
+確認コマンド:
 
-## 10. よくある障害と対処
+```bash
+curl -I https://github.com
+```
 
-- `invalid_grant`（Gmail）:
-  - `token.json` 再認証
-- `sector_peers が見つかりません`:
-  - `config.yaml` の `sector_peers_path` を確認
-- `watchlist` が更新されない:
-  - `watchlist.max_items` と `watchlist` JSON の構造不整合（`null` 等）を確認
-- `売却が出ない`:
-  - `target_weights`, `current_prices`, `purge_lot_threshold` と単元株条件を確認
+`HTTP 200/301` 等が返れば到達できています。
 
-## 11. 安全運用ルール
+## 9. Cron 運用例
 
-- 実行前バックアップ:
-  - `data/watchlist.json`
-  - `portfolio_state.json`
-  - `config.yaml`
-- 設定変更は少量ずつ行い、変更後に `daily_routine.py --no-llm -v` で検証
-- 予算・売却閾値を大きく変更した日は `report` の推奨件数と金額を必ず目視確認
+### 9.1 バッチのみ
+
+```cron
+0 6 * * 1-5 cd "/opt/dpa_app" && "/opt/dpa_app/.venv/bin/python" daily_routine.py --no-llm >> logs/daily_routine.log 2>&1
+```
+
+### 9.2 メール込み
+
+```cron
+10 6 * * 1-5 cd "/opt/dpa_app" && "/opt/dpa_app/.venv/bin/python" send_daily_report.py >> logs/send_daily_report.log 2>&1
+```
+
+## 10. チェックリスト（デプロイ後）
+
+- `git rev-parse HEAD` で VPS と GitHub のコミットが一致
+- 依存更新済み（`python -m pip install -r requirements.txt`）
+- `systemctl restart dpa_web` 済み
+- `http://<VPS_IP>:8000` が応答
+- `git status` がクリーン
+
+## 11. 関連ドキュメント
+
+- `docs/LOGIC.md`
+- `docs/ARCHITECTURE.md`

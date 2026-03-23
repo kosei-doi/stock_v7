@@ -12,8 +12,13 @@
 ## セットアップ
 
 ```bash
-pip install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
+
+Debian/Ubuntu で `error: externally-managed-environment` が出る場合は、上記のように `venv` を使ってください（`--break-system-packages` は非推奨）。
 
 設定はプロジェクト直下の **`config.yaml` 1 ファイル**だけです（リポジトリにひな形同梱）。編集して保存してください。  
 別ファイルを使う場合は `--config` でパスを指定できます。  
@@ -22,7 +27,7 @@ pip install -r requirements.txt
 ## 日次実行
 
 ```bash
-python -m daily_routine
+python daily_routine.py
 ```
 
 （`--config path/to.yaml` で明示したいときだけ指定。省略時は `config.yaml` を読みます。）
@@ -30,7 +35,7 @@ python -m daily_routine
 LLM を使わない（推奨）:
 
 ```bash
-python -m daily_routine --no-llm
+python daily_routine.py --no-llm
 ```
 
 設定で `llm.enabled: false` にしていれば `--no-llm` は省略可能です。
