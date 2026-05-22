@@ -28,6 +28,7 @@ from core.utils.config_loader import (
     load_merged_config,
     watchlist_max_items_from_raw_config,
 )
+from core.persistence import get_persistence
 from core.utils.money import yen_floor
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -186,20 +187,13 @@ def _write_run_status(status: str, message: str, step: Optional[int] = None, tot
 
 
 def _get_cash_yen() -> int:
-    """portfolio_state.json から現金残高を取得（整数円）。"""
-    state = _read_json(PORTFOLIO_STATE_PATH)
-    if not isinstance(state, dict):
-        return 0
-    return yen_floor(state.get("cash_yen", 0))
+    """portfolio から現金残高を取得（整数円）。"""
+    return get_persistence().portfolio.get_cash_yen()
 
 
 def _get_positions_from_watchlist() -> dict:
     """watchlist の HOLDING から positions 相当を返す。"""
-    try:
-        from core.utils.watchlist_io import positions_from_watchlist
-        return positions_from_watchlist(path=str(WATCHLIST_PATH))
-    except ImportError:
-        return {}
+    return get_persistence().watchlist.get_positions()
 
 
 def _merge_report_data() -> dict[str, Any]:
@@ -210,7 +204,7 @@ def _merge_report_data() -> dict[str, Any]:
     prev = _read_json(PREVIOUS_REPORT_PATH)
     positions = _get_positions_from_watchlist()
     from core.utils.watchlist_io import load_watchlist as get_watchlist
-    current_watchlist = get_watchlist(path=str(WATCHLIST_PATH))
+    current_watchlist = get_watchlist(path=str(get_persistence().paths.watchlist_path))
     watchlist_tickers = {
         (
             item.get("ticker")
@@ -487,7 +481,7 @@ def analyze_ticker(body: dict) -> dict:
     try:
         from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data
         from core.dvc.scoring import run_dvc_for_ticker
-        from core.utils.watchlist_io import add_to_watchlist, load_watchlist, WATCHLIST_PATH
+        from core.utils.watchlist_io import add_to_watchlist
         from core.utils.io_utils import save_output_json
     except ImportError as e:
         raise HTTPException(
@@ -534,7 +528,7 @@ def analyze_ticker(body: dict) -> dict:
     max_items = int(cfg.get("watchlist_max_items", DEFAULT_WATCHLIST_MAX_ITEMS))
     _wl, was_added, did_evict_watching = add_to_watchlist(
         ticker,
-        path=str(WATCHLIST_PATH),
+        path=str(get_persistence().paths.watchlist_path),
         scores_by_ticker={ticker: result},
         max_items=max_items,
     )
@@ -602,7 +596,7 @@ def _watchlist_rank_for_ticker(ticker: str, output_dir: Path) -> tuple[int, int]
 
     last_report = _read_json(LAST_REPORT_PATH) or {}
     portfolio_scores = last_report.get("portfolio_scores") or {}
-    wl = load_watchlist(str(WATCHLIST_PATH))
+    wl = get_persistence().watchlist.load_all()
     wl_tickers = [
         it.get("ticker") or it.get("ticker_symbol", "")
         for it in wl
@@ -739,17 +733,13 @@ def trade_purchase(body: TradePurchaseBody) -> dict:
     shares = body.shares
     avg_price = yen_floor(body.avg_price)
 
+    store = get_persistence()
     cost = yen_floor(shares * avg_price)
-    state = _read_json(PORTFOLIO_STATE_PATH) or {}
-    if not isinstance(state, dict):
-        state = {}
-    cash = yen_floor(state.get("cash_yen", 0))
+    cash = store.portfolio.get_cash_yen()
     if cash < cost:
         raise HTTPException(status_code=400, detail=f"現金不足です。使える現金: {cash:,.0f} 円、購入額: {cost:,.0f} 円")
 
-    wl = _read_json(WATCHLIST_PATH)
-    if not isinstance(wl, list):
-        wl = []
+    wl = store.watchlist.load_all()
     existing_tickers = {x.get("ticker") or x.get("ticker_symbol") or "" for x in wl}
     if ticker not in existing_tickers:
         try:
@@ -760,11 +750,7 @@ def trade_purchase(body: TradePurchaseBody) -> dict:
                 detail=_server_error_detail(f"{ticker} の企業分析に失敗しました: {e}"),
             ) from e
 
-    wl_snapshot = _read_json(WATCHLIST_PATH)
-    if not isinstance(wl_snapshot, list):
-        wl_snapshot = copy.deepcopy(wl)
-    else:
-        wl_snapshot = copy.deepcopy(wl_snapshot)
+    wl_snapshot = copy.deepcopy(store.watchlist.load_all())
     try:
         from core.utils.watchlist_io import update_holdings_bulk
         last_report = _read_json(LAST_REPORT_PATH) or {}
@@ -773,7 +759,7 @@ def trade_purchase(body: TradePurchaseBody) -> dict:
         max_items = int(cfg.get("watchlist_max_items", DEFAULT_WATCHLIST_MAX_ITEMS))
         update_holdings_bulk(
             {ticker: {"shares": shares, "avg_price": avg_price}},
-            path=str(WATCHLIST_PATH),
+            path=str(store.paths.watchlist_path),
             portfolio_scores=portfolio_scores,
             max_items=max_items,
         )
@@ -785,15 +771,14 @@ def trade_purchase(body: TradePurchaseBody) -> dict:
 
     # watchlist 更新後に portfolio 書込が失敗した場合、watchlist をロールバックして不整合を防ぐ
     try:
-        state["cash_yen"] = cash - cost
-        _write_json(PORTFOLIO_STATE_PATH, state)
+        store.portfolio.set_cash_yen(cash - cost)
     except Exception as e:
-        _write_json(WATCHLIST_PATH, wl_snapshot)
+        store.watchlist.save_all(wl_snapshot)
         raise HTTPException(
             status_code=500,
             detail=_server_error_detail(f"現金残高の更新に失敗しました: {e}"),
         ) from e
-    return {"ok": True, "cash_yen": state["cash_yen"]}
+    return {"ok": True, "cash_yen": store.portfolio.get_cash_yen()}
 
 
 @router.post("/trade/sale", dependencies=MUTATING_DEPS)
@@ -812,9 +797,8 @@ def trade_sale(body: TradeSaleBody) -> dict:
     if price <= 0:
         raise HTTPException(status_code=400, detail=f"{ticker} の株価データがありません。日次バッチを実行してから売却を記録してください。")
 
-    wl = _read_json(WATCHLIST_PATH)
-    if not isinstance(wl, list):
-        raise HTTPException(status_code=400, detail="ウォッチリストの読み込みに失敗しました。")
+    store = get_persistence()
+    wl = store.watchlist.load_all()
     ticker_to_item = {x.get("ticker") or x.get("ticker_symbol") or "": x for x in wl}
     if ticker not in ticker_to_item:
         raise HTTPException(status_code=400, detail=f"{ticker} は保有銘柄にありません。")
@@ -836,15 +820,11 @@ def trade_sale(body: TradeSaleBody) -> dict:
                 if "shares" in i:
                     del i["shares"]
             break
-    _write_json(WATCHLIST_PATH, wl)
+    store.watchlist.save_all(wl)
 
-    state = _read_json(PORTFOLIO_STATE_PATH) or {}
-    if not isinstance(state, dict):
-        state = {}
-    cash = yen_floor(state.get("cash_yen", 0))
-    state["cash_yen"] = cash + proceeds
-    _write_json(PORTFOLIO_STATE_PATH, state)
-    return {"ok": True, "cash_yen": state["cash_yen"]}
+    cash = store.portfolio.get_cash_yen()
+    store.portfolio.set_cash_yen(cash + proceeds)
+    return {"ok": True, "cash_yen": store.portfolio.get_cash_yen()}
 
 
 CONFIG_KEYS = {
@@ -867,11 +847,7 @@ def update_settings(body: SettingsUpdateBody) -> dict:
     result: dict = {}
     if "cash_yen" in payload:
         cash_yen = yen_floor(payload["cash_yen"])
-        state = _read_json(PORTFOLIO_STATE_PATH) or {}
-        if not isinstance(state, dict):
-            state = {}
-        state["cash_yen"] = cash_yen
-        _write_json(PORTFOLIO_STATE_PATH, state)
+        get_persistence().portfolio.set_cash_yen(cash_yen)
         result["cash_yen"] = cash_yen
     flat = {k: v for k, v in payload.items() if k in CONFIG_KEYS}
     if "output_dir" in flat:
@@ -898,7 +874,7 @@ def build_watchlist_analysis_index() -> list[dict[str, Any]]:
     """
     from core.utils.watchlist_io import load_watchlist
 
-    wl = load_watchlist(path=str(WATCHLIST_PATH))
+    wl = get_persistence().watchlist.load_all()
     last_report = _read_json(LAST_REPORT_PATH) or {}
     if not isinstance(last_report, dict):
         last_report = {}
@@ -999,24 +975,21 @@ def get_ticker_ohlc(ticker: str, years: int = Query(1, ge=1, le=30)) -> dict:
 
 
 @router.get("/watchlist")
-def get_watchlist() -> dict:
+def get_watchlist_api() -> dict:
     """Watchlist and positions for UI."""
-    wl = _read_json(WATCHLIST_PATH)
-    if not isinstance(wl, list):
-        wl = []
-    pos = _get_positions_from_watchlist()
-    return {"watchlist": wl, "positions": pos}
+    store = get_persistence()
+    return {"watchlist": store.watchlist.load_all(), "positions": store.watchlist.get_positions()}
 
 
 @router.delete("/watchlist/{ticker}", dependencies=MUTATING_DEPS)
 def remove_watchlist_ticker(ticker: str) -> dict:
     """Remove ticker from watchlist (uses core)."""
     try:
-        from core.utils.watchlist_io import remove_from_watchlist, WATCHLIST_PATH
+        from core.utils.watchlist_io import remove_from_watchlist
     except ImportError:
         raise HTTPException(status_code=500, detail=_server_error_detail("core の読み込みに失敗しました。"))
     normalized = _normalize_ticker(ticker)
-    remove_from_watchlist(normalized, path=str(WATCHLIST_PATH))
+    remove_from_watchlist(normalized, path=str(get_persistence().paths.watchlist_path))
     return {"ok": True, "ticker": normalized}
 
 
@@ -1182,8 +1155,5 @@ def _save_config(cfg: dict) -> None:
 @router.get("/settings")
 def get_settings() -> dict:
     """Portfolio state と config を返す（設定画面用）。"""
-    state = _read_json(PORTFOLIO_STATE_PATH)
-    if not isinstance(state, dict):
-        state = {}
     cfg = _config_to_flat(_load_config_raw())
-    return {"cash_yen": state.get("cash_yen"), "config": cfg}
+    return {"cash_yen": get_persistence().portfolio.get_cash_yen(), "config": cfg}

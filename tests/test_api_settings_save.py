@@ -6,27 +6,45 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
+from core.persistence import (
+    PersistencePaths,
+    build_file_repositories,
+    reset_persistence,
+    set_persistence,
+)
+
 DPA_CLIENT_HEADERS = {"X-DPA-Client": "1"}
 
 
 @pytest.fixture
 def settings_client(tmp_path, monkeypatch):
     monkeypatch.delenv("DPA_API_KEY", raising=False)
-    portfolio = tmp_path / "portfolio_state.json"
-    portfolio.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
+    reset_persistence()
+
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    paths = PersistencePaths(
+        project_root=tmp_path,
+        data_dir=tmp_path,
+        output_dir=output_dir,
+    )
+    set_persistence(build_file_repositories(paths))
+
+    paths.portfolio_path.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
     config = tmp_path / "config.yaml"
     config.write_text("benchmark_ticker: 1306.T\nyears: 5\ndpa: {}\n", encoding="utf-8")
 
     import web.api as api
 
-    monkeypatch.setattr(api, "PORTFOLIO_STATE_PATH", portfolio)
     monkeypatch.setattr(api, "CONFIG_PATH", config)
     monkeypatch.setattr(api, "PROJECT_ROOT", tmp_path)
     monkeypatch.chdir(tmp_path)
 
     from web.main import create_app
 
-    return TestClient(create_app())
+    client = TestClient(create_app())
+    yield client
+    reset_persistence()
 
 
 def test_settings_update_rejects_unknown_field(settings_client):

@@ -6,6 +6,13 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
+from core.persistence import (
+    PersistencePaths,
+    build_file_repositories,
+    reset_persistence,
+    set_persistence,
+)
+
 DPA_CLIENT_HEADERS = {"X-DPA-Client": "1"}
 
 
@@ -13,18 +20,26 @@ DPA_CLIENT_HEADERS = {"X-DPA-Client": "1"}
 def trade_env(tmp_path, monkeypatch):
     """取引 API 用の一時ファイルと TestClient。"""
     monkeypatch.delenv("DPA_API_KEY", raising=False)
+    reset_persistence()
 
-    wl = tmp_path / "watchlist.json"
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    paths = PersistencePaths(
+        project_root=tmp_path,
+        data_dir=tmp_path,
+        output_dir=output_dir,
+    )
+    set_persistence(build_file_repositories(paths))
+
+    wl = paths.watchlist_path
     wl.write_text("[]", encoding="utf-8")
-    portfolio = tmp_path / "portfolio_state.json"
+    portfolio = paths.portfolio_path
     portfolio.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
-    last_report = tmp_path / "last_report.json"
+    last_report = paths.last_report_path
     last_report.write_text(json.dumps({"last_prices": {"7203.T": 2500.0}}), encoding="utf-8")
 
     import web.api as api
 
-    monkeypatch.setattr(api, "WATCHLIST_PATH", wl)
-    monkeypatch.setattr(api, "PORTFOLIO_STATE_PATH", portfolio)
     monkeypatch.setattr(api, "LAST_REPORT_PATH", last_report)
     monkeypatch.setattr(api, "DATA_DIR", tmp_path)
     monkeypatch.setattr(api, "_run_dvc_for_ticker", lambda _ticker: None)
@@ -32,7 +47,8 @@ def trade_env(tmp_path, monkeypatch):
     from web.main import create_app
 
     client = TestClient(create_app())
-    return client, wl, portfolio, last_report
+    yield client, wl, portfolio, last_report
+    reset_persistence()
 
 
 def test_trade_purchase_requires_api_key_when_set(trade_env, monkeypatch):

@@ -7,11 +7,27 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
+from core.persistence import (
+    PersistencePaths,
+    build_file_repositories,
+    reset_persistence,
+    set_persistence,
+)
+
 
 @pytest.fixture
 def analyze_client(tmp_path, monkeypatch):
     monkeypatch.delenv("DPA_API_KEY", raising=False)
-    wl = tmp_path / "watchlist.json"
+    reset_persistence()
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    paths = PersistencePaths(
+        project_root=tmp_path,
+        data_dir=tmp_path,
+        output_dir=output_dir,
+    )
+    set_persistence(build_file_repositories(paths))
+    wl = paths.watchlist_path
     wl.write_text(
         json.dumps(
             [
@@ -21,9 +37,7 @@ def analyze_client(tmp_path, monkeypatch):
         ),
         encoding="utf-8",
     )
-    out_dir = tmp_path / "output"
-    out_dir.mkdir()
-    (out_dir / "7203.T.json").write_text(
+    (output_dir / "7203.T.json").write_text(
         json.dumps(
             {
                 "ticker": "7203.T",
@@ -44,7 +58,6 @@ def analyze_client(tmp_path, monkeypatch):
 
     import web.api as api
 
-    monkeypatch.setattr(api, "WATCHLIST_PATH", wl)
     monkeypatch.setattr(api, "LAST_REPORT_PATH", last_report)
     monkeypatch.setattr(api, "DATA_DIR", tmp_path)
     monkeypatch.setattr(api, "CONFIG_PATH", config)
@@ -53,7 +66,9 @@ def analyze_client(tmp_path, monkeypatch):
 
     from web.main import create_app
 
-    return TestClient(create_app())
+    client = TestClient(create_app())
+    yield client
+    reset_persistence()
 
 
 def test_watchlist_analysis_index(analyze_client):
