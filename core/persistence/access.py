@@ -16,10 +16,10 @@ _bundle: Optional[PersistenceBundle] = None
 
 
 def persistence_backend() -> Backend:
-    raw = os.environ.get("DPA_PERSISTENCE", "file").strip().lower()
-    if raw == "sqlite":
-        return "sqlite"
-    return "file"
+    raw = os.environ.get("DPA_PERSISTENCE", "sqlite").strip().lower()
+    if raw == "file":
+        return "file"
+    return "sqlite"
 
 
 def build_repositories(

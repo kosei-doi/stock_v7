@@ -116,14 +116,18 @@ def test_build_repositories_sqlite_backend(tmp_path, monkeypatch):
     reset_persistence()
 
 
-def test_get_persistence_default_file_backend():
+def test_get_persistence_default_backend_is_sqlite(monkeypatch):
+    """環境変数未設定時は sqlite がデフォルト。明示的に file も選択できる。"""
     reset_persistence()
+    monkeypatch.delenv("DPA_PERSISTENCE", raising=False)
     from core.persistence.access import persistence_backend
     from core.persistence.file_watchlist import FileWatchlistRepository
 
+    assert persistence_backend() == "sqlite"
+
+    # 明示的に file バックエンドを選択できる
     bundle = build_repositories(backend="file")
     set_persistence(bundle)
-    assert persistence_backend() == "file"
     from core.persistence import get_persistence
 
     assert isinstance(get_persistence().watchlist, FileWatchlistRepository)
