@@ -343,8 +343,64 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST "http://127.0.0.1:8000/api/trad
 
 ---
 
+## 本番 DB 切替（SQLite / DB-6）
+
+JSON を SoT から SQLite へ移す手順。詳細は [`docs/ADR-001-database.md`](ADR-001-database.md) を参照。
+
+### 1. バックアップ（VPS）
+
+```bash
+cd /opt/dpa_app
+sudo systemctl stop dpa_web
+cp -a data data.bak.$(date +%Y%m%d)
+cp -a portfolio_state.json portfolio_state.json.bak
+cp -a output output.bak.$(date +%Y%m%d)   # 任意
+cp -a data/dpa.db data/dpa.db.bak 2>/dev/null || true
+```
+
+### 2. ドライラン（件数確認のみ）
+
+```bash
+cd /opt/dpa_app
+source venv/bin/activate
+python scripts/migrate_json_to_db.py --data-dir /opt/dpa_app --dry-run
+```
+
+ログで watchlist 件数・現金残高・`last_report.data_date`・score_history 行数・`output/*.json` 件数を確認する。
+
+### 3. import
+
+```bash
+python scripts/migrate_json_to_db.py --data-dir /opt/dpa_app
+# JSON を退避する場合（推奨・成功後のみ）:
+# python scripts/migrate_json_to_db.py --data-dir /opt/dpa_app --archive-json
+```
+
+### 4. 切替・再起動
+
+`/etc/dpa-app/dpa.env`（[`scripts/dpa.env.example`](../scripts/dpa.env.example) 参照）:
+
+```bash
+DPA_PERSISTENCE=sqlite
+DPA_DATABASE_URL=sqlite:////opt/dpa_app/data/dpa.db
+```
+
+```bash
+sudo systemctl restart dpa_web
+```
+
+### 5. ロールバック
+
+- `DPA_PERSISTENCE` を外す（または `file`）→ `systemctl restart dpa_web`
+- `data.bak.*` / `output.bak.*` から JSON を復元
+
+`data/dpa.db` は Git に含めない（`.gitignore` 済み）。
+
+---
+
 ## 関連ドキュメント
 
 - ロジック: `docs/LOGIC.md`
 - 構成図: `docs/ARCHITECTURE.md`
+- DB 設計: `docs/ADR-001-database.md`
 
