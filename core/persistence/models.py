@@ -63,3 +63,26 @@ class RunJobRow(Base):
     step: Mapped[int | None] = mapped_column(Integer, nullable=True)
     total_steps: Mapped[int | None] = mapped_column(Integer, nullable=True)
     finished_at: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class MarketCacheRow(Base):
+    __tablename__ = "market_cache"
+
+    cache_key: Mapped[str] = mapped_column(String, primary_key=True, default="main")
+    updated_date: Mapped[str | None] = mapped_column(String, nullable=True)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class SectorPeersRow(Base):
+    __tablename__ = "sector_peers"
+
+    cache_key: Mapped[str] = mapped_column(String, primary_key=True, default="default")
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class TickerAnalysisRow(Base):
+    __tablename__ = "ticker_analyses"
+
+    ticker: Mapped[str] = mapped_column(String, primary_key=True)
+    updated_at: Mapped[str] = mapped_column(Text, nullable=False)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)

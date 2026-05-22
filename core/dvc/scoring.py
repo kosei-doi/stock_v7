@@ -332,7 +332,8 @@ def run_dvc_for_ticker(
     ticker: str,
     benchmark_ticker: str,
     years: int,
-    sector_peers_path: str,
+    sector_peers_path: str | None = None,
+    peers_map: dict | None = None,
     llm_enabled: bool = False,
     llm_client: object | None = None,
     bench_df: pd.DataFrame | None = None,
@@ -346,7 +347,13 @@ def run_dvc_for_ticker(
         bench_df = fetch_benchmark_history(benchmark_ticker, years)
     fundamentals: FundamentalSnapshot = fetch_fundamentals(ticker)
 
-    peers_map = fetch_sector_peers_map(sector_peers_path)
+    if peers_map is None:
+        if sector_peers_path:
+            peers_map = fetch_sector_peers_map(sector_peers_path)
+        else:
+            from core.persistence.access import get_persistence
+
+            peers_map = get_persistence().sector_peers.load()
     resolved_sector, peers = get_sector_peers(fundamentals.sector, peers_map)
 
     # 2. Valueモジュールのための指標計算

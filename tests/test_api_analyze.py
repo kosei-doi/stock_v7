@@ -26,7 +26,8 @@ def analyze_client(tmp_path, monkeypatch):
         data_dir=tmp_path,
         output_dir=output_dir,
     )
-    set_persistence(build_file_repositories(paths))
+    bundle = build_file_repositories(paths)
+    set_persistence(bundle)
     wl = paths.watchlist_path
     wl.write_text(
         json.dumps(
@@ -37,16 +38,14 @@ def analyze_client(tmp_path, monkeypatch):
         ),
         encoding="utf-8",
     )
-    (output_dir / "7203.T.json").write_text(
-        json.dumps(
-            {
-                "ticker": "7203.T",
-                "name": "Toyota",
-                "scores": {"total_score": 62.5, "value_score": 40, "safety_score": 90, "momentum_score": 35},
-                "data_overview": {"price_history": {"last_close": 3000}},
-            }
-        ),
-        encoding="utf-8",
+    bundle.ticker_analysis.save(
+        "7203.T",
+        {
+            "ticker": "7203.T",
+            "name": "Toyota",
+            "scores": {"total_score": 62.5, "value_score": 40, "safety_score": 90, "momentum_score": 35},
+            "data_overview": {"price_history": {"last_close": 3000}},
+        },
     )
     paths.last_report_path.write_text(
         json.dumps({"ticker_names": {"9984.T": "SoftBank"}, "last_prices": {"9984.T": 8000}}),

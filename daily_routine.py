@@ -16,7 +16,8 @@ from core.utils.config_loader import get_validated_config, load_merged_config, p
 from core.dpa.dpa_draft import LOT_SIZE, run_draft
 from core.dpa.dpa_macro import get_macro_state
 from core.dpa.dpa_portfolio_score import compute_portfolio_total_score
-from core.dpa.dpa_scores import compute_score_trend, load_scores_history
+from core.dpa.dpa_scores import compute_score_trend
+from core.persistence.access import get_persistence
 from core.dpa.dpa_weights import compute_target_weights
 from core.dpa.dpa_purge import run_purge
 from core.dpa.dpa_schema import DpaDailyReport, MacroPhase
@@ -309,12 +310,8 @@ def run_daily_routine(
     print("=== DPA 日次バッチ 開始 ===", file=sys.stderr)
     _progress(1, total_steps, "ウォッチリスト読込・企業分析（DVCスコア計算）…", verbose=verbose)
     results = run_dvc_for_watchlist(
-        watchlist_path=watchlist_path,
-        sector_peers_path=sector_peers_path,
         benchmark_ticker=benchmark_ticker,
         years=years,
-        output_dir=output_dir,
-        cache_path=cache_path,
         vi_ticker=vi_ticker,
         llm_enabled=llm_enabled,
         verbose=verbose,
@@ -323,7 +320,6 @@ def run_daily_routine(
         cache_cutoff_minute=cache_cutoff_minute,
         cache_market_tz=market_tz,
         progress_callback=lambda msg: print(f"        {msg}", file=sys.stderr),
-        scores_history_path=scores_history_path,
     )
     watchlist = load_watchlist(watchlist_path)
     if len(watchlist) == 0 and len(results) == 0:
@@ -346,8 +342,6 @@ def run_daily_routine(
     bench_df, _, vi_series = get_macro_and_peers_data(
         benchmark_ticker=benchmark_ticker,
         years=years,
-        sector_peers_path=sector_peers_path,
-        cache_path=cache_path,
         vi_ticker=vi_ticker,
         now=now,
         cutoff_hour=cache_cutoff_hour,
@@ -375,7 +369,7 @@ def run_daily_routine(
     print(f"        → フェーズ: {macro.phase_name_ja}, 目標現金比率: {macro.target_cash_ratio*100:.0f}%", file=sys.stderr)
 
     _progress(4, total_steps, "スコアトレンド・ポートフォリオスコア・ターゲット構成比の計算…", verbose=verbose)
-    history = load_scores_history(scores_history_path)
+    history = get_persistence().score_history.load_all()
     score_trends: dict[str, dict] = {}
     for ticker in results.keys():
         score_trends[ticker] = compute_score_trend(
@@ -508,8 +502,9 @@ def main(argv: list[str] | None = None) -> int:
         raw_cfg = load_merged_config(None)
     cfg = get_validated_config(raw_cfg)
 
+    get_persistence()
     sector_peers_path = _resolve_path(cfg.get("sector_peers_path", "data/sector_peers.json"))
-    if not Path(sector_peers_path).exists():
+    if not get_persistence().sector_peers.load() and not Path(sector_peers_path).exists():
         print(f"sector_peers が見つかりません: {sector_peers_path}", file=sys.stderr)
         return 1
 

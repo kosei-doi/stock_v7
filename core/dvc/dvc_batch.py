@@ -9,22 +9,21 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, Optional
 
-from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data, _now_jst
+from core.persistence.access import get_persistence
+from core.utils.daily_cache import get_macro_and_peers_data, _now_jst
 from core.utils.dates import logical_date_iso
-from core.dpa.dpa_scores import SCORES_HISTORY_PATH, update_scores_history_for_date
-from core.utils.io_utils import save_output_json
 from core.dvc.scoring import run_dvc_for_ticker
 from core.dvc.schema import DvcScoreOutput
-from core.utils.watchlist_io import load_watchlist, _ticker
+from core.utils.watchlist_io import _ticker
 
 
 def run_dvc_for_watchlist(
-    watchlist_path: str = "data/watchlist.json",
-    sector_peers_path: str = "data/sector_peers.json",
+    watchlist_path: str | None = None,
+    sector_peers_path: str | None = None,
     benchmark_ticker: str = "1306.T",
     years: int = 5,
-    output_dir: str = "output",
-    cache_path: str = DEFAULT_CACHE_PATH,
+    output_dir: str | None = None,
+    cache_path: str | None = None,
     vi_ticker: Optional[str] = None,
     llm_enabled: bool = False,
     verbose: bool = False,
@@ -41,17 +40,25 @@ def run_dvc_for_watchlist(
     あわせて scores_history.json に当日分のスコア履歴を更新する。
     cache_now 等を渡すと、キャッシュの fresh 判定に曜日・時刻を反映する。
     """
-    items = load_watchlist(watchlist_path)
+    store = get_persistence()
+    if watchlist_path:
+        from core.utils.watchlist_io import load_watchlist
+
+        items = load_watchlist(watchlist_path)
+    else:
+        items = store.watchlist.load_all()
     if not items:
         return {}
 
     kwargs: dict = {
         "benchmark_ticker": benchmark_ticker,
         "years": years,
-        "sector_peers_path": sector_peers_path,
-        "cache_path": cache_path,
         "vi_ticker": vi_ticker,
     }
+    if sector_peers_path:
+        kwargs["sector_peers_path"] = sector_peers_path
+    if cache_path:
+        kwargs["cache_path"] = cache_path
     if cache_now is not None:
         kwargs["now"] = cache_now
         if cache_cutoff_hour is not None:
@@ -64,7 +71,6 @@ def run_dvc_for_watchlist(
         kwargs["progress_callback"] = progress_callback
     bench_df, peers_data, _ = get_macro_and_peers_data(**kwargs)
 
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
     results: dict[str, DvcScoreOutput] = {}
     ticker_list = [_ticker(it) for it in items if _ticker(it)]
     n = len(ticker_list)
@@ -91,8 +97,7 @@ def run_dvc_for_watchlist(
                 peers_data=peers_data,
             )
             results[ticker] = out
-            out_path = str(Path(output_dir) / f"{ticker}.json")
-            save_output_json(out, out_path)
+            store.ticker_analysis.save(ticker, out.model_dump(mode="json"))
             if progress_callback and n > 0:
                 progress_callback(f"  [{idx + 1}/{n}] {ticker} 完了 (total_score={out.scores.total_score})")
         except (KeyError, TypeError, ValueError, OSError) as e:
@@ -106,7 +111,16 @@ def run_dvc_for_watchlist(
     # スコア履歴の日付キーは daily_routine の data_date と同一（JST 6 時区切り）
     ref_now = cache_now if cache_now is not None else _now_jst()
     today_key = logical_date_iso(ref_now)
-    update_scores_history_for_date(today_key, results, path=scores_history_path or SCORES_HISTORY_PATH)
+    ticker_scores: dict[str, dict] = {}
+    for t, out in results.items():
+        s = out.scores
+        ticker_scores[t] = {
+            "total": s.total_score,
+            "value": s.value_score,
+            "safety": s.safety_score,
+            "momentum": s.momentum_score,
+        }
+    store.score_history.upsert_day(today_key, ticker_scores)
     if progress_callback and n > 0:
         progress_callback(f"スコア履歴を更新しました ({today_key})")
 

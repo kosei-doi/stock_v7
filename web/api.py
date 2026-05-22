@@ -476,25 +476,23 @@ def analyze_ticker(body: dict) -> dict:
         raise HTTPException(status_code=400, detail="コードを指定してください。")
     ticker = _normalize_ticker(raw)
     try:
-        from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data
+        from core.utils.daily_cache import get_macro_and_peers_data
         from core.dvc.scoring import run_dvc_for_ticker
         from core.utils.watchlist_io import add_to_watchlist
-        from core.utils.io_utils import save_output_json
     except ImportError as e:
         raise HTTPException(
             status_code=500,
             detail=_server_error_detail(f"core の読み込みに失敗しました: {e}"),
         ) from e
     cfg = _load_validated_config()
-    sector_peers_path = str(Path(cfg.get("sector_peers_path", "data/sector_peers.json")).resolve())
-    if not Path(sector_peers_path).exists():
-        raise HTTPException(status_code=500, detail=_server_error_detail("sector_peers.json が見つかりません。"))
+    if not get_persistence().sector_peers.load():
+        sp = Path(cfg.get("sector_peers_path", "data/sector_peers.json"))
+        if not sp.exists():
+            raise HTTPException(status_code=500, detail=_server_error_detail("sector_peers.json が見つかりません。"))
     try:
         bench_df, peers_data, _ = get_macro_and_peers_data(
             benchmark_ticker=cfg.get("benchmark_ticker", "1306.T"),
             years=int(cfg.get("years", 5)),
-            sector_peers_path=sector_peers_path,
-            cache_path=str(Path(cfg.get("cache_path", DEFAULT_CACHE_PATH)).resolve()),
             vi_ticker=cfg.get("vi_ticker"),
         )
     except Exception as e:
@@ -507,7 +505,6 @@ def analyze_ticker(body: dict) -> dict:
             ticker=ticker,
             benchmark_ticker=cfg.get("benchmark_ticker", "1306.T"),
             years=int(cfg.get("years", 5)),
-            sector_peers_path=sector_peers_path,
             llm_enabled=False,
             llm_client=None,
             bench_df=bench_df,
@@ -519,9 +516,7 @@ def analyze_ticker(body: dict) -> dict:
             detail=_server_error_detail(f"分析に失敗しました: {e}"),
         ) from e
     output_dir = _resolve_output_dir(cfg)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    saved_path = output_dir / f"{ticker}.json"
-    save_output_json(result, str(saved_path))
+    get_persistence().ticker_analysis.save(ticker, result.model_dump(mode="json"))
     max_items = int(cfg.get("watchlist_max_items", DEFAULT_WATCHLIST_MAX_ITEMS))
     _wl, was_added, did_evict_watching = add_to_watchlist(
         ticker,
@@ -529,12 +524,7 @@ def analyze_ticker(body: dict) -> dict:
         scores_by_ticker={ticker: result},
         max_items=max_items,
     )
-    d = {}
-    if saved_path.exists():
-        try:
-            d = json.loads(saved_path.read_text(encoding="utf-8"))
-        except Exception:
-            pass
+    d = get_persistence().ticker_analysis.get(ticker) or {}
     if not d and result is not None:
         d = {"name": result.name, "sector": result.sector, "scores": result.scores.model_dump()}
     msg = (
@@ -587,10 +577,18 @@ def _dataframe_to_ohlc_bars(df) -> list[dict[str, Any]]:
     return bars
 
 
+def _total_score_from_ticker_analysis(ticker: str) -> float | None:
+    d = get_persistence().ticker_analysis.get(ticker)
+    if not d:
+        return None
+    try:
+        return float((d.get("scores") or {}).get("total_score") or 0)
+    except (TypeError, ValueError):
+        return None
+
+
 def _watchlist_rank_for_ticker(ticker: str, output_dir: Path) -> tuple[int, int]:
     """ウォッチリスト内の total_score 順位 (1-based) と件数。"""
-    from core.utils.watchlist_io import load_watchlist
-
     last_report = get_persistence().daily_report.get_last() or {}
     portfolio_scores = last_report.get("portfolio_scores") or {}
     wl = get_persistence().watchlist.load_all()
@@ -601,28 +599,11 @@ def _watchlist_rank_for_ticker(ticker: str, output_dir: Path) -> tuple[int, int]
     ]
     ticker_scores: dict[str, float] = {}
     for t in wl_tickers:
-        if t == ticker:
-            op_path = output_dir / f"{t}.json"
-            if op_path.exists():
-                try:
-                    j = json.loads(op_path.read_text(encoding="utf-8"))
-                    ticker_scores[t] = float((j.get("scores") or {}).get("total_score") or 0)
-                except Exception:
-                    ticker_scores[t] = 0.0
-            else:
-                ticker_scores[t] = 0.0
-        elif t in portfolio_scores:
+        if t in portfolio_scores:
             ticker_scores[t] = float(portfolio_scores[t])
         else:
-            op_path = output_dir / f"{t}.json"
-            if op_path.exists():
-                try:
-                    j = json.loads(op_path.read_text(encoding="utf-8"))
-                    ticker_scores[t] = float((j.get("scores") or {}).get("total_score") or 0)
-                except Exception:
-                    ticker_scores[t] = 0.0
-            else:
-                ticker_scores[t] = 0.0
+            score = _total_score_from_ticker_analysis(t)
+            ticker_scores[t] = score if score is not None else 0.0
     sorted_tickers = sorted(ticker_scores.keys(), key=lambda x: -(ticker_scores.get(x) or 0))
     rank = sorted_tickers.index(ticker) + 1 if ticker in sorted_tickers else 0
     return rank, len(sorted_tickers)
@@ -691,32 +672,26 @@ def _build_analyze_api_payload(
 
 def _run_dvc_for_ticker(ticker: str) -> None:
     """銘柄の DVC を実行し output/<ticker>.json に保存。scores_history も更新。"""
-    from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data, _now_jst
+    from core.utils.daily_cache import get_macro_and_peers_data, _now_jst
     from core.dvc.scoring import run_dvc_for_ticker
-    from core.utils.io_utils import save_output_json
 
     cfg = _load_validated_config()
-    sector_peers_path = str(Path(cfg.get("sector_peers_path", "data/sector_peers.json")).resolve())
     bench_df, peers_data, _ = get_macro_and_peers_data(
         benchmark_ticker=cfg.get("benchmark_ticker", "1306.T"),
         years=int(cfg.get("years", 5)),
-        sector_peers_path=sector_peers_path,
-        cache_path=str(Path(cfg.get("cache_path", DEFAULT_CACHE_PATH)).resolve()),
         vi_ticker=cfg.get("vi_ticker"),
     )
     result = run_dvc_for_ticker(
         ticker=ticker,
         benchmark_ticker=cfg.get("benchmark_ticker", "1306.T"),
         years=int(cfg.get("years", 5)),
-        sector_peers_path=sector_peers_path,
         llm_enabled=False,
         llm_client=None,
         bench_df=bench_df,
         peers_data=peers_data,
     )
     output_dir = _resolve_output_dir(cfg)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    save_output_json(result, str(output_dir / f"{ticker}.json"))
+    get_persistence().ticker_analysis.save(ticker, result.model_dump(mode="json"))
     today_key = _now_jst().date().isoformat()
     s = result.scores
     get_persistence().score_history.upsert_day(
@@ -879,8 +854,6 @@ def build_watchlist_analysis_index() -> list[dict[str, Any]]:
     企業分析タブ用のウォッチリスト一覧メタデータ。
     watchlist_io と同じパスで読み込む（/watchlist ページと整合）。
     """
-    from core.utils.watchlist_io import load_watchlist
-
     wl = get_persistence().watchlist.load_all()
     last_report = get_persistence().daily_report.get_last() or {}
     names = last_report.get("ticker_names") or {}
@@ -896,18 +869,14 @@ def build_watchlist_analysis_index() -> list[dict[str, Any]]:
         t = (x.get("ticker") or x.get("ticker_symbol") or "").strip()
         if not t:
             continue
-        op_path = output_dir / f"{t}.json"
         total_score = portfolio_scores.get(t)
         name = names.get(t)
-        if op_path.exists():
-            try:
-                j = json.loads(op_path.read_text(encoding="utf-8"))
-                if total_score is None:
-                    total_score = (j.get("scores") or {}).get("total_score")
-                if not name:
-                    name = j.get("name")
-            except (json.JSONDecodeError, OSError):
-                pass
+        analysis = get_persistence().ticker_analysis.get(t)
+        if analysis:
+            if total_score is None:
+                total_score = (analysis.get("scores") or {}).get("total_score")
+            if not name:
+                name = analysis.get("name")
         items.append(
             {
                 "ticker": t,
@@ -915,7 +884,7 @@ def build_watchlist_analysis_index() -> list[dict[str, Any]]:
                 "status": x.get("status") or "WATCHING",
                 "total_score": total_score,
                 "last_close": last_prices.get(t),
-                "has_output": op_path.exists(),
+                "has_output": analysis is not None,
             }
         )
     return items
@@ -933,16 +902,9 @@ def get_ticker_analysis(ticker: str) -> dict:
     normalized = _normalize_ticker(ticker)
     cfg = _load_validated_config()
     output_dir = _resolve_output_dir(cfg)
-    op_path = output_dir / f"{normalized}.json"
-    if not op_path.exists():
+    d = get_persistence().ticker_analysis.get(normalized)
+    if d is None:
         raise HTTPException(status_code=404, detail=f"{normalized} の分析結果がありません。")
-    try:
-        d = json.loads(op_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError) as e:
-        raise HTTPException(
-            status_code=500,
-            detail=_server_error_detail(f"分析 JSON の読み込みに失敗しました: {e}"),
-        ) from e
     if not isinstance(d, dict):
         raise HTTPException(status_code=404, detail=f"{normalized} の分析結果がありません。")
     return _build_analyze_api_payload(

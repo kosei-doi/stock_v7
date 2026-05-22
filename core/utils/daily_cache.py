@@ -116,8 +116,12 @@ def cache_is_fresh(
     return updated_date_val >= last_biz
 
 
-def load_cache(path: str) -> dict | None:
-    """daily_cache.json を読み込む。存在しないか不正な場合は None。"""
+def load_cache(path: str | None = None) -> dict | None:
+    """マーケットキャッシュを読み込む。path 省略時は get_persistence().market_cache。"""
+    if path is None:
+        from core.persistence.access import get_persistence
+
+        return get_persistence().market_cache.load()
     p = Path(path)
     if not p.exists():
         return None
@@ -125,6 +129,21 @@ def load_cache(path: str) -> dict | None:
         return json.loads(p.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return None
+
+
+def _save_market_cache(cache: dict[str, Any], cache_path: str | None = None) -> None:
+    if cache_path is None:
+        from core.persistence.access import get_persistence
+
+        get_persistence().market_cache.save(cache)
+        return
+    try:
+        Path(cache_path).write_text(
+            json.dumps(cache, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    except OSError as e:
+        raise OSError(f"キャッシュの書き込みに失敗しました: {cache_path}: {e}") from e
 
 
 def _dataframe_to_cache(df: pd.DataFrame) -> dict:
@@ -196,7 +215,7 @@ def fetch_and_save_cache(
     benchmark_ticker: str,
     years: int,
     peers_tickers: list[str],
-    cache_path: str,
+    cache_path: str | None = None,
     vi_ticker: Optional[str] = None,
 ) -> tuple[pd.DataFrame, dict[str, dict[str, Any]], Optional[pd.Series]]:
     """
@@ -239,21 +258,15 @@ def fetch_and_save_cache(
             "vi_ticker": vi_ticker,
             "vi_history": vi_history_cache,
         }
-        try:
-            Path(cache_path).write_text(
-                json.dumps(cache, ensure_ascii=False, indent=2),
-                encoding="utf-8",
-            )
-        except OSError as e:
-            raise OSError(f"キャッシュの書き込みに失敗しました: {cache_path}: {e}") from e
+        _save_market_cache(cache, cache_path)
     return bench_df, peers_data, vi_series
 
 
 def get_macro_and_peers_data(
     benchmark_ticker: str,
     years: int,
-    sector_peers_path: str,
-    cache_path: str = DEFAULT_CACHE_PATH,
+    sector_peers_path: str | None = None,
+    cache_path: str | None = None,
     vi_ticker: Optional[str] = None,
     now: Optional[datetime] = None,
     cutoff_hour: int = DEFAULT_CACHE_CUTOFF_HOUR,
@@ -273,9 +286,17 @@ def get_macro_and_peers_data(
     """
     from core.dvc.data_fetcher import fetch_sector_peers_map
 
-    peers_map = fetch_sector_peers_map(sector_peers_path)
+    if sector_peers_path:
+        peers_map = fetch_sector_peers_map(sector_peers_path)
+    else:
+        from core.persistence.access import get_persistence
+
+        peers_map = get_persistence().sector_peers.load()
     all_tickers = _all_peer_tickers_from_map(peers_map)
-    cache = load_cache(cache_path)
+    resolved_cache_path = cache_path
+    if resolved_cache_path is None and sector_peers_path:
+        resolved_cache_path = DEFAULT_CACHE_PATH
+    cache = load_cache(resolved_cache_path if resolved_cache_path else None)
 
     if cache_is_fresh(
         cache,

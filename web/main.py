@@ -94,11 +94,12 @@ def create_app():
         holdings = []
         cash_yen = 0
         try:
-            from web.api import _read_json, _get_positions_from_watchlist, _get_cash_yen
+            from core.persistence import get_persistence
+            from web.api import _get_positions_from_watchlist, _get_cash_yen
             pos = _get_positions_from_watchlist()
             if not isinstance(pos, dict):
                 pos = {}
-            last_report = _read_json(PROJECT_ROOT / "data" / "last_report.json")
+            last_report = get_persistence().daily_report.get_last() or {}
             names = (last_report or {}).get("ticker_names") or {}
             last_prices = (last_report or {}).get("last_prices") or {}
             holdings = [
@@ -121,11 +122,9 @@ def create_app():
 
     @app.get("/watchlist", response_class=HTMLResponse)
     async def watchlist(request: Request):
-        from web.api import _read_json
-        wl = _read_json(PROJECT_ROOT / "data" / "watchlist.json")
-        if not isinstance(wl, list):
-            wl = []
-        last_report = _read_json(PROJECT_ROOT / "data" / "last_report.json")
+        from core.persistence import get_persistence
+        wl = get_persistence().watchlist.load_all()
+        last_report = get_persistence().daily_report.get_last() or {}
         names = (last_report or {}).get("ticker_names") or {}
         prices = (last_report or {}).get("last_prices") or {}
         list_with_names = [{"ticker": (x.get("ticker") or x.get("ticker_symbol") or ""), "status": x.get("status", "WATCHING"), "name": names.get(x.get("ticker") or x.get("ticker_symbol") or "", "-"), "price": prices.get((x.get("ticker") or x.get("ticker_symbol") or ""))} for x in wl]

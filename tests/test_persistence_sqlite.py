@@ -11,8 +11,11 @@ from core.persistence import (
     set_persistence,
 )
 from core.persistence.sqlite_daily_report import SqliteDailyReportRepository
+from core.persistence.sqlite_market_cache import SqliteMarketCacheRepository
 from core.persistence.sqlite_run_job import SqliteRunJobRepository
 from core.persistence.sqlite_score_history import SqliteScoreHistoryRepository
+from core.persistence.sqlite_sector_peers import SqliteSectorPeersRepository
+from core.persistence.sqlite_ticker_analysis import SqliteTickerAnalysisRepository
 from core.persistence.sqlite_watchlist import SqliteWatchlistRepository
 from core.utils.watchlist_io import STATUS_HOLDING, STATUS_WATCHING
 
@@ -79,6 +82,26 @@ def test_sqlite_daily_report_and_run_job(tmp_path):
     repos.run_job.update_status("running", "step 1", step=2)
     assert repos.run_job.get_status()["status"] == "running"
     assert repos.run_job.get_status()["step"] == 2
+
+
+def test_sqlite_market_cache_sector_peers_ticker_analysis(tmp_path):
+    paths = _paths(tmp_path)
+    url = "sqlite:///:memory:"
+    repos = build_sqlite_repositories(paths, database_url=url)
+    assert isinstance(repos.market_cache, SqliteMarketCacheRepository)
+    assert isinstance(repos.sector_peers, SqliteSectorPeersRepository)
+    assert isinstance(repos.ticker_analysis, SqliteTickerAnalysisRepository)
+
+    repos.market_cache.save({"updated_date": "2026-05-22", "benchmark_ticker": "1306.T"})
+    assert repos.market_cache.load()["benchmark_ticker"] == "1306.T"
+
+    repos.sector_peers.save({"Technology": ["6758.T"]})
+    assert repos.sector_peers.load()["Technology"] == ["6758.T"]
+
+    payload = {"ticker": "7203.T", "scores": {"total_score": 65.0}}
+    repos.ticker_analysis.save("7203.T", payload)
+    assert repos.ticker_analysis.get("7203.T") == payload
+    assert "7203.T" in repos.ticker_analysis.list_tickers()
 
 
 def test_build_repositories_sqlite_backend(tmp_path, monkeypatch):

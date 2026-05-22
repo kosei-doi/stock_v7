@@ -22,9 +22,12 @@ from core.persistence.protocols import (
     WatchlistRepository,
 )
 from core.persistence.sqlite_daily_report import SqliteDailyReportRepository
+from core.persistence.sqlite_market_cache import SqliteMarketCacheRepository
 from core.persistence.sqlite_portfolio import SqlitePortfolioRepository
 from core.persistence.sqlite_run_job import SqliteRunJobRepository
 from core.persistence.sqlite_score_history import SqliteScoreHistoryRepository
+from core.persistence.sqlite_sector_peers import SqliteSectorPeersRepository
+from core.persistence.sqlite_ticker_analysis import SqliteTickerAnalysisRepository
 from core.persistence.sqlite_watchlist import SqliteWatchlistRepository
 
 
@@ -61,7 +64,7 @@ def build_sqlite_repositories(
     paths: PersistencePaths | None = None,
     database_url: str | None = None,
 ) -> PersistenceBundle:
-    """SQLite: watchlist/portfolio + daily_report/score_history/run_job、他は File。"""
+    """SQLite: 全 Repository を DB に構築する。"""
     from core.persistence.db import resolve_database_url
 
     resolved = paths or PersistencePaths.from_project_root()
@@ -73,7 +76,7 @@ def build_sqlite_repositories(
         daily_report=SqliteDailyReportRepository(resolved, url),
         score_history=SqliteScoreHistoryRepository(resolved, url),
         run_job=SqliteRunJobRepository(resolved, url),
-        market_cache=FileMarketCacheRepository(resolved),
-        sector_peers=FileSectorPeersRepository(resolved),
-        ticker_analysis=FileTickerAnalysisRepository(resolved),
+        market_cache=SqliteMarketCacheRepository(resolved, url),
+        sector_peers=SqliteSectorPeersRepository(resolved, url),
+        ticker_analysis=SqliteTickerAnalysisRepository(resolved, url),
     )
