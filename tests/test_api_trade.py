@@ -6,37 +6,19 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
-from core.persistence import (
-    PersistencePaths,
-    build_file_repositories,
-    reset_persistence,
-    set_persistence,
-)
-
-DPA_CLIENT_HEADERS = {"X-DPA-Client": "1"}
+from tests.conftest import DPA_CLIENT_HEADERS
 
 
 @pytest.fixture
-def trade_env(tmp_path, monkeypatch):
-    """取引 API 用の一時ファイルと TestClient。"""
-    monkeypatch.delenv("DPA_API_KEY", raising=False)
-    reset_persistence()
-
-    output_dir = tmp_path / "output"
-    output_dir.mkdir()
-    paths = PersistencePaths(
-        project_root=tmp_path,
-        data_dir=tmp_path,
-        output_dir=output_dir,
+def trade_env(file_persistence, monkeypatch):
+    """取引 API 用の File 永続化と TestClient。"""
+    bundle, paths = file_persistence
+    paths.watchlist_path.write_text("[]", encoding="utf-8")
+    paths.portfolio_path.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
+    paths.last_report_path.write_text(
+        json.dumps({"last_prices": {"7203.T": 2500.0}}),
+        encoding="utf-8",
     )
-    set_persistence(build_file_repositories(paths))
-
-    wl = paths.watchlist_path
-    wl.write_text("[]", encoding="utf-8")
-    portfolio = paths.portfolio_path
-    portfolio.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
-    last_report = paths.last_report_path
-    last_report.write_text(json.dumps({"last_prices": {"7203.T": 2500.0}}), encoding="utf-8")
 
     import web.api as api
 
@@ -45,8 +27,7 @@ def trade_env(tmp_path, monkeypatch):
     from web.main import create_app
 
     client = TestClient(create_app())
-    yield client, wl, portfolio, last_report
-    reset_persistence()
+    yield client, paths
 
 
 def test_trade_purchase_requires_api_key_when_set(trade_env, monkeypatch):
@@ -66,8 +47,8 @@ def test_trade_purchase_requires_api_key_when_set(trade_env, monkeypatch):
 
 
 def test_trade_purchase_rejects_insufficient_cash(trade_env):
-    client, _, portfolio, _ = trade_env
-    portfolio.write_text(json.dumps({"cash_yen": 1000}), encoding="utf-8")
+    client, paths = trade_env
+    paths.portfolio_path.write_text(json.dumps({"cash_yen": 1000}), encoding="utf-8")
 
     resp = client.post(
         "/api/trade/purchase",
@@ -79,12 +60,12 @@ def test_trade_purchase_rejects_insufficient_cash(trade_env):
 
 
 def test_trade_purchase_normalizes_ticker(trade_env):
-    client, wl, portfolio, _ = trade_env
-    wl.write_text(
+    client, paths = trade_env
+    paths.watchlist_path.write_text(
         json.dumps([{"ticker": "7203.T", "status": "WATCHING"}]),
         encoding="utf-8",
     )
-    portfolio.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
+    paths.portfolio_path.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
 
     resp = client.post(
         "/api/trade/purchase",
@@ -94,7 +75,7 @@ def test_trade_purchase_normalizes_ticker(trade_env):
     assert resp.status_code == 200
     assert resp.json()["ok"] is True
 
-    items = json.loads(wl.read_text(encoding="utf-8"))
+    items = json.loads(paths.watchlist_path.read_text(encoding="utf-8"))
     holding = next(i for i in items if i.get("ticker") == "7203.T")
     assert holding["status"] == "HOLDING"
     assert holding["shares"] == 100
@@ -102,12 +83,12 @@ def test_trade_purchase_normalizes_ticker(trade_env):
 
 
 def test_trade_sale_rejects_missing_price(trade_env):
-    client, wl, _, last_report = trade_env
-    wl.write_text(
+    client, paths = trade_env
+    paths.watchlist_path.write_text(
         json.dumps([{"ticker": "7203.T", "status": "HOLDING", "shares": 200}]),
         encoding="utf-8",
     )
-    last_report.write_text(json.dumps({"last_prices": {}}), encoding="utf-8")
+    paths.last_report_path.write_text(json.dumps({"last_prices": {}}), encoding="utf-8")
 
     resp = client.post(
         "/api/trade/sale",
@@ -119,8 +100,8 @@ def test_trade_sale_rejects_missing_price(trade_env):
 
 
 def test_trade_sale_rejects_not_holding(trade_env):
-    client, wl, _, _ = trade_env
-    wl.write_text(
+    client, paths = trade_env
+    paths.watchlist_path.write_text(
         json.dumps([{"ticker": "7203.T", "status": "WATCHING"}]),
         encoding="utf-8",
     )
@@ -135,8 +116,8 @@ def test_trade_sale_rejects_not_holding(trade_env):
 
 
 def test_trade_sale_rejects_excess_shares(trade_env):
-    client, wl, _, _ = trade_env
-    wl.write_text(
+    client, paths = trade_env
+    paths.watchlist_path.write_text(
         json.dumps([{"ticker": "7203.T", "status": "HOLDING", "shares": 100}]),
         encoding="utf-8",
     )
@@ -152,12 +133,12 @@ def test_trade_sale_rejects_excess_shares(trade_env):
 
 def test_trade_purchase_floors_fractional_cost(trade_env):
     """購入額・現金残高は整数円（切り捨て）。"""
-    client, wl, portfolio, _ = trade_env
-    wl.write_text(
+    client, paths = trade_env
+    paths.watchlist_path.write_text(
         json.dumps([{"ticker": "7203.T", "status": "WATCHING"}]),
         encoding="utf-8",
     )
-    portfolio.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
+    paths.portfolio_path.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
 
     resp = client.post(
         "/api/trade/purchase",
@@ -167,19 +148,19 @@ def test_trade_purchase_floors_fractional_cost(trade_env):
     assert resp.status_code == 200
     assert resp.json()["cash_yen"] == 750_000
 
-    items = json.loads(wl.read_text(encoding="utf-8"))
+    items = json.loads(paths.watchlist_path.read_text(encoding="utf-8"))
     holding = next(i for i in items if i.get("ticker") == "7203.T")
     assert holding["avg_price"] == 2500
     assert holding["shares"] == 100
 
 
 def test_trade_sale_normalizes_ticker(trade_env):
-    client, wl, portfolio, _ = trade_env
-    wl.write_text(
+    client, paths = trade_env
+    paths.watchlist_path.write_text(
         json.dumps([{"ticker": "7203.T", "status": "HOLDING", "shares": 200}]),
         encoding="utf-8",
     )
-    portfolio.write_text(json.dumps({"cash_yen": 0}), encoding="utf-8")
+    paths.portfolio_path.write_text(json.dumps({"cash_yen": 0}), encoding="utf-8")
 
     resp = client.post(
         "/api/trade/sale",
@@ -189,6 +170,35 @@ def test_trade_sale_normalizes_ticker(trade_env):
     assert resp.status_code == 200
     assert resp.json()["cash_yen"] == pytest.approx(250_000.0)
 
-    items = json.loads(wl.read_text(encoding="utf-8"))
+    items = json.loads(paths.watchlist_path.read_text(encoding="utf-8"))
     holding = next(i for i in items if i.get("ticker") == "7203.T")
+    assert holding["shares"] == 100
+
+
+def test_trade_purchase_with_sqlite(sqlite_persistence, monkeypatch):
+    """SQLite :memory: で購入・現金控除・HOLDING 更新。"""
+    bundle, _paths = sqlite_persistence
+    bundle.watchlist.save_all([{"ticker": "7203.T", "status": "WATCHING"}])
+    bundle.portfolio.set_cash_yen(1_000_000)
+    bundle.daily_report.save_last({"last_prices": {"7203.T": 2500.0}})
+
+    import web.api as api
+
+    monkeypatch.setattr(api, "_run_dvc_for_ticker", lambda _ticker: None)
+
+    from web.main import create_app
+
+    client = TestClient(create_app())
+    resp = client.post(
+        "/api/trade/purchase",
+        json={"ticker": "7203", "shares": 100, "avg_price": 2500.0},
+        headers=DPA_CLIENT_HEADERS,
+    )
+    assert resp.status_code == 200
+    assert resp.json()["cash_yen"] == 750_000
+    assert bundle.portfolio.get_cash_yen() == 750_000
+    holding = next(
+        i for i in bundle.watchlist.load_all() if (i.get("ticker") or "") == "7203.T"
+    )
+    assert holding["status"] == "HOLDING"
     assert holding["shares"] == 100

@@ -27,17 +27,15 @@ flowchart LR
     UTL[core/utils/*]
   end
 
-  subgraph DATA["永続データ"]
+  subgraph PERSIST["core/persistence"]
+    GP[get_persistence]
+    DB[(data/dpa.db)]
+  end
+
+  subgraph DATA["設定・機密"]
     CFG[config.yaml]
-    WL[data/watchlist.json]
-    PS[portfolio_state.json]
-    SH[data/scores_history.json]
-    LC[data/daily_cache.json]
-    OUT[output/*.json]
-    LR[data/last_report.json]
-    PR[data/previous_report.json]
-    RS[data/run_status.json]
     TK[token.json]
+    JSON[JSON files<br/>file backend / 移行元]
   end
 
   UI --> MAIN --> API
@@ -45,15 +43,14 @@ flowchart LR
   DR --> DVC
   DR --> DPA
   DR --> UTL
+  API --> GP
+  DR --> GP
+  GP --> DB
+  GP -.->|DPA_PERSISTENCE=file| JSON
   API --> CFG
-  API --> WL
-  API --> PS
-  DR --> SH
-  DR --> OUT
-  DR --> LR
-  DR --> PR
-  DR --> LC
 ```
+
+永続化の切替は環境変数 `DPA_PERSISTENCE`（`file` | `sqlite`、既定 `file`）。SQLite 時の SoT は `data/dpa.db`。JSON パス（`watchlist.json` 等）は File バックエンドまたは [`scripts/migrate_json_to_db.py`](../scripts/migrate_json_to_db.py) 移行元。詳細は [`docs/ADR-001-database.md`](ADR-001-database.md)。
 
 ## 2. Web ルーティング構成
 
@@ -89,7 +86,7 @@ sequenceDiagram
   participant DC as daily_cache
   participant DVC as scoring.py
   participant DPA as dpa/*
-  participant FS as JSON files
+  participant PERS as get_persistence
 
   U->>DR: run_daily_routine()
   DR->>DB: run_dvc_for_watchlist()
@@ -98,16 +95,16 @@ sequenceDiagram
   loop each ticker
     DB->>DVC: run_dvc_for_ticker()
     DVC-->>DB: DvcScoreOutput
-    DB->>FS: write output/<ticker>.json
+    DB->>PERS: ticker_analysis.save
   end
-  DB->>FS: update scores_history.json
+  DB->>PERS: score_history.upsert_day
   DR->>DPA: get_macro_state()
   DR->>DPA: compute_score_trend() per ticker
   DR->>DPA: compute_portfolio_total_score()
   DR->>DPA: compute_target_weights()
   DR->>DPA: run_purge()
   DR->>DPA: run_draft()
-  DR->>FS: write last_report.json / previous_report.json
+  DR->>PERS: daily_report.save_last_with_date_rotation
 ```
 
 ## 4. DVC 内部構成
@@ -151,9 +148,9 @@ flowchart LR
 ```mermaid
 flowchart TD
   IN[get_macro_and_peers_data] --> CHK{cache_is_fresh?}
-  CHK -->|Yes| LOAD[daily_cache.json 読込]
+  CHK -->|Yes| LOAD[market_cache.load]
   CHK -->|No| FETCH[yfinance 取得]
-  FETCH --> SAVE[daily_cache.json 保存]
+  FETCH --> SAVE[market_cache.save]
   LOAD --> OUT[bench_df, peers_data, vi_series]
   SAVE --> OUT
 ```
@@ -164,9 +161,8 @@ fresh 判定は `updated_date` だけでなく、平日/週末とカットオフ
 
 `/api/report/merged` は以下を統合します。
 
-- `last_report.json`
-- `previous_report.json`
-- `watchlist` 由来 positions
+- `daily_report.get_last()` / `get_previous()`
+- `watchlist` 由来 positions（`get_positions()`）
 
 生成フィールド:
 
@@ -194,7 +190,7 @@ fresh 判定は `updated_date` だけでなく、平日/週末とカットオフ
 flowchart TD
   CRON[cron/systemd timer] --> SDR[send_daily_report.py]
   SDR --> DR[daily_routine.py 実行]
-  DR --> LR[last_report.json 更新]
+  DR --> PERS2[get_persistence<br/>daily_report]
   SDR --> GM[Gmail API]
   GM --> MAIL[自分宛てメール]
 ```
@@ -239,9 +235,25 @@ flowchart TD
 ### 10.5 Utils
 
 - `core/utils/config_loader.py`: 設定読込・補正
-- `core/utils/daily_cache.py`: マクロ/ピア日次キャッシュ
-- `core/utils/watchlist_io.py`: watchlist SoT 操作
-- `core/utils/io_utils.py`: JSON 保存・概要整形
+- `core/utils/daily_cache.py`: マクロ/ピア日次キャッシュ（内部は `market_cache` / `sector_peers` Repository）
+- `core/utils/watchlist_io.py`: watchlist 読込ヘルパ（API 一部・File ミラー）
+- `core/utils/io_utils.py`: JSON 保存・概要整形（CLI 向け）
+
+### 10.6 Persistence（`core/persistence/`）
+
+| Repository | 旧 JSON / パス |
+|------------|----------------|
+| `watchlist` | `data/watchlist.json` |
+| `portfolio` | `portfolio_state.json` |
+| `daily_report` | `last_report.json` / `previous_report.json` |
+| `score_history` | `data/scores_history.json` |
+| `run_job` | `data/run_status.json` |
+| `market_cache` | `data/daily_cache.json` |
+| `sector_peers` | `data/sector_peers.json` |
+| `ticker_analysis` | `output/<ticker>.json` |
+
+- [`access.py`](../core/persistence/access.py): `get_persistence()` / `set_persistence()` / `DPA_PERSISTENCE`
+- [`factory.py`](../core/persistence/factory.py): `build_file_repositories` / `build_sqlite_repositories`
 
 ## 11. テスト構成（仕様検証レイヤ）
 
@@ -255,3 +267,7 @@ flowchart TD
 - `tests/test_config_loader.py`: 設定補完・watchlist 上限読込検証
 - `tests/test_api_settings_save.py`: `/api/settings/update` 変換保存検証
 - `tests/test_daily_cache_fresh.py`: キャッシュ fresh 判定検証
+- `tests/conftest.py`: `file_persistence` / `sqlite_persistence`（`:memory:`）共通フィクスチャ
+- `tests/test_persistence_file.py` / `tests/test_persistence_sqlite.py`: Repository スモーク
+- `tests/test_migrate_json_to_db.py`: JSON → SQLite import
+- `tests/test_api_*_sqlite.py` 等: API の SQLite 回帰（DB-7）

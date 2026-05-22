@@ -6,45 +6,25 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
-from core.persistence import (
-    PersistencePaths,
-    build_file_repositories,
-    reset_persistence,
-    set_persistence,
-)
-
-DPA_CLIENT_HEADERS = {"X-DPA-Client": "1"}
+from tests.conftest import DPA_CLIENT_HEADERS
 
 
 @pytest.fixture
-def settings_client(tmp_path, monkeypatch):
-    monkeypatch.delenv("DPA_API_KEY", raising=False)
-    reset_persistence()
-
-    output_dir = tmp_path / "output"
-    output_dir.mkdir()
-    paths = PersistencePaths(
-        project_root=tmp_path,
-        data_dir=tmp_path,
-        output_dir=output_dir,
-    )
-    set_persistence(build_file_repositories(paths))
-
+def settings_client(file_persistence, monkeypatch):
+    bundle, paths = file_persistence
     paths.portfolio_path.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
-    config = tmp_path / "config.yaml"
+    config = paths.project_root / "config.yaml"
     config.write_text("benchmark_ticker: 1306.T\nyears: 5\ndpa: {}\n", encoding="utf-8")
 
     import web.api as api
 
     monkeypatch.setattr(api, "CONFIG_PATH", config)
-    monkeypatch.setattr(api, "PROJECT_ROOT", tmp_path)
-    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(api, "PROJECT_ROOT", paths.project_root)
+    monkeypatch.chdir(paths.project_root)
 
     from web.main import create_app
 
-    client = TestClient(create_app())
-    yield client
-    reset_persistence()
+    return TestClient(create_app())
 
 
 def test_settings_update_rejects_unknown_field(settings_client):
@@ -65,7 +45,7 @@ def test_settings_update_rejects_out_of_range_watchlist_max(settings_client):
     assert resp.status_code == 422
 
 
-def test_settings_update_accepts_valid_patch(settings_client, tmp_path, monkeypatch):
+def test_settings_update_accepts_valid_patch(settings_client, monkeypatch):
     import web.api as api
 
     monkeypatch.setattr(
@@ -81,6 +61,30 @@ def test_settings_update_accepts_valid_patch(settings_client, tmp_path, monkeypa
     assert resp.status_code == 200
     assert resp.json()["ok"] is True
 
+
+def test_settings_update_cash_sqlite(sqlite_persistence, monkeypatch):
+    """SQLite portfolio で cash_yen 更新。"""
+    bundle, paths = sqlite_persistence
+    bundle.portfolio.set_cash_yen(1_000_000)
+    config = paths.project_root / "config.yaml"
+    config.write_text("benchmark_ticker: 1306.T\nyears: 5\ndpa: {}\n", encoding="utf-8")
+
+    import web.api as api
+
+    monkeypatch.setattr(api, "CONFIG_PATH", config)
+    monkeypatch.setattr(api, "PROJECT_ROOT", paths.project_root)
+    monkeypatch.chdir(paths.project_root)
+
+    from web.main import create_app
+
+    client = TestClient(create_app())
+    resp = client.post(
+        "/api/settings/update",
+        json={"cash_yen": 2_500_000},
+        headers=DPA_CLIENT_HEADERS,
+    )
+    assert resp.status_code == 200
+    assert bundle.portfolio.get_cash_yen() == 2_500_000
 
 
 def test_flat_to_config_repairs_null_watchlist(monkeypatch):

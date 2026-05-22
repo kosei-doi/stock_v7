@@ -396,6 +396,45 @@ sudo systemctl restart dpa_web
 
 `data/dpa.db` は Git に含めない（`.gitignore` 済み）。
 
+### 6. 移行後の整合チェック（受入）
+
+切替・再起動後、次を確認する。
+
+**ブラウザ（自宅 IP から）**
+
+- [ ] ダッシュボード（`/`）が開き、レポート要約が表示される
+- [ ] レポート（`/report`）、取引（`/trade`）、企業分析（`/analyze`）、ウォッチリスト（`/watchlist`）がエラーなく表示される
+
+**API（VPS 上または SSH トンネル）**
+
+```bash
+curl -s http://127.0.0.1:8000/api/status | head
+curl -s http://127.0.0.1:8000/api/report/merged | head
+curl -s http://127.0.0.1:8000/api/watchlist | head
+```
+
+- [ ] `status` が `idle` または直近バッチ結果と一致
+- [ ] `report/merged` の `report.data_date` が移行前の `last_report.json` と一致
+- [ ] `watchlist` の銘柄数が移行前と一致
+
+**DB（VPS）**
+
+```bash
+cd /opt/dpa_app
+sqlite3 data/dpa.db "SELECT COUNT(*) FROM watchlist_items;"
+sqlite3 data/dpa.db "SELECT cash_yen FROM portfolio_state WHERE id=1;"
+sqlite3 data/dpa.db "SELECT data_date FROM daily_reports WHERE report_kind='last';"
+sqlite3 data/dpa.db "SELECT COUNT(*) FROM ticker_analyses;"
+```
+
+- [ ] 現金残高・保有銘柄数・最新 `data_date`・分析件数が dry-run ログと一致
+
+**バッチ**
+
+- [ ] 画面から日次バッチを 1 回実行し、`/api/status` が `completed` になる（またはメール通知が届く）
+
+問題がある場合は [§5 ロールバック](#5-ロールバック) のとおり `DPA_PERSISTENCE` を `file` に戻し、`.bak` から JSON を復元する。
+
 ---
 
 ## 関連ドキュメント
