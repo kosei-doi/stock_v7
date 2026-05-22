@@ -250,6 +250,7 @@ git commit -m "Stop tracking OAuth credentials"
 - `systemctl restart dpa_web`（または使っているプロセス管理）済み
 - `http://VPSのIP:8000` が開く
 - `git pull` 後に `config.yaml`・`data/` などが **GitHub の最新コミットと一致**している（必要なら `git status` でクリーン）
+- Mac / VPS とも `git ls-files` に `token.json`・`credentials.json` が**含まれない**（追跡外化済みであること）
 - `token.json` 等の機密が VPS に **手動配置済み**である
 
 ---
