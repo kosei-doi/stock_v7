@@ -190,6 +190,8 @@ GitHub Issue 作成時は下記タイトル・本文をそのまま使えます�
 
 **Labels:** `enhancement`, `docs`
 
+**ADR:** [`docs/ADR-001-database.md`](ADR-001-database.md)（SQLite 一本化・スキーマ・移行方針）
+
 **エージェント可:** スキーマ草案、`docs/ADR-001-database.md`、ER 図  
 **ユーザー判断:** SQLite のみか VPS で PostgreSQL か、ホスティング
 
