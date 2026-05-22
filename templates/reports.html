@@ -1,0 +1,506 @@
+{% extends "base.html" %}
+{% block title %}投資レポート - DPA{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+  <!-- Header + 期間トグル -->
+  <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+    <div>
+      <h2 class="text-xl md:text-2xl font-bold text-slate-100">投資レポート</h2>
+      <p id="period-label" class="text-xs text-slate-500 mt-1">—</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="inline-flex rounded-lg overflow-hidden border border-slate-700">
+        <button id="g-month" type="button" class="g-btn px-3 py-1.5 text-sm font-semibold bg-amber-500 text-slate-900" data-g="month">月次</button>
+        <button id="g-year" type="button" class="g-btn px-3 py-1.5 text-sm bg-slate-800 text-slate-300" data-g="year">年次</button>
+      </div>
+      <select id="period-select"
+        class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-600 text-sm text-slate-100 focus:ring-2 focus:ring-amber-500/50"></select>
+      <button id="period-prev" type="button" title="前へ"
+        class="px-2 py-1.5 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700">
+        <i class="fas fa-chevron-left text-xs"></i>
+      </button>
+      <button id="period-next" type="button" title="次へ"
+        class="px-2 py-1.5 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700">
+        <i class="fas fa-chevron-right text-xs"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4">
+      <p class="text-xs text-slate-400 mb-1">期末総資産</p>
+      <p id="kpi-end-total" class="text-lg md:text-xl font-bold text-amber-400 tabular-nums">—</p>
+      <p id="kpi-end-date" class="text-[10px] text-slate-500 mt-1">—</p>
+    </div>
+    <div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4">
+      <p class="text-xs text-slate-400 mb-1">期間損益</p>
+      <p id="kpi-return" class="text-lg md:text-xl font-bold tabular-nums">—</p>
+      <p id="kpi-return-pct" class="text-[10px] text-slate-500 mt-1">—</p>
+    </div>
+    <div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4">
+      <p class="text-xs text-slate-400 mb-1">期間内 実現損益</p>
+      <p id="kpi-realized" class="text-lg md:text-xl font-bold tabular-nums">—</p>
+      <p id="kpi-realized-sub" class="text-[10px] text-slate-500 mt-1">—</p>
+    </div>
+    <div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4">
+      <p class="text-xs text-slate-400 mb-1">取引件数（買 / 売）</p>
+      <p id="kpi-trades" class="text-lg md:text-xl font-bold tabular-nums text-slate-100">—</p>
+      <p id="kpi-flow" class="text-[10px] text-slate-500 mt-1">—</p>
+    </div>
+  </section>
+
+  <!-- 補助 KPI -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="rounded-xl border border-slate-700 bg-slate-800/40 p-3">
+      <p class="text-[11px] text-slate-400 mb-1">期初総資産</p>
+      <p id="kpi-start-total" class="text-sm font-semibold text-slate-200 tabular-nums">—</p>
+      <p id="kpi-start-date" class="text-[10px] text-slate-500 mt-0.5">—</p>
+    </div>
+    <div class="rounded-xl border border-slate-700 bg-slate-800/40 p-3">
+      <p class="text-[11px] text-slate-400 mb-1">期末 現金 / 株式</p>
+      <p id="kpi-split" class="text-sm font-semibold text-slate-200 tabular-nums">—</p>
+    </div>
+    <div class="rounded-xl border border-slate-700 bg-slate-800/40 p-3">
+      <p class="text-[11px] text-slate-400 mb-1">期間 高値</p>
+      <p id="kpi-max" class="text-sm font-semibold text-emerald-400/90 tabular-nums">—</p>
+    </div>
+    <div class="rounded-xl border border-slate-700 bg-slate-800/40 p-3">
+      <p class="text-[11px] text-slate-400 mb-1">期間 安値</p>
+      <p id="kpi-min" class="text-sm font-semibold text-rose-400/90 tabular-nums">—</p>
+    </div>
+  </section>
+
+  <!-- 資産推移 -->
+  <section class="rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+    <div class="flex items-baseline justify-between mb-3">
+      <h3 class="text-sm font-semibold text-slate-200">資産推移</h3>
+      <p class="text-[11px] text-slate-500">線: 総資産 / 現金 / 株式評価額</p>
+    </div>
+    <div class="h-64 md:h-80"><canvas id="asset-chart"></canvas></div>
+    <p id="asset-empty" class="hidden text-center text-xs text-slate-500 mt-3">この期間のスナップショットがありません。日次バッチを実行するか、取引を記録すると蓄積されます。</p>
+  </section>
+
+  <!-- 実現損益（銘柄別） -->
+  <section class="rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+    <div class="flex items-baseline justify-between mb-3">
+      <h3 class="text-sm font-semibold text-slate-200">銘柄別 実現損益</h3>
+      <p id="realized-summary" class="text-[11px] text-slate-500">—</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-slate-500 border-b border-slate-700">
+            <th class="px-3 py-2 text-left font-medium">コード</th>
+            <th class="px-3 py-2 text-left font-medium">銘柄名</th>
+            <th class="px-3 py-2 text-right font-medium">実現損益</th>
+            <th class="px-3 py-2 text-right font-medium">売却代金</th>
+            <th class="px-3 py-2 text-right font-medium">売却回数</th>
+          </tr>
+        </thead>
+        <tbody id="realized-rows" class="divide-y divide-slate-700/80"></tbody>
+      </table>
+      <p id="realized-empty" class="hidden text-center text-xs text-slate-500 py-4">この期間に売却はありません。</p>
+    </div>
+  </section>
+
+  <!-- 取引活動サマリ -->
+  <section class="rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+    <h3 class="text-sm font-semibold text-slate-200 mb-3">取引活動サマリ</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <div class="grid grid-cols-3 gap-2 text-center mb-3">
+          <div class="rounded-lg bg-slate-900/60 border border-slate-700 px-3 py-2">
+            <p class="text-[10px] text-slate-400 mb-0.5">購入額</p>
+            <p id="act-buy" class="text-sm font-bold text-rose-400 tabular-nums">—</p>
+          </div>
+          <div class="rounded-lg bg-slate-900/60 border border-slate-700 px-3 py-2">
+            <p class="text-[10px] text-slate-400 mb-0.5">売却額</p>
+            <p id="act-sell" class="text-sm font-bold text-emerald-400 tabular-nums">—</p>
+          </div>
+          <div class="rounded-lg bg-slate-900/60 border border-slate-700 px-3 py-2">
+            <p class="text-[10px] text-slate-400 mb-0.5">純資金移動</p>
+            <p id="act-net" class="text-sm font-bold tabular-nums">—</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="text-[11px] text-slate-400 mb-2">最も取引した銘柄 (TOP 5)</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead><tr class="text-slate-500 border-b border-slate-700">
+              <th class="px-2 py-1 text-left font-medium">コード</th>
+              <th class="px-2 py-1 text-left font-medium">銘柄</th>
+              <th class="px-2 py-1 text-right font-medium">回数(買/売)</th>
+              <th class="px-2 py-1 text-right font-medium">取引額</th>
+            </tr></thead>
+            <tbody id="most-traded-rows" class="divide-y divide-slate-700/80"></tbody>
+          </table>
+          <p id="most-traded-empty" class="hidden text-center text-xs text-slate-500 py-2">該当なし</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 期末保有銘柄 -->
+  <section class="rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+    <div class="flex items-baseline justify-between mb-3">
+      <h3 class="text-sm font-semibold text-slate-200">保有銘柄の含み損益</h3>
+      <p id="holdings-totals" class="text-[11px] text-slate-500">—</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-slate-500 border-b border-slate-700">
+            <th class="px-3 py-2 text-left font-medium">コード</th>
+            <th class="px-3 py-2 text-left font-medium">銘柄名</th>
+            <th class="px-3 py-2 text-right font-medium">株数</th>
+            <th class="px-3 py-2 text-right font-medium">取得単価</th>
+            <th class="px-3 py-2 text-right font-medium">期末価格</th>
+            <th class="px-3 py-2 text-right font-medium">評価額</th>
+            <th class="px-3 py-2 text-right font-medium">含み損益</th>
+            <th class="px-3 py-2 text-right font-medium">リターン</th>
+          </tr>
+        </thead>
+        <tbody id="holdings-rows" class="divide-y divide-slate-700/80"></tbody>
+      </table>
+      <p id="holdings-empty" class="hidden text-center text-xs text-slate-500 py-4">期末スナップショットがありません。日次バッチを実行してください。</p>
+    </div>
+  </section>
+
+  <!-- 取引履歴 -->
+  <section class="rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+    <div class="flex items-baseline justify-between mb-3">
+      <h3 class="text-sm font-semibold text-slate-200">取引履歴</h3>
+      <p id="trades-count" class="text-[11px] text-slate-500">—</p>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3">
+      <input id="filter-ticker" type="text" placeholder="銘柄コードで絞り込み"
+        class="px-3 py-2 rounded bg-slate-900 border border-slate-600 text-sm" />
+      <select id="filter-side" class="px-3 py-2 rounded bg-slate-900 border border-slate-600 text-sm">
+        <option value="">売買（すべて）</option>
+        <option value="BUY">購入のみ</option>
+        <option value="SELL">売却のみ</option>
+      </select>
+      <div class="text-[11px] text-slate-500 self-center">※ 期間は上部のトグルで指定</div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-slate-500 border-b border-slate-700">
+            <th class="px-3 py-2 text-left font-medium">日付</th>
+            <th class="px-3 py-2 text-left font-medium">売買</th>
+            <th class="px-3 py-2 text-left font-medium">コード</th>
+            <th class="px-3 py-2 text-left font-medium">銘柄名</th>
+            <th class="px-3 py-2 text-right font-medium">株数</th>
+            <th class="px-3 py-2 text-right font-medium">単価</th>
+            <th class="px-3 py-2 text-right font-medium">取引額</th>
+            <th class="px-3 py-2 text-right font-medium">実現損益</th>
+          </tr>
+        </thead>
+        <tbody id="trades-rows" class="divide-y divide-slate-700/80"></tbody>
+      </table>
+      <p id="trades-empty" class="hidden text-center text-xs text-slate-500 py-4">該当する取引がありません。</p>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  const fmtYen = (v) => (v === null || v === undefined || isNaN(v)) ? '—' : Math.round(Number(v)).toLocaleString() + ' 円';
+  const fmtYenSigned = (v) => {
+    if (v === null || v === undefined || isNaN(v)) return '—';
+    const n = Math.round(Number(v));
+    return (n > 0 ? '+' : '') + n.toLocaleString() + ' 円';
+  };
+  const fmtPctSigned = (v) => {
+    if (v === null || v === undefined || isNaN(v)) return '—';
+    const n = Number(v);
+    return (n > 0 ? '+' : '') + n.toFixed(2) + ' %';
+  };
+  const fmtNum = (v) => (v === null || v === undefined || isNaN(v)) ? '—' : Number(v).toLocaleString();
+  const pnlClass = (v) => (v === null || v === undefined) ? 'text-slate-300' : (Number(v) > 0 ? 'text-emerald-400' : (Number(v) < 0 ? 'text-rose-400' : 'text-slate-300'));
+
+  const state = { granularity: 'month', period: null, available: { months: [], years: [], current_month: '', current_year: '' } };
+  const gBtns = document.querySelectorAll('.g-btn');
+  const periodSelect = document.getElementById('period-select');
+
+  function setGButtons() {
+    gBtns.forEach(b => {
+      const active = b.dataset.g === state.granularity;
+      b.classList.toggle('bg-amber-500', active);
+      b.classList.toggle('text-slate-900', active);
+      b.classList.toggle('font-semibold', active);
+      b.classList.toggle('bg-slate-800', !active);
+      b.classList.toggle('text-slate-300', !active);
+    });
+  }
+
+  function populatePeriodSelect() {
+    const list = state.granularity === 'month' ? state.available.months : state.available.years;
+    periodSelect.innerHTML = '';
+    for (const p of list) {
+      const opt = document.createElement('option');
+      opt.value = p; opt.textContent = p;
+      periodSelect.appendChild(opt);
+    }
+    if (!state.period || !list.includes(state.period)) {
+      state.period = state.granularity === 'month' ? state.available.current_month : state.available.current_year;
+    }
+    periodSelect.value = state.period;
+  }
+
+  function shiftPeriod(delta) {
+    if (state.granularity === 'year') {
+      const y = parseInt(state.period, 10);
+      if (isNaN(y)) return;
+      state.period = String(y + delta);
+    } else {
+      const [ys, ms] = state.period.split('-');
+      const d = new Date(parseInt(ys, 10), parseInt(ms, 10) - 1 + delta, 1);
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      state.period = `${d.getFullYear()}-${mm}`;
+    }
+    // 選択肢に無くても追加
+    if (![...periodSelect.options].some(o => o.value === state.period)) {
+      const opt = document.createElement('option');
+      opt.value = state.period; opt.textContent = state.period;
+      periodSelect.appendChild(opt);
+      [...periodSelect.options].sort((a, b) => b.value.localeCompare(a.value)).forEach(o => periodSelect.appendChild(o));
+    }
+    periodSelect.value = state.period;
+    refresh();
+  }
+
+  gBtns.forEach(b => b.addEventListener('click', () => {
+    state.granularity = b.dataset.g;
+    setGButtons();
+    populatePeriodSelect();
+    refresh();
+  }));
+  periodSelect.addEventListener('change', () => { state.period = periodSelect.value; refresh(); });
+  document.getElementById('period-prev').addEventListener('click', () => shiftPeriod(-1));
+  document.getElementById('period-next').addEventListener('click', () => shiftPeriod(1));
+
+  let assetChart;
+  function renderAssetChart(snapshots) {
+    const canvas = document.getElementById('asset-chart');
+    const empty = document.getElementById('asset-empty');
+    if (!snapshots || snapshots.length === 0) {
+      empty.classList.remove('hidden');
+      canvas.parentElement.classList.add('hidden');
+      if (assetChart) { assetChart.destroy(); assetChart = null; }
+      return;
+    }
+    empty.classList.add('hidden');
+    canvas.parentElement.classList.remove('hidden');
+    const labels = snapshots.map(s => s.snapshot_date);
+    const total = snapshots.map(s => s.total_capital_yen);
+    const cash = snapshots.map(s => s.cash_yen);
+    const equity = snapshots.map(s => s.equity_value_yen);
+    if (assetChart) assetChart.destroy();
+    assetChart = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: '総資産', data: total, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.15)', tension: 0.2, fill: true },
+          { label: '現金', data: cash, borderColor: '#38bdf8', backgroundColor: 'transparent', tension: 0.2, borderDash: [4, 3] },
+          { label: '株式評価額', data: equity, borderColor: '#a78bfa', backgroundColor: 'transparent', tension: 0.2, borderDash: [4, 3] },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { labels: { color: '#cbd5e1' } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmtYen(ctx.parsed.y)}` } } },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148,163,184,0.1)' } },
+          y: { ticks: { color: '#94a3b8', callback: v => Number(v).toLocaleString() }, grid: { color: 'rgba(148,163,184,0.1)' } },
+        },
+      },
+    });
+  }
+
+  function renderKpi(d) {
+    document.getElementById('period-label').textContent =
+      `${d.from_date} 〜 ${d.to_date}`;
+    document.getElementById('kpi-end-total').textContent = fmtYen(d.period_end_total);
+    document.getElementById('kpi-end-date').textContent = d.end_snapshot ? d.end_snapshot.snapshot_date : '—';
+    const retEl = document.getElementById('kpi-return');
+    retEl.textContent = fmtYenSigned(d.period_return);
+    retEl.className = 'text-lg md:text-xl font-bold tabular-nums ' + pnlClass(d.period_return);
+    document.getElementById('kpi-return-pct').textContent = fmtPctSigned(d.period_return_pct);
+    const realEl = document.getElementById('kpi-realized');
+    realEl.textContent = fmtYenSigned(d.realized_pnl);
+    realEl.className = 'text-lg md:text-xl font-bold tabular-nums ' + pnlClass(d.realized_pnl);
+    document.getElementById('kpi-realized-sub').textContent =
+      d.sell_count ? `売却 ${d.sell_count} 回 / 売却代金 ${fmtYen(d.sell_amount_yen)}` : '売却なし';
+    document.getElementById('kpi-trades').textContent = `${d.buy_count} / ${d.sell_count}`;
+    document.getElementById('kpi-flow').textContent = `純資金移動 ${fmtYenSigned(d.net_flow_yen)}`;
+
+    document.getElementById('kpi-start-total').textContent = fmtYen(d.period_start_total);
+    document.getElementById('kpi-start-date').textContent =
+      d.baseline_snapshot ? `前期末 ${d.baseline_snapshot.snapshot_date}`
+      : (d.start_snapshot ? `期初 ${d.start_snapshot.snapshot_date}` : '—');
+    document.getElementById('kpi-split').textContent =
+      d.end_snapshot ? `${fmtYen(d.end_snapshot.cash_yen)} / ${fmtYen(d.end_snapshot.equity_value_yen)}` : '—';
+    document.getElementById('kpi-max').textContent = fmtYen(d.max_total);
+    document.getElementById('kpi-min').textContent = fmtYen(d.min_total);
+  }
+
+  function renderRealized(d) {
+    const tbody = document.getElementById('realized-rows');
+    const empty = document.getElementById('realized-empty');
+    tbody.innerHTML = '';
+    const items = d.realized_pnl_by_ticker || [];
+    if (items.length === 0) {
+      empty.classList.remove('hidden');
+    } else {
+      empty.classList.add('hidden');
+      for (const r of items) {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40';
+        tr.innerHTML =
+          `<td class="px-3 py-2 font-mono text-slate-200">${r.ticker}</td>` +
+          `<td class="px-3 py-2 text-slate-400 truncate max-w-[14rem]" title="${r.name || ''}">${r.name || '-'}</td>` +
+          `<td class="px-3 py-2 text-right tabular-nums ${pnlClass(r.realized_pnl)}">${fmtYenSigned(r.realized_pnl)}</td>` +
+          `<td class="px-3 py-2 text-right tabular-nums text-slate-400">${fmtYen(r.proceeds_yen)}</td>` +
+          `<td class="px-3 py-2 text-right tabular-nums text-slate-400">${r.trade_count}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+    document.getElementById('realized-summary').textContent =
+      `合計 ${fmtYenSigned(d.realized_pnl)} / 売却銘柄 ${items.length}`;
+  }
+
+  function renderActivity(d) {
+    document.getElementById('act-buy').textContent = fmtYen(d.buy_amount_yen);
+    document.getElementById('act-sell').textContent = fmtYen(d.sell_amount_yen);
+    const netEl = document.getElementById('act-net');
+    netEl.textContent = fmtYenSigned(d.net_flow_yen);
+    netEl.className = 'text-sm font-bold tabular-nums ' + pnlClass(d.net_flow_yen);
+    const tbody = document.getElementById('most-traded-rows');
+    const empty = document.getElementById('most-traded-empty');
+    tbody.innerHTML = '';
+    const items = d.most_traded || [];
+    if (items.length === 0) {
+      empty.classList.remove('hidden');
+    } else {
+      empty.classList.add('hidden');
+      for (const m of items) {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40';
+        tr.innerHTML =
+          `<td class="px-2 py-1 font-mono text-slate-200">${m.ticker}</td>` +
+          `<td class="px-2 py-1 text-slate-400 truncate max-w-[10rem]" title="${m.name || ''}">${m.name || '-'}</td>` +
+          `<td class="px-2 py-1 text-right tabular-nums text-slate-300">${m.trade_count} <span class="text-slate-500">(${m.buy_count}/${m.sell_count})</span></td>` +
+          `<td class="px-2 py-1 text-right tabular-nums text-slate-400">${fmtYen(m.total_amount)}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+  }
+
+  function renderHoldings(d) {
+    const tbody = document.getElementById('holdings-rows');
+    const empty = document.getElementById('holdings-empty');
+    tbody.innerHTML = '';
+    const h = d.holdings || {};
+    const items = h.items || [];
+    if (items.length === 0) {
+      empty.classList.remove('hidden');
+    } else {
+      empty.classList.add('hidden');
+      for (const it of items) {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40';
+        tr.innerHTML =
+          `<td class="px-3 py-2 font-mono text-slate-200">${it.ticker || '-'}</td>` +
+          `<td class="px-3 py-2 text-slate-400 truncate max-w-[10rem]" title="${it.name || ''}">${it.name || '-'}</td>` +
+          `<td class="px-3 py-2 text-right tabular-nums text-slate-300">${fmtNum(it.shares)}</td>` +
+          `<td class="px-3 py-2 text-right tabular-nums text-slate-400">${it.avg_price !== null && it.avg_price !== undefined ? Number(it.avg_price).toFixed(2) : '—'}</td>` +
+          `<td class="px-3 py-2 text-right tabular-nums text-amber-400/90">${it.last_price !== null && it.last_price !== undefined ? Number(it.last_price).toFixed(0) : '—'}</td>` +
+          `<td class="px-3 py-2 text-right tabular-nums text-slate-300">${fmtYen(it.market_value)}</td>` +
+          `<td class="px-3 py-2 text-right tabular-nums ${pnlClass(it.unrealized_pnl)}">${fmtYenSigned(it.unrealized_pnl)}</td>` +
+          `<td class="px-3 py-2 text-right tabular-nums ${pnlClass(it.return_pct)}">${fmtPctSigned(it.return_pct)}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+    const asOf = h.as_of_date ? `（${h.as_of_date} 時点）` : '';
+    document.getElementById('holdings-totals').textContent =
+      `取得簿価 ${fmtYen(h.total_cost_basis)} / 評価額 ${fmtYen(h.total_market_value)} / 含み損益 ${fmtYenSigned(h.total_unrealized_pnl)} ${asOf}`;
+  }
+
+  function loadTrades() {
+    const params = new URLSearchParams();
+    const t = document.getElementById('filter-ticker').value.trim();
+    const s = document.getElementById('filter-side').value;
+    if (t) params.set('ticker', t);
+    if (s) params.set('side', s);
+    // 期間ロック
+    params.set('from', currentRange.from);
+    params.set('to', currentRange.to);
+    return fetch('/api/reports/trades?' + params.toString()).then(r => r.json()).then(d => {
+      const trades = d.trades || [];
+      const tbody = document.getElementById('trades-rows');
+      const empty = document.getElementById('trades-empty');
+      tbody.innerHTML = '';
+      if (trades.length === 0) {
+        empty.classList.remove('hidden');
+      } else {
+        empty.classList.add('hidden');
+        for (const tr of trades) {
+          const row = document.createElement('tr');
+          row.className = 'hover:bg-slate-800/40';
+          const sideClass = tr.side === 'BUY' ? 'text-rose-400' : 'text-emerald-400';
+          const sideLabel = tr.side === 'BUY' ? '購入' : '売却';
+          row.innerHTML =
+            `<td class="px-3 py-2 text-slate-300">${tr.trade_date}</td>` +
+            `<td class="px-3 py-2 font-semibold ${sideClass}">${sideLabel}</td>` +
+            `<td class="px-3 py-2 font-mono text-slate-200">${tr.ticker}</td>` +
+            `<td class="px-3 py-2 text-slate-400 truncate max-w-[10rem]" title="${tr.name || ''}">${tr.name || '-'}</td>` +
+            `<td class="px-3 py-2 text-right tabular-nums text-slate-300">${fmtNum(tr.shares)}</td>` +
+            `<td class="px-3 py-2 text-right tabular-nums text-slate-400">${tr.price !== null && tr.price !== undefined ? Number(tr.price).toFixed(2) : '—'}</td>` +
+            `<td class="px-3 py-2 text-right tabular-nums text-slate-300">${fmtYen(tr.amount)}</td>` +
+            `<td class="px-3 py-2 text-right tabular-nums ${pnlClass(tr.realized_pnl)}">${tr.realized_pnl !== null && tr.realized_pnl !== undefined ? fmtYenSigned(tr.realized_pnl) : '—'}</td>`;
+          tbody.appendChild(row);
+        }
+      }
+      document.getElementById('trades-count').textContent = `${trades.length} 件`;
+    });
+  }
+
+  let currentRange = { from: '', to: '' };
+
+  function refresh() {
+    const params = new URLSearchParams({ granularity: state.granularity, period: state.period });
+    fetch('/api/reports/period?' + params.toString())
+      .then(r => r.json())
+      .then(d => {
+        currentRange = { from: d.from_date, to: d.to_date };
+        renderKpi(d);
+        renderAssetChart(d.snapshots);
+        renderRealized(d);
+        renderActivity(d);
+        renderHoldings(d);
+        loadTrades();
+      });
+  }
+
+  ['filter-ticker'].forEach(id => {
+    document.getElementById(id).addEventListener('change', loadTrades);
+  });
+  document.getElementById('filter-side').addEventListener('change', loadTrades);
+  document.getElementById('filter-ticker').addEventListener('keydown', e => { if (e.key === 'Enter') loadTrades(); });
+
+  // 初期化
+  fetch('/api/reports/available-periods').then(r => r.json()).then(d => {
+    state.available = d;
+    state.period = d.current_month;
+    setGButtons();
+    populatePeriodSelect();
+    refresh();
+  });
+})();
+</script>
+{% endblock %}

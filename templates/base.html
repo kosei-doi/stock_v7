@@ -45,6 +45,10 @@
           <i class="fas fa-file-alt w-5"></i>
           <span>日次レポート</span>
         </a>
+        <a href="/reports" class="nav-link flex items-center gap-3 px-4 py-3 text-slate-300 {% if request.url.path == '/reports' %}active{% endif %}">
+          <i class="fas fa-chart-pie w-5"></i>
+          <span>投資レポート</span>
+        </a>
         <a href="/analyze" class="nav-link flex items-center gap-3 px-4 py-3 text-slate-300 {% if request.url.path == '/analyze' %}active{% endif %}">
           <i class="fas fa-search-dollar w-5"></i>
           <span>企業分析</span>

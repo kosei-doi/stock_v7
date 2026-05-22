@@ -194,6 +194,91 @@ def _get_positions_from_watchlist() -> dict:
     return get_persistence().watchlist.get_positions()
 
 
+def _compute_holdings_value(positions: dict, last_prices: dict) -> tuple[int, list[dict]]:
+    """positions と last_prices から評価額と内訳を計算。"""
+    total = 0.0
+    detail: list[dict] = []
+    for t, e in (positions or {}).items():
+        try:
+            shares = int((e.get("shares") if isinstance(e, dict) else None) or (e.get("shares_held") if isinstance(e, dict) else None) or 0)
+        except (TypeError, ValueError):
+            shares = 0
+        if shares <= 0:
+            continue
+        price = last_prices.get(t)
+        try:
+            price_f = float(price) if price is not None else None
+        except (TypeError, ValueError):
+            price_f = None
+        avg = e.get("avg_price") if isinstance(e, dict) else None
+        try:
+            avg_f = float(avg) if avg is not None else None
+        except (TypeError, ValueError):
+            avg_f = None
+        value = (price_f * shares) if price_f is not None else 0.0
+        total += value
+        detail.append({
+            "ticker": t,
+            "shares": shares,
+            "avg_price": avg_f,
+            "last_price": price_f,
+            "value": yen_floor(value) if price_f is not None else None,
+        })
+    return yen_floor(total), detail
+
+
+def _record_portfolio_snapshot(source: str = "trade") -> dict[str, Any]:
+    """現時点の総資産スナップショットを当日キーで upsert。"""
+    from core.utils.dates import logical_date_iso
+
+    store = get_persistence()
+    positions = store.watchlist.get_positions()
+    last_report = store.daily_report.get_last() or {}
+    last_prices = last_report.get("last_prices") or {}
+    equity_val, detail = _compute_holdings_value(positions, last_prices)
+    cash = yen_floor(store.portfolio.get_cash_yen() or 0)
+    total = yen_floor(cash + equity_val)
+    snapshot = {
+        "snapshot_date": logical_date_iso(),
+        "cash_yen": cash,
+        "equity_value_yen": equity_val,
+        "total_capital_yen": total,
+        "holdings": detail,
+        "source": source,
+    }
+    return store.portfolio_snapshot.upsert(snapshot)
+
+
+def _record_trade(
+    side: str,
+    ticker: str,
+    shares: int,
+    price: float,
+    *,
+    avg_price_before: Optional[float] = None,
+    realized_pnl: Optional[float] = None,
+    note: Optional[str] = None,
+) -> dict[str, Any]:
+    """取引履歴を1件追加。"""
+    from core.utils.dates import logical_date_iso
+    from datetime import datetime, timezone
+
+    amount = yen_floor(shares * price)
+    entry = {
+        "trade_date": logical_date_iso(),
+        "side": side.upper(),
+        "ticker": ticker,
+        "shares": int(shares),
+        "price": float(price),
+        "amount": amount,
+        "avg_price_before": avg_price_before,
+        "realized_pnl": realized_pnl,
+        "note": note,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    return get_persistence().trade_log.add(entry)
+
+
 def _merge_report_data() -> dict[str, Any]:
     """Load last_report, previous_report, positions and merge: unrealized_pnl, rank_change, price_change."""
     reports = get_persistence().daily_report
@@ -730,6 +815,14 @@ def trade_purchase(body: TradePurchaseBody) -> dict:
                 detail=_server_error_detail(f"{ticker} の企業分析に失敗しました: {e}"),
             ) from e
 
+    # 追加購入時の元 avg_price を記録（加重平均前）
+    prior_positions = store.watchlist.get_positions()
+    prior_entry = prior_positions.get(ticker) or {}
+    try:
+        avg_price_before = float(prior_entry.get("avg_price")) if prior_entry.get("avg_price") is not None else None
+    except (TypeError, ValueError):
+        avg_price_before = None
+
     wl_snapshot = copy.deepcopy(store.watchlist.load_all())
     try:
         from core.utils.watchlist_io import update_holdings_bulk
@@ -758,6 +851,19 @@ def trade_purchase(body: TradePurchaseBody) -> dict:
             status_code=500,
             detail=_server_error_detail(f"現金残高の更新に失敗しました: {e}"),
         ) from e
+
+    try:
+        _record_trade(
+            side="BUY",
+            ticker=ticker,
+            shares=shares,
+            price=avg_price,
+            avg_price_before=avg_price_before,
+        )
+        _record_portfolio_snapshot(source="trade")
+    except Exception as e:
+        print(f"warn: 取引履歴/スナップショット記録に失敗: {e}", file=sys.stderr)
+
     return {"ok": True, "cash_yen": store.portfolio.get_cash_yen()}
 
 
@@ -792,6 +898,16 @@ def trade_sale(body: TradeSaleBody) -> dict:
     proceeds = yen_floor(shares_to_sell * price)
     new_shares = current_shares - shares_to_sell
 
+    avg_price_before: Optional[float] = None
+    try:
+        v = item.get("avg_price")
+        avg_price_before = float(v) if v is not None else None
+    except (TypeError, ValueError):
+        avg_price_before = None
+    realized_pnl: Optional[float] = None
+    if avg_price_before is not None:
+        realized_pnl = (price - avg_price_before) * shares_to_sell
+
     for i in wl:
         if (i.get("ticker") or i.get("ticker_symbol")) == ticker:
             i["shares"] = new_shares
@@ -799,11 +915,27 @@ def trade_sale(body: TradeSaleBody) -> dict:
                 i["status"] = "WATCHING"
                 if "shares" in i:
                     del i["shares"]
+                if "avg_price" in i:
+                    del i["avg_price"]
             break
     store.watchlist.save_all(wl)
 
     cash = store.portfolio.get_cash_yen()
     store.portfolio.set_cash_yen(cash + proceeds)
+
+    try:
+        _record_trade(
+            side="SELL",
+            ticker=ticker,
+            shares=shares_to_sell,
+            price=price,
+            avg_price_before=avg_price_before,
+            realized_pnl=realized_pnl,
+        )
+        _record_portfolio_snapshot(source="trade")
+    except Exception as e:
+        print(f"warn: 取引履歴/スナップショット記録に失敗: {e}", file=sys.stderr)
+
     return {"ok": True, "cash_yen": store.portfolio.get_cash_yen()}
 
 
@@ -845,6 +977,383 @@ def update_settings(body: SettingsUpdateBody) -> dict:
 def get_report_merged() -> dict:
     """Merged report data for /report page (BFF)."""
     return _merge_report_data()
+
+
+@router.get("/reports/snapshots")
+def reports_snapshots(
+    from_date: Optional[str] = Query(None, alias="from"),
+    to_date: Optional[str] = Query(None, alias="to"),
+) -> dict:
+    """資産推移のスナップショット一覧（日次・取引時）。"""
+    store = get_persistence()
+    snapshots = store.portfolio_snapshot.list_all(from_date=from_date, to_date=to_date)
+    return {"snapshots": snapshots}
+
+
+def _resolve_period_range(granularity: str, period: Optional[str]) -> tuple[str, str, str]:
+    """granularity と period 文字列から (label, from_date, to_date) を返す。"""
+    import calendar
+    from core.utils.dates import logical_date_iso
+
+    today = logical_date_iso()
+    if granularity == "year":
+        label = (period or today[:4]).strip()
+        if len(label) != 4 or not label.isdigit():
+            raise HTTPException(status_code=400, detail="year は YYYY 形式で指定してください。")
+        y = int(label)
+        return label, f"{y:04d}-01-01", f"{y:04d}-12-31"
+    label = (period or today[:7]).strip()
+    if len(label) != 7 or label[4] != "-" or not label[:4].isdigit() or not label[5:].isdigit():
+        raise HTTPException(status_code=400, detail="month は YYYY-MM 形式で指定してください。")
+    y, m = int(label[:4]), int(label[5:])
+    last_day = calendar.monthrange(y, m)[1]
+    return label, f"{y:04d}-{m:02d}-01", f"{y:04d}-{m:02d}-{last_day:02d}"
+
+
+def _holdings_from_snapshot(snapshot: Optional[dict], ticker_names: dict) -> tuple[list[dict], float, float, float]:
+    """end_snapshot.holdings から保有 PnL を組み立て。なければ (空, 0, 0, 0)。"""
+    items: list[dict] = []
+    cost_total = 0.0
+    value_total = 0.0
+    if not snapshot or not isinstance(snapshot.get("holdings"), list):
+        return items, 0.0, 0.0, 0.0
+    for h in snapshot["holdings"]:
+        if not isinstance(h, dict):
+            continue
+        try:
+            shares = int(h.get("shares") or 0)
+        except (TypeError, ValueError):
+            shares = 0
+        if shares <= 0:
+            continue
+        try:
+            avg = float(h.get("avg_price")) if h.get("avg_price") is not None else None
+        except (TypeError, ValueError):
+            avg = None
+        try:
+            price = float(h.get("last_price")) if h.get("last_price") is not None else None
+        except (TypeError, ValueError):
+            price = None
+        cost = (avg * shares) if avg is not None else None
+        value = (price * shares) if price is not None else None
+        unreal = (value - cost) if (cost is not None and value is not None) else None
+        ret = (unreal / cost * 100.0) if (cost and cost > 0 and unreal is not None) else None
+        if cost is not None:
+            cost_total += cost
+        if value is not None:
+            value_total += value
+        items.append({
+            "ticker": h.get("ticker"),
+            "name": ticker_names.get(h.get("ticker")) or "-",
+            "shares": shares,
+            "avg_price": avg,
+            "last_price": price,
+            "cost_basis": yen_floor(cost) if cost is not None else None,
+            "market_value": yen_floor(value) if value is not None else None,
+            "unrealized_pnl": yen_floor(unreal) if unreal is not None else None,
+            "return_pct": ret,
+        })
+    items.sort(key=lambda x: (x.get("unrealized_pnl") if x.get("unrealized_pnl") is not None else -1e18), reverse=True)
+    return items, cost_total, value_total, (value_total - cost_total)
+
+
+@router.get("/reports/period")
+def reports_period(
+    granularity: str = Query("month", pattern="^(month|year)$"),
+    period: Optional[str] = Query(None),
+) -> dict:
+    """指定した月（YYYY-MM）または年（YYYY）に絞った包括レポート。"""
+    label, from_date, to_date = _resolve_period_range(granularity, period)
+    store = get_persistence()
+    snapshots = store.portfolio_snapshot.list_all(from_date=from_date, to_date=to_date)
+    trades = store.trade_log.list_all(from_date=from_date, to_date=to_date)
+    last_report = store.daily_report.get_last() or {}
+    ticker_names = last_report.get("ticker_names") or {}
+
+    # baseline = 期間直前の最終スナップショット（期間損益の計算に使う）
+    all_snapshots = store.portfolio_snapshot.list_all(to_date=from_date)
+    baseline = None
+    for s in reversed(all_snapshots):
+        d = str(s.get("snapshot_date") or "")
+        if d and d < from_date:
+            baseline = s
+            break
+
+    start_snapshot = snapshots[0] if snapshots else None
+    end_snapshot = snapshots[-1] if snapshots else None
+
+    if baseline is not None:
+        period_start_total = baseline.get("total_capital_yen")
+    else:
+        period_start_total = start_snapshot.get("total_capital_yen") if start_snapshot else None
+    period_end_total = end_snapshot.get("total_capital_yen") if end_snapshot else None
+
+    period_return = None
+    period_return_pct = None
+    if period_start_total is not None and period_end_total is not None:
+        try:
+            period_return = float(period_end_total) - float(period_start_total)
+            if float(period_start_total) > 0:
+                period_return_pct = period_return / float(period_start_total) * 100.0
+        except (TypeError, ValueError):
+            pass
+
+    totals = [s.get("total_capital_yen") for s in snapshots if s.get("total_capital_yen") is not None]
+    max_total = max(totals) if totals else None
+    min_total = min(totals) if totals else None
+
+    # 取引集計
+    sells = [t for t in trades if str(t.get("side") or "").upper() == "SELL"]
+    buys = [t for t in trades if str(t.get("side") or "").upper() == "BUY"]
+    realized_total = 0.0
+    for t in sells:
+        if t.get("realized_pnl") is not None:
+            try:
+                realized_total += float(t["realized_pnl"])
+            except (TypeError, ValueError):
+                pass
+
+    # 銘柄別実現損益
+    pnl_by_ticker_map: dict[str, dict] = {}
+    for t in sells:
+        if t.get("realized_pnl") is None:
+            continue
+        tk = str(t.get("ticker") or "")
+        e = pnl_by_ticker_map.setdefault(tk, {"ticker": tk, "realized_pnl": 0.0, "trade_count": 0, "proceeds_yen": 0.0})
+        try:
+            e["realized_pnl"] += float(t.get("realized_pnl") or 0)
+            e["proceeds_yen"] += float(t.get("amount") or 0)
+        except (TypeError, ValueError):
+            pass
+        e["trade_count"] += 1
+    pnl_by_ticker = sorted(pnl_by_ticker_map.values(), key=lambda x: x["realized_pnl"], reverse=True)
+    for it in pnl_by_ticker:
+        it["name"] = ticker_names.get(it["ticker"]) or "-"
+        it["realized_pnl"] = yen_floor(it["realized_pnl"])
+        it["proceeds_yen"] = yen_floor(it["proceeds_yen"])
+
+    buy_amount = yen_floor(sum(float(t.get("amount") or 0) for t in buys))
+    sell_amount = yen_floor(sum(float(t.get("amount") or 0) for t in sells))
+
+    # 取引活動: 最も取引した銘柄
+    activity_map: dict[str, dict] = {}
+    for t in trades:
+        tk = str(t.get("ticker") or "")
+        e = activity_map.setdefault(tk, {"ticker": tk, "trade_count": 0, "buy_count": 0, "sell_count": 0, "total_amount": 0.0})
+        e["trade_count"] += 1
+        try:
+            e["total_amount"] += float(t.get("amount") or 0)
+        except (TypeError, ValueError):
+            pass
+        if str(t.get("side") or "").upper() == "BUY":
+            e["buy_count"] += 1
+        else:
+            e["sell_count"] += 1
+    most_traded = sorted(activity_map.values(), key=lambda x: (x["trade_count"], x["total_amount"]), reverse=True)[:5]
+    for it in most_traded:
+        it["name"] = ticker_names.get(it["ticker"]) or "-"
+        it["total_amount"] = yen_floor(it["total_amount"])
+
+    # 期末時点の保有 PnL（snapshot.holdings から復元）
+    holdings_items, h_cost, h_value, h_unreal = _holdings_from_snapshot(end_snapshot, ticker_names)
+    holdings_as_of = end_snapshot.get("snapshot_date") if end_snapshot and end_snapshot.get("holdings") else None
+
+    return {
+        "granularity": granularity,
+        "period": label,
+        "from_date": from_date,
+        "to_date": to_date,
+        "snapshots": snapshots,
+        "baseline_snapshot": baseline,
+        "start_snapshot": start_snapshot,
+        "end_snapshot": end_snapshot,
+        "period_start_total": int(period_start_total) if period_start_total is not None else None,
+        "period_end_total": int(period_end_total) if period_end_total is not None else None,
+        "period_return": yen_floor(period_return) if period_return is not None else None,
+        "period_return_pct": period_return_pct,
+        "max_total": int(max_total) if max_total is not None else None,
+        "min_total": int(min_total) if min_total is not None else None,
+        "realized_pnl": yen_floor(realized_total),
+        "realized_pnl_by_ticker": pnl_by_ticker,
+        "buy_amount_yen": buy_amount,
+        "sell_amount_yen": sell_amount,
+        "net_flow_yen": sell_amount - buy_amount,
+        "buy_count": len(buys),
+        "sell_count": len(sells),
+        "trade_count": len(trades),
+        "most_traded": most_traded,
+        "holdings": {
+            "items": holdings_items,
+            "total_cost_basis": yen_floor(h_cost),
+            "total_market_value": yen_floor(h_value),
+            "total_unrealized_pnl": yen_floor(h_unreal),
+            "as_of_date": holdings_as_of,
+        },
+    }
+
+
+@router.get("/reports/available-periods")
+def reports_available_periods() -> dict:
+    """データのある月・年の一覧（現在月/現在年を含む）。"""
+    from core.utils.dates import logical_date_iso
+
+    store = get_persistence()
+    months: set[str] = set()
+    years: set[str] = set()
+    for s in store.portfolio_snapshot.list_all():
+        d = str(s.get("snapshot_date") or "")
+        if len(d) >= 7:
+            months.add(d[:7])
+            years.add(d[:4])
+    for t in store.trade_log.list_all():
+        d = str(t.get("trade_date") or "")
+        if len(d) >= 7:
+            months.add(d[:7])
+            years.add(d[:4])
+    today = logical_date_iso()
+    months.add(today[:7])
+    years.add(today[:4])
+    return {
+        "months": sorted(months, reverse=True),
+        "years": sorted(years, reverse=True),
+        "current_month": today[:7],
+        "current_year": today[:4],
+    }
+
+
+@router.get("/reports/trades")
+def reports_trades(
+    ticker: Optional[str] = Query(None),
+    side: Optional[str] = Query(None),
+    from_date: Optional[str] = Query(None, alias="from"),
+    to_date: Optional[str] = Query(None, alias="to"),
+) -> dict:
+    """取引履歴（フィルタ可: 銘柄・売買・期間）。"""
+    store = get_persistence()
+    t = _normalize_ticker(ticker) if ticker else None
+    trades = store.trade_log.list_all(ticker=t, side=side, from_date=from_date, to_date=to_date)
+    names = (store.daily_report.get_last() or {}).get("ticker_names") or {}
+    for tr in trades:
+        tr["name"] = names.get(tr.get("ticker")) or "-"
+    return {"trades": trades}
+
+
+@router.get("/reports/realized-pnl")
+def reports_realized_pnl(
+    period: str = Query("month", pattern="^(month|year)$"),
+) -> dict:
+    """実現損益を月次/年次で集計。"""
+    store = get_persistence()
+    trades = store.trade_log.list_all(side="SELL")
+    buckets: dict[str, dict[str, float]] = {}
+    for t in trades:
+        pnl = t.get("realized_pnl")
+        if pnl is None:
+            continue
+        d = str(t.get("trade_date") or "")
+        if len(d) < 7:
+            continue
+        key = d[:7] if period == "month" else d[:4]
+        bucket = buckets.setdefault(key, {"realized_pnl": 0.0, "proceeds": 0.0, "trade_count": 0})
+        bucket["realized_pnl"] += float(pnl)
+        bucket["proceeds"] += float(t.get("amount") or 0)
+        bucket["trade_count"] += 1
+    rows = [
+        {
+            "period": k,
+            "realized_pnl": yen_floor(v["realized_pnl"]),
+            "proceeds_yen": yen_floor(v["proceeds"]),
+            "trade_count": int(v["trade_count"]),
+        }
+        for k, v in sorted(buckets.items())
+    ]
+    total = yen_floor(sum(float(r["realized_pnl"]) for r in rows))
+    return {"period": period, "rows": rows, "total_realized_pnl": total}
+
+
+@router.get("/reports/holdings-pnl")
+def reports_holdings_pnl() -> dict:
+    """保有銘柄ごとの含み損益と概要。"""
+    store = get_persistence()
+    positions = store.watchlist.get_positions()
+    last_report = store.daily_report.get_last() or {}
+    last_prices = last_report.get("last_prices") or {}
+    ticker_names = last_report.get("ticker_names") or {}
+    items: list[dict[str, Any]] = []
+    total_cost = 0.0
+    total_value = 0.0
+    for t, e in (positions or {}).items():
+        try:
+            shares = int(e.get("shares") or e.get("shares_held") or 0)
+        except (TypeError, ValueError):
+            shares = 0
+        if shares <= 0:
+            continue
+        try:
+            avg = float(e.get("avg_price")) if e.get("avg_price") is not None else None
+        except (TypeError, ValueError):
+            avg = None
+        price = last_prices.get(t)
+        try:
+            price_f = float(price) if price is not None else None
+        except (TypeError, ValueError):
+            price_f = None
+        cost = (avg * shares) if avg is not None else None
+        value = (price_f * shares) if price_f is not None else None
+        unreal = (value - cost) if (cost is not None and value is not None) else None
+        ret_pct = (unreal / cost * 100.0) if (cost and cost > 0 and unreal is not None) else None
+        if cost is not None:
+            total_cost += cost
+        if value is not None:
+            total_value += value
+        items.append({
+            "ticker": t,
+            "name": ticker_names.get(t) or "-",
+            "shares": shares,
+            "avg_price": avg,
+            "last_price": price_f,
+            "cost_basis": yen_floor(cost) if cost is not None else None,
+            "market_value": yen_floor(value) if value is not None else None,
+            "unrealized_pnl": yen_floor(unreal) if unreal is not None else None,
+            "return_pct": ret_pct,
+        })
+    items.sort(key=lambda x: (x.get("unrealized_pnl") if x.get("unrealized_pnl") is not None else -1e18), reverse=True)
+    total_unreal = total_value - total_cost if total_cost else 0.0
+    return {
+        "items": items,
+        "total_cost_basis": yen_floor(total_cost),
+        "total_market_value": yen_floor(total_value),
+        "total_unrealized_pnl": yen_floor(total_unreal),
+    }
+
+
+@router.get("/reports/summary")
+def reports_summary() -> dict:
+    """レポート概要: 最新スナップショット・累積実現損益・取引件数。"""
+    store = get_persistence()
+    latest = store.portfolio_snapshot.latest()
+    trades = store.trade_log.list_all()
+    realized = 0.0
+    sell_count = 0
+    buy_count = 0
+    for t in trades:
+        side = str(t.get("side") or "").upper()
+        if side == "SELL":
+            sell_count += 1
+            if t.get("realized_pnl") is not None:
+                try:
+                    realized += float(t.get("realized_pnl") or 0.0)
+                except (TypeError, ValueError):
+                    pass
+        elif side == "BUY":
+            buy_count += 1
+    return {
+        "latest_snapshot": latest,
+        "total_realized_pnl": yen_floor(realized),
+        "buy_count": buy_count,
+        "sell_count": sell_count,
+        "total_trades": len(trades),
+    }
 
 
 def build_watchlist_analysis_index() -> list[dict[str, Any]]:

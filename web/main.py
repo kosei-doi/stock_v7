@@ -74,6 +74,10 @@ def create_app():
         merged = get_report_merged()
         return templates.TemplateResponse(request, "report.html", {"request": request, **merged})
 
+    @app.get("/reports", response_class=HTMLResponse)
+    async def reports(request: Request):
+        return templates.TemplateResponse(request, "reports.html", {"request": request})
+
     @app.get("/analyze", response_class=HTMLResponse)
     async def analyze(request: Request):
         from web.api import build_watchlist_analysis_index

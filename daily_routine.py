@@ -552,6 +552,43 @@ def main(argv: list[str] | None = None) -> int:
     except OSError as e:
         print(f"警告: last_report.json の書き込みに失敗しました: {e}", file=sys.stderr)
 
+    # 日次の資産スナップショットを記録
+    try:
+        positions = get_persistence().watchlist.get_positions()
+        holdings_detail = []
+        for t, e in (positions or {}).items():
+            shares = int(e.get("shares") or e.get("shares_held") or 0)
+            if shares <= 0:
+                continue
+            avg = e.get("avg_price")
+            try:
+                avg_f = float(avg) if avg is not None else None
+            except (TypeError, ValueError):
+                avg_f = None
+            price = (report.last_prices or {}).get(t)
+            try:
+                price_f = float(price) if price is not None else None
+            except (TypeError, ValueError):
+                price_f = None
+            value = (shares * price_f) if price_f is not None else None
+            holdings_detail.append({
+                "ticker": t,
+                "shares": shares,
+                "avg_price": avg_f,
+                "last_price": price_f,
+                "value": yen_floor(value) if value is not None else None,
+            })
+        get_persistence().portfolio_snapshot.upsert({
+            "snapshot_date": report.data_date,
+            "cash_yen": int(report.cash_yen or 0),
+            "equity_value_yen": int(report.equity_value_yen or 0),
+            "total_capital_yen": int(report.total_capital_yen or 0),
+            "holdings": holdings_detail,
+            "source": "daily_routine",
+        })
+    except Exception as e:
+        print(f"警告: 資産スナップショットの記録に失敗しました: {e}", file=sys.stderr)
+
     print(report.report_text or "")
     return 0
 
