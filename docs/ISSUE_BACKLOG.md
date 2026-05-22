@@ -311,9 +311,9 @@ GitHub Issue 作成時は下記タイトル・本文をそのまま使えます�
 - 詳細に **日足チャート**（ローソク足）を表示
 
 **現状**
-- `templates/analyze.html` — 手入力 + `POST /api/analyze` のみ
-- 分析結果は `output/<ticker>.json` に保存されるが、**OHLC 時系列は概要のみ**（`PriceHistoryOverview`）でチャート用データなし
-- ウォッチリスト一覧は `/watchlist` ページのみ
+- `templates/analyze.html` — 登録銘柄一覧 + モーダル（チャート・分析詳細）実装済み
+- `GET /api/ticker/{ticker}/ohlc` / `analysis` でチャート・詳細表示
+- **日次レポート**（`/report`）でも同一モーダル（閲覧専用・分析実行ボタンなし）— `partials/ticker_detail_modal.html` + `static/js/ticker_detail_modal.js`
 
 **提案 UI**
 ```

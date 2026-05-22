@@ -4,6 +4,7 @@
 <div class="space-y-6">
   <h2 class="text-2xl font-bold text-slate-100">日次レポート</h2>
   {% if report %}
+  <p class="text-sm text-slate-500">銘柄行をクリックすると、日足チャートと企業分析結果を表示します。</p>
   <div class="flex gap-4 text-sm text-slate-400">
     <span><strong class="text-slate-300">作成日時:</strong> {{ report.created_at or '-' }}</span>
     <span><strong class="text-slate-300">データ基準日:</strong> {{ report.data_date or '-' }}</span>
@@ -29,7 +30,9 @@
           </thead>
           <tbody class="text-slate-200">
             {% for rec in draft.get('recommendations') %}
-            <tr class="border-t border-slate-700 hover:bg-slate-700/30">
+            <tr class="report-ticker-row cursor-pointer border-t border-slate-700 hover:bg-slate-700/30"
+                data-ticker="{{ rec.ticker }}"
+                data-name="{{ (rec.name or '-') | e }}">
               <td class="px-2 py-1 md:px-3 md:py-2">{{ loop.index }}</td>
               <td class="px-2 py-1 md:px-3 md:py-2 font-mono">{{ rec.ticker }}</td>
               <td class="px-2 py-1 md:px-3 md:py-2 break-words max-w-[140px] truncate" title="{{ rec.name or '-' }}">{{ rec.name or '-' }}</td>
@@ -61,9 +64,12 @@
           </thead>
           <tbody class="text-slate-200">
             {% for it in purge.get('items') %}
-            <tr class="border-t border-slate-700 hover:bg-slate-700/30">
+            {% set purge_name = (report.get('ticker_names') or {}).get(it.ticker, '-') %}
+            <tr class="report-ticker-row cursor-pointer border-t border-slate-700 hover:bg-slate-700/30"
+                data-ticker="{{ it.ticker }}"
+                data-name="{{ purge_name | e }}">
               <td class="px-2 py-1 md:px-3 md:py-2 font-mono">{{ it.ticker }}</td>
-              <td class="px-2 py-1 md:px-3 md:py-2 break-words max-w-[140px] truncate" title="{{ (report.get('ticker_names') or {}).get(it.ticker, '-') }}">{{ (report.get('ticker_names') or {}).get(it.ticker, '-') }}</td>
+              <td class="px-2 py-1 md:px-3 md:py-2 break-words max-w-[140px] truncate" title="{{ purge_name }}">{{ purge_name }}</td>
               <td class="px-2 py-1 md:px-3 md:py-2 break-words max-w-[180px]">{{ it.reason_ja or '-' }}</td>
               <td class="px-2 py-1 md:px-3 md:py-2 text-right">{% if it.current_price is not none %}{{ it.current_price|round(0)|int }} 円{% else %}-{% endif %}</td>
               <td class="px-2 py-1 md:px-3 md:py-2 text-right text-slate-400">{% if (it.shares_to_sell | default(0)) | int > 0 %}{{ (it.shares_to_sell | default(0)) | int }} 株{% else %}-{% endif %}</td>
@@ -97,7 +103,11 @@
         </thead>
         <tbody class="text-slate-200">
           {% for h in holdings_merged %}
-          <tr class="border-t border-slate-700 hover:bg-slate-700/30">
+          <tr class="report-ticker-row cursor-pointer border-t border-slate-700 hover:bg-slate-700/30"
+              data-ticker="{{ h.ticker }}"
+              data-name="{{ (h.name or '-') | e }}"
+              {% if h.score is not none %}data-score="{{ h.score }}"{% endif %}
+              {% if h.trend is not none %}data-trend="{{ h.trend }}"{% endif %}>
             <td class="px-2 py-1 md:px-4 md:py-2 font-mono">{{ h.ticker }}</td>
             <td class="px-2 py-1 md:px-4 md:py-2 break-words">{{ h.name }}</td>
             <td class="px-2 py-1 md:px-4 md:py-2">
@@ -161,7 +171,11 @@
         </thead>
         <tbody class="text-slate-200">
           {% for w in watchlist_merged %}
-          <tr class="border-t border-slate-700 hover:bg-slate-700/30">
+          <tr class="report-ticker-row cursor-pointer border-t border-slate-700 hover:bg-slate-700/30"
+              data-ticker="{{ w.ticker }}"
+              data-name="{{ (w.name or '-') | e }}"
+              {% if w.score is not none %}data-score="{{ w.score }}"{% endif %}
+              {% if w.trend is not none %}data-trend="{{ w.trend }}"{% endif %}>
             <td class="px-2 py-1 md:px-4 md:py-2">{{ w.rank }}</td>
             <td class="px-2 py-1 md:px-4 md:py-2">
               {% if w.rank_change == 'up' %}<span class="text-red-500"><i class="fas fa-arrow-up"></i></span>
@@ -201,4 +215,36 @@
   <p class="text-slate-500">レポートがありません。日次バッチを実行してください。</p>
   {% endif %}
 </div>
+
+{% if report %}
+{% include "partials/ticker_detail_modal.html" %}
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/static/js/ticker_detail_modal.js"></script>
+<script>
+(function() {
+  TickerDetailModal.init({ syncUrlOnOpen: false });
+
+  function reportContextMsg(tr) {
+    const parts = [];
+    if (tr.dataset.score) parts.push('レポートスコア: ' + Number(tr.dataset.score).toFixed(1));
+    if (tr.dataset.trend) parts.push('トレンド: ' + Number(tr.dataset.trend).toFixed(2));
+    return parts.length ? parts.join(' · ') : '';
+  }
+
+  document.querySelectorAll('.report-ticker-row').forEach(function(tr) {
+    tr.addEventListener('click', function() {
+      document.querySelectorAll('.report-ticker-row').forEach(function(r) {
+        r.classList.remove('bg-slate-700/50');
+      });
+      tr.classList.add('bg-slate-700/50');
+      TickerDetailModal.open({
+        ticker: tr.dataset.ticker,
+        name: tr.dataset.name,
+        contextMsg: reportContextMsg(tr),
+      });
+    });
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}
