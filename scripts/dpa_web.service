@@ -9,6 +9,7 @@ ExecStart=/opt/dpa_app/venv/bin/uvicorn web.main:app --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=5
 Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/dpa-app/dpa.env
 
 [Install]
 WantedBy=multi-user.target

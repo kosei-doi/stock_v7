@@ -225,7 +225,7 @@
       return;
     }
     msg(purchaseMsg, '記録中…');
-    fetch('/api/trade/purchase', {
+    dpaFetch('/api/trade/purchase', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ticker, shares, avg_price: avg })
@@ -282,7 +282,7 @@
       return;
     }
     msg(saleMsg, '記録中…');
-    fetch('/api/trade/sale', {
+    dpaFetch('/api/trade/sale', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ticker, shares: sellShares })

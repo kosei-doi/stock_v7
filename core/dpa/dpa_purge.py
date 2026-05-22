@@ -7,6 +7,7 @@ import math
 
 from core.dpa.dpa_lot import position_lots_and_shares, shares_from_lots
 from core.dpa.dpa_schema import DpaPurgeOutput, MacroPhase, PurgeItem, SellReason
+from core.utils.money import yen_floor
 
 
 def run_purge(
@@ -72,7 +73,7 @@ def run_purge(
                 lots_to_sell = base_lots
             # 5) 空売り防止
             lots_to_sell = min(lots_to_sell, lots_held)
-            sale_cash = float(shares_from_lots(lots_to_sell, lot_size)) * float(price)
+            sale_cash = yen_floor(float(shares_from_lots(lots_to_sell, lot_size)) * float(price))
 
         shares_sell = shares_from_lots(lots_to_sell, lot_size)
         if shares_sell <= 0:
@@ -104,5 +105,5 @@ def run_purge(
         phase=phase,
         items=items,
         total_count=len(items),
-        estimated_cash_generated=float(estimated_cash_total),
+        estimated_cash_generated=yen_floor(estimated_cash_total),
     )

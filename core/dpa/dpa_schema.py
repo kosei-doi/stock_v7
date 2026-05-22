@@ -8,6 +8,14 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
+from core.utils.money import yen_floor
+
+
+def _coerce_yen(v: object) -> int | None:
+    if v is None:
+        return None
+    return yen_floor(v)  # type: ignore[arg-type]
+
 
 class MacroPhase(str, Enum):
     """マクロ環境の4フェーズ。"""
@@ -44,9 +52,14 @@ class PurgeItem(BaseModel):
         0,
         description="単元株単位で算出した売却株数。0 は実売却なし（一覧では「-」表示）",
     )
-    estimated_sale_cash: Optional[float] = Field(
+    estimated_sale_cash: Optional[int] = Field(
         None, description="上記売却の見込み金額（円）"
     )
+
+    @field_validator("estimated_sale_cash", mode="before")
+    @classmethod
+    def _estimated_sale_cash_yen(cls, v: object) -> int | None:
+        return _coerce_yen(v)
 
     @field_validator("shares_to_sell", mode="before")
     @classmethod
@@ -65,10 +78,15 @@ class DpaPurgeOutput(BaseModel):
     phase: MacroPhase
     items: list[PurgeItem] = Field(default_factory=list)
     total_count: int = 0
-    estimated_cash_generated: float = Field(
-        0.0,
+    estimated_cash_generated: int = Field(
+        0,
         description="パージ候補を単元株で売却した場合の見込み現金増（円）の合計",
     )
+
+    @field_validator("estimated_cash_generated", mode="before")
+    @classmethod
+    def _estimated_cash_generated_yen(cls, v: object) -> int:
+        return _coerce_yen(v) or 0
 
 
 class BuyRecommendation(BaseModel):
@@ -78,26 +96,41 @@ class BuyRecommendation(BaseModel):
     shares: int = Field(..., description="推奨株数")
     limit_price: Optional[float] = Field(None, description="逆指値（円）")
     score: Optional[float] = None
-    budget_used: float = Field(0.0, description="使用予算（円）")
+    budget_used: int = Field(0, description="使用予算（円）")
+
+    @field_validator("budget_used", mode="before")
+    @classmethod
+    def _budget_used_yen(cls, v: object) -> int:
+        return _coerce_yen(v) or 0
 
 
 class DpaDraftOutput(BaseModel):
     """ドラフト（購入判定）の出力。"""
     phase: MacroPhase
-    draft_budget_cap: float = Field(
-        0.0,
+    draft_budget_cap: int = Field(
+        0,
         description="動的Nシミュレーションに渡した予算上限（円）。PANIC または枠0のときは0",
     )
-    raw_available_budget: Optional[float] = Field(
+    raw_available_budget: Optional[int] = Field(
         None,
         description=(
             "max(0, (現金+売却見込み)-総資産×目標現金比率) の理論上の新規買付枠（円）"
         ),
     )
-    available_budget: float = Field(
-        0.0,
+    available_budget: int = Field(
+        0,
         description="採用シナリオにおける推奨買付の合計（消費額、円）。SYSTEM_OVERVIEW §5.2 の total_spent",
     )
+
+    @field_validator("draft_budget_cap", "available_budget", mode="before")
+    @classmethod
+    def _draft_yen_fields(cls, v: object) -> int:
+        return _coerce_yen(v) or 0
+
+    @field_validator("raw_available_budget", mode="before")
+    @classmethod
+    def _raw_available_budget_yen(cls, v: object) -> int | None:
+        return _coerce_yen(v)
     recommendations: list[BuyRecommendation] = Field(default_factory=list)
 
 
@@ -110,9 +143,14 @@ class DpaDailyReport(BaseModel):
     phase_name_ja: str = ""
     vi_z: Optional[float] = Field(None, description="VIのZスコア（参考情報）")
     macd_trend: Optional[float] = Field(None, description="MACDトレンド指標（参考情報）")
-    cash_yen: Optional[float] = Field(None, description="現金残高（円）")
-    total_capital_yen: Optional[float] = Field(None, description="総資産（円）")
-    equity_value_yen: Optional[float] = Field(None, description="株式評価額（円）")
+    cash_yen: Optional[int] = Field(None, description="現金残高（円）")
+    total_capital_yen: Optional[int] = Field(None, description="総資産（円）")
+    equity_value_yen: Optional[int] = Field(None, description="株式評価額（円）")
+
+    @field_validator("cash_yen", "total_capital_yen", "equity_value_yen", mode="before")
+    @classmethod
+    def _report_yen_fields(cls, v: object) -> int | None:
+        return _coerce_yen(v)
     ticker_names: Optional[dict[str, str]] = Field(
         default=None, description="銘柄コード -> 会社名"
     )

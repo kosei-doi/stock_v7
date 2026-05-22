@@ -31,6 +31,7 @@ from core.utils.daily_cache import (
 )
 from core.dvc.dvc_batch import run_dvc_for_watchlist
 from core.dvc.schema import DvcScoreOutput
+from core.utils.money import yen_floor
 from core.utils.watchlist_io import (
     WATCHLIST_PATH,
     get_holdings,
@@ -87,7 +88,7 @@ def holdings_value(holdings: list[dict], positions: dict, current_prices: dict[s
         price = current_prices.get(t)
         if price is not None and shares:
             total += float(shares) * float(price)
-    return total
+    return yen_floor(total)
 
 
 def current_weights(
@@ -333,7 +334,7 @@ def run_daily_routine(
     _progress(2, total_steps, "ウォッチリスト・ポジション・現金の読込…", verbose=verbose)
     positions = positions_from_watchlist(path=watchlist_path)
     state = load_portfolio_state(portfolio_path)
-    cash_current = float(state.get("cash_yen", DEFAULT_TOTAL_CAPITAL_JPY))
+    cash_current = yen_floor(state.get("cash_yen", DEFAULT_TOTAL_CAPITAL_JPY))
     current_prices = current_prices_from_dvc_results(results)
     holdings = build_holdings_list(watchlist, positions)
     holdings_val = holdings_value(holdings, positions, current_prices)
@@ -419,12 +420,11 @@ def run_daily_routine(
     watching_items = get_watching(watchlist)
     watching_snapshots = [results[_ticker(w)] for w in watching_items if _ticker(w) in results]
     # 資金の受け渡し: 売却見込みを現金に足し、目標現金水準を超えた分を新規買付枠にする
-    raw_available_budget = max(
-        0.0,
-        (cash_current + est_cash) - total_cap * float(macro.target_cash_ratio),
+    raw_available_budget = yen_floor(
+        max(0.0, (cash_current + est_cash) - total_cap * float(macro.target_cash_ratio))
     )
     draft_budget_cap = (
-        0.0
+        0
         if macro.phase == MacroPhase.PANIC or raw_available_budget <= 0
         else raw_available_budget
     )
@@ -458,7 +458,7 @@ def run_daily_routine(
     ticker_names = {t: results[t].name for t in results.keys()}
 
     # 総資産は常に「現金＋株式評価額」の実値（config の target ではない）
-    total_actual = cash_current + holdings_val
+    total_actual = yen_floor(cash_current + holdings_val)
 
     report = DpaDailyReport(
         created_at=created_at,

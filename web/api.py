@@ -18,16 +18,22 @@ from typing import Any, Optional
 
 import yaml
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query, Request
+from pydantic import BaseModel, ConfigDict, Field
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from core.utils.config_loader import (
     DEFAULT_WATCHLIST_MAX_ITEMS,
     load_merged_config,
     watchlist_max_items_from_raw_config,
 )
+from core.utils.money import yen_floor
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+limiter = Limiter(key_func=get_remote_address)
+RUN_BATCH_RATE_LIMIT = os.environ.get("DPA_RUN_BATCH_RATE", "3/minute")
+
 DATA_DIR = PROJECT_ROOT / "data"
 CONFIG_PATH = PROJECT_ROOT / "config.yaml"
 LAST_REPORT_PATH = DATA_DIR / "last_report.json"
@@ -76,6 +82,22 @@ def require_api_key(x_api_key: Optional[str] = Header(None, alias="X-API-Key")) 
         return
     if not x_api_key or x_api_key != expected:
         raise HTTPException(status_code=401, detail="認証に失敗しました。")
+
+
+def require_dpa_client_header(
+    x_dpa_client: Optional[str] = Header(None, alias="X-DPA-Client"),
+) -> None:
+    """
+    ブラウザ向け CSRF 対策。同一オリジンの UI からの POST/DELETE は ``X-DPA-Client: 1`` を付与する。
+    """
+    if x_dpa_client != "1":
+        raise HTTPException(
+            status_code=403,
+            detail="この操作はアプリ画面からのみ実行できます。",
+        )
+
+
+MUTATING_DEPS = [Depends(require_api_key), Depends(require_dpa_client_header)]
 
 
 def _normalize_ticker(raw: str) -> str:
@@ -163,15 +185,12 @@ def _write_run_status(status: str, message: str, step: Optional[int] = None, tot
     _write_json(RUN_STATUS_PATH, payload)
 
 
-def _get_cash_yen() -> float:
-    """portfolio_state.json から現金残高を取得。"""
+def _get_cash_yen() -> int:
+    """portfolio_state.json から現金残高を取得（整数円）。"""
     state = _read_json(PORTFOLIO_STATE_PATH)
     if not isinstance(state, dict):
-        return 0.0
-    try:
-        return float(state.get("cash_yen", 0))
-    except (TypeError, ValueError):
-        return 0.0
+        return 0
+    return yen_floor(state.get("cash_yen", 0))
 
 
 def _get_positions_from_watchlist() -> dict:
@@ -407,6 +426,29 @@ class TradeSaleBody(BaseModel):
     shares: int = Field(ge=1)
 
 
+class SettingsUpdateBody(BaseModel):
+    """設定画面 POST /api/settings/update 用。未知キーは 422。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cash_yen: Optional[float] = Field(None, ge=0)
+    benchmark_ticker: Optional[str] = Field(None, min_length=1, max_length=40)
+    years: Optional[int] = Field(None, ge=1, le=30)
+    output_dir: Optional[str] = Field(None, min_length=1, max_length=200)
+    llm_enabled: Optional[bool] = None
+    vi_ticker: Optional[str] = Field(None, max_length=40)
+    mu_cash: Optional[float] = Field(None, ge=0.0, le=1.0)
+    a_vi: Optional[float] = Field(None, ge=0.0, le=2.0)
+    b_macd: Optional[float] = Field(None, ge=0.0, le=2.0)
+    daily_report_email_enabled: Optional[bool] = None
+    watchlist_max_items: Optional[int] = Field(None, ge=5, le=100)
+    purge_lot_threshold: Optional[float] = Field(None, ge=0.0, le=1.0)
+    max_position_percent: Optional[float] = Field(None, gt=0.0, le=100.0)
+    max_position_jpy: Optional[float] = Field(None, gt=0.0)
+    ignition_momentum_threshold: Optional[float] = Field(None, ge=0.0, le=100.0)
+    max_draft_candidates: Optional[int] = Field(None, ge=1, le=30)
+
+
 @router.get("/status")
 def get_status() -> dict:
     """Batch run status (for polling)."""
@@ -422,8 +464,9 @@ def get_status() -> dict:
     }
 
 
-@router.post("/run_batch", dependencies=[Depends(require_api_key)])
-def run_batch(background_tasks: BackgroundTasks) -> dict:
+@router.post("/run_batch", dependencies=MUTATING_DEPS)
+@limiter.limit(RUN_BATCH_RATE_LIMIT)
+def run_batch(request: Request, background_tasks: BackgroundTasks) -> dict:
     """Start daily batch in background."""
     with _batch_run_lock:
         status = _read_json(RUN_STATUS_PATH)
@@ -434,7 +477,7 @@ def run_batch(background_tasks: BackgroundTasks) -> dict:
     return {"ok": True, "message": "日次バッチを開始しました。"}
 
 
-@router.post("/analyze", dependencies=[Depends(require_api_key)])
+@router.post("/analyze", dependencies=MUTATING_DEPS)
 def analyze_ticker(body: dict) -> dict:
     """Run DVC for one ticker and add to watchlist (using core)."""
     raw = (body.get("ticker") or "").strip()
@@ -495,14 +538,115 @@ def analyze_ticker(body: dict) -> dict:
         scores_by_ticker={ticker: result},
         max_items=max_items,
     )
-    scores = result.scores
-    # 保存済みJSONから再読み込み（確実に全フィールド取得＋JSONシリアライズ可能な型）
     d = {}
     if saved_path.exists():
         try:
             d = json.loads(saved_path.read_text(encoding="utf-8"))
         except Exception:
             pass
+    if not d and result is not None:
+        d = {"name": result.name, "sector": result.sector, "scores": result.scores.model_dump()}
+    msg = (
+        "すでにウォッチリストに登録されています。"
+        if not was_added
+        else (
+            "ウォッチリストに自動追加されました。（上限超過のため最下位をパージしました）"
+            if did_evict_watching
+            else "ウォッチリストに自動追加されました。"
+        )
+    )
+    return _build_analyze_api_payload(
+        ticker,
+        d,
+        output_dir,
+        message=msg,
+        fallback_name=result.name if result else None,
+        fallback_sector=result.sector if result else None,
+    )
+
+
+OHLC_MAX_BARS = 2500
+
+
+def _dataframe_to_ohlc_bars(df) -> list[dict[str, Any]]:
+    """日足 DataFrame を Lightweight Charts 用の昇順バー配列に変換。"""
+    required = ("open", "high", "low", "close")
+    for col in required:
+        if col not in df.columns:
+            return []
+    bars: list[dict[str, Any]] = []
+    for ts, row in df.iterrows():
+        if hasattr(ts, "strftime"):
+            time_key = ts.strftime("%Y-%m-%d")
+        else:
+            time_key = str(ts)[:10]
+        try:
+            bars.append(
+                {
+                    "time": time_key,
+                    "open": float(row["open"]),
+                    "high": float(row["high"]),
+                    "low": float(row["low"]),
+                    "close": float(row["close"]),
+                }
+            )
+        except (TypeError, ValueError):
+            continue
+    bars.sort(key=lambda b: b["time"])
+    return bars
+
+
+def _watchlist_rank_for_ticker(ticker: str, output_dir: Path) -> tuple[int, int]:
+    """ウォッチリスト内の total_score 順位 (1-based) と件数。"""
+    from core.utils.watchlist_io import load_watchlist
+
+    last_report = _read_json(LAST_REPORT_PATH) or {}
+    portfolio_scores = last_report.get("portfolio_scores") or {}
+    wl = load_watchlist(str(WATCHLIST_PATH))
+    wl_tickers = [
+        it.get("ticker") or it.get("ticker_symbol", "")
+        for it in wl
+        if (it.get("ticker") or it.get("ticker_symbol"))
+    ]
+    ticker_scores: dict[str, float] = {}
+    for t in wl_tickers:
+        if t == ticker:
+            op_path = output_dir / f"{t}.json"
+            if op_path.exists():
+                try:
+                    j = json.loads(op_path.read_text(encoding="utf-8"))
+                    ticker_scores[t] = float((j.get("scores") or {}).get("total_score") or 0)
+                except Exception:
+                    ticker_scores[t] = 0.0
+            else:
+                ticker_scores[t] = 0.0
+        elif t in portfolio_scores:
+            ticker_scores[t] = float(portfolio_scores[t])
+        else:
+            op_path = output_dir / f"{t}.json"
+            if op_path.exists():
+                try:
+                    j = json.loads(op_path.read_text(encoding="utf-8"))
+                    ticker_scores[t] = float((j.get("scores") or {}).get("total_score") or 0)
+                except Exception:
+                    ticker_scores[t] = 0.0
+            else:
+                ticker_scores[t] = 0.0
+    sorted_tickers = sorted(ticker_scores.keys(), key=lambda x: -(ticker_scores.get(x) or 0))
+    rank = sorted_tickers.index(ticker) + 1 if ticker in sorted_tickers else 0
+    return rank, len(sorted_tickers)
+
+
+def _build_analyze_api_payload(
+    ticker: str,
+    d: dict,
+    output_dir: Path,
+    *,
+    message: str = "",
+    fallback_name: Optional[str] = None,
+    fallback_sector: Optional[str] = None,
+) -> dict[str, Any]:
+    """output JSON から analyze API レスポンスを組み立てる。"""
     s = d.get("scores") or {}
     ml = d.get("market_linkage") or {}
     rm = d.get("risk_metrics") or {}
@@ -516,33 +660,12 @@ def analyze_ticker(body: dict) -> dict:
     eps = fund.get("eps_ttm")
     pb = (float(last_close) / float(bps)) if (last_close is not None and bps and float(bps) > 0) else None
     pe = (float(last_close) / float(eps)) if (last_close is not None and eps and float(eps) > 0) else None
-    last_report = _read_json(LAST_REPORT_PATH) or {}
-    portfolio_scores = last_report.get("portfolio_scores") or {}
-    wl = load_watchlist(str(WATCHLIST_PATH))
-    wl_tickers = [it.get("ticker") or it.get("ticker_symbol", "") for it in wl if (it.get("ticker") or it.get("ticker_symbol"))]
-    ticker_scores = {}
-    for t in wl_tickers:
-        if t == ticker:
-            ticker_scores[t] = float(scores.total_score or 0)
-        elif t in portfolio_scores:
-            ticker_scores[t] = float(portfolio_scores[t])
-        else:
-            op_path = output_dir / f"{t}.json"
-            if op_path.exists():
-                try:
-                    j = json.loads(op_path.read_text(encoding="utf-8"))
-                    ticker_scores[t] = float((j.get("scores") or {}).get("total_score") or 0)
-                except Exception:
-                    ticker_scores[t] = 0.0
-            else:
-                ticker_scores[t] = 0.0
-    sorted_tickers = sorted(ticker_scores.keys(), key=lambda t: -(ticker_scores.get(t) or 0))
-    watchlist_rank = sorted_tickers.index(ticker) + 1 if ticker in sorted_tickers else 0
+    watchlist_rank, watchlist_total = _watchlist_rank_for_ticker(ticker, output_dir)
     return {
         "ok": True,
         "ticker": ticker,
-        "name": d.get("name") or result.name,
-        "sector": d.get("sector") or result.sector,
+        "name": d.get("name") or fallback_name,
+        "sector": d.get("sector") or fallback_sector,
         "value_score": s.get("value_score"),
         "safety_score": s.get("safety_score"),
         "momentum_score": s.get("momentum_score"),
@@ -569,16 +692,9 @@ def analyze_ticker(body: dict) -> dict:
         "target_pb": vi.get("target_pb"),
         "target_pe": vi.get("target_pe"),
         "watchlist_rank": watchlist_rank,
-        "watchlist_total": len(sorted_tickers),
-        "message": (
-            "すでにウォッチリストに登録されています。"
-            if not was_added
-            else (
-                "ウォッチリストに自動追加されました。（上限超過のため最下位をパージしました）"
-                if did_evict_watching
-                else "ウォッチリストに自動追加されました。"
-            )
-        ),
+        "watchlist_total": watchlist_total,
+        "message": message,
+        "has_output": True,
     }
 
 
@@ -616,18 +732,18 @@ def _run_dvc_for_ticker(ticker: str) -> None:
     update_scores_history_for_date(today_key, {ticker: result}, path=scores_path)
 
 
-@router.post("/trade/purchase", dependencies=[Depends(require_api_key)])
+@router.post("/trade/purchase", dependencies=MUTATING_DEPS)
 def trade_purchase(body: TradePurchaseBody) -> dict:
     """購入を記録。HOLDING 追加、現金から購入額を控除。"""
     ticker = _normalize_ticker(body.ticker)
     shares = body.shares
-    avg_price = body.avg_price
+    avg_price = yen_floor(body.avg_price)
 
-    cost = shares * avg_price
+    cost = yen_floor(shares * avg_price)
     state = _read_json(PORTFOLIO_STATE_PATH) or {}
     if not isinstance(state, dict):
         state = {}
-    cash = float(state.get("cash_yen", 0))
+    cash = yen_floor(state.get("cash_yen", 0))
     if cash < cost:
         raise HTTPException(status_code=400, detail=f"現金不足です。使える現金: {cash:,.0f} 円、購入額: {cost:,.0f} 円")
 
@@ -680,7 +796,7 @@ def trade_purchase(body: TradePurchaseBody) -> dict:
     return {"ok": True, "cash_yen": state["cash_yen"]}
 
 
-@router.post("/trade/sale", dependencies=[Depends(require_api_key)])
+@router.post("/trade/sale", dependencies=MUTATING_DEPS)
 def trade_sale(body: TradeSaleBody) -> dict:
     """売却を記録。HOLDING の株数を減らし（0 なら WATCHING に）、現金に売却代金を加算。"""
     ticker = _normalize_ticker(body.ticker)
@@ -709,7 +825,7 @@ def trade_sale(body: TradeSaleBody) -> dict:
     if shares_to_sell > current_shares:
         raise HTTPException(status_code=400, detail=f"売却株数は保有株数（{current_shares}）以下で指定してください。")
 
-    proceeds = shares_to_sell * price
+    proceeds = yen_floor(shares_to_sell * price)
     new_shares = current_shares - shares_to_sell
 
     for i in wl:
@@ -725,7 +841,7 @@ def trade_sale(body: TradeSaleBody) -> dict:
     state = _read_json(PORTFOLIO_STATE_PATH) or {}
     if not isinstance(state, dict):
         state = {}
-    cash = float(state.get("cash_yen", 0))
+    cash = yen_floor(state.get("cash_yen", 0))
     state["cash_yen"] = cash + proceeds
     _write_json(PORTFOLIO_STATE_PATH, state)
     return {"ok": True, "cash_yen": state["cash_yen"]}
@@ -744,22 +860,20 @@ CONFIG_KEYS = {
 }
 
 
-@router.post("/settings/update", dependencies=[Depends(require_api_key)])
-def update_settings(body: dict) -> dict:
+@router.post("/settings/update", dependencies=MUTATING_DEPS)
+def update_settings(body: SettingsUpdateBody) -> dict:
     """Update portfolio_state.json (cash_yen) と config.yaml。"""
+    payload = body.model_dump(exclude_none=True)
     result: dict = {}
-    if "cash_yen" in body:
-        try:
-            cash_yen = float(body["cash_yen"])
-        except (TypeError, ValueError):
-            raise HTTPException(status_code=400, detail="cash_yen は数値で指定してください。")
+    if "cash_yen" in payload:
+        cash_yen = yen_floor(payload["cash_yen"])
         state = _read_json(PORTFOLIO_STATE_PATH) or {}
         if not isinstance(state, dict):
             state = {}
         state["cash_yen"] = cash_yen
         _write_json(PORTFOLIO_STATE_PATH, state)
         result["cash_yen"] = cash_yen
-    flat = {k: v for k, v in body.items() if k in CONFIG_KEYS}
+    flat = {k: v for k, v in payload.items() if k in CONFIG_KEYS}
     if "output_dir" in flat:
         _resolve_output_dir({"output_dir": flat["output_dir"]})
     if flat:
@@ -777,6 +891,113 @@ def get_report_merged() -> dict:
     return _merge_report_data()
 
 
+def build_watchlist_analysis_index() -> list[dict[str, Any]]:
+    """
+    企業分析タブ用のウォッチリスト一覧メタデータ。
+    watchlist_io と同じパスで読み込む（/watchlist ページと整合）。
+    """
+    from core.utils.watchlist_io import load_watchlist
+
+    wl = load_watchlist(path=str(WATCHLIST_PATH))
+    last_report = _read_json(LAST_REPORT_PATH) or {}
+    if not isinstance(last_report, dict):
+        last_report = {}
+    names = last_report.get("ticker_names") or {}
+    last_prices = last_report.get("last_prices") or {}
+    portfolio_scores = last_report.get("portfolio_scores") or {}
+    try:
+        cfg = _load_validated_config()
+        output_dir = _resolve_output_dir(cfg)
+    except Exception:
+        output_dir = PROJECT_ROOT / "output"
+    items: list[dict[str, Any]] = []
+    for x in wl:
+        t = (x.get("ticker") or x.get("ticker_symbol") or "").strip()
+        if not t:
+            continue
+        op_path = output_dir / f"{t}.json"
+        total_score = portfolio_scores.get(t)
+        name = names.get(t)
+        if op_path.exists():
+            try:
+                j = json.loads(op_path.read_text(encoding="utf-8"))
+                if total_score is None:
+                    total_score = (j.get("scores") or {}).get("total_score")
+                if not name:
+                    name = j.get("name")
+            except (json.JSONDecodeError, OSError):
+                pass
+        items.append(
+            {
+                "ticker": t,
+                "name": name or "-",
+                "status": x.get("status") or "WATCHING",
+                "total_score": total_score,
+                "last_close": last_prices.get(t),
+                "has_output": op_path.exists(),
+            }
+        )
+    return items
+
+
+@router.get("/watchlist/analysis-index")
+def watchlist_analysis_index() -> dict:
+    """企業分析タブ用: ウォッチリスト銘柄の一覧メタデータ。"""
+    return {"items": build_watchlist_analysis_index()}
+
+
+@router.get("/ticker/{ticker}/analysis")
+def get_ticker_analysis(ticker: str) -> dict:
+    """保存済み output JSON から分析詳細を返す。"""
+    normalized = _normalize_ticker(ticker)
+    cfg = _load_validated_config()
+    output_dir = _resolve_output_dir(cfg)
+    op_path = output_dir / f"{normalized}.json"
+    if not op_path.exists():
+        raise HTTPException(status_code=404, detail=f"{normalized} の分析結果がありません。")
+    try:
+        d = json.loads(op_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        raise HTTPException(
+            status_code=500,
+            detail=_server_error_detail(f"分析 JSON の読み込みに失敗しました: {e}"),
+        ) from e
+    if not isinstance(d, dict):
+        raise HTTPException(status_code=404, detail=f"{normalized} の分析結果がありません。")
+    return _build_analyze_api_payload(
+        normalized,
+        d,
+        output_dir,
+        message="保存済みの分析結果を表示しています。",
+    )
+
+
+@router.get("/ticker/{ticker}/ohlc")
+def get_ticker_ohlc(ticker: str, years: int = Query(1, ge=1, le=30)) -> dict:
+    """日足 OHLCV（チャート用）。既定は直近 1 年分。"""
+    normalized = _normalize_ticker(ticker)
+    try:
+        from core.dvc.data_fetcher import fetch_price_history
+    except ImportError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=_server_error_detail(f"core の読み込みに失敗しました: {e}"),
+        ) from e
+    try:
+        df = fetch_price_history(normalized, years)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=_server_error_detail(f"株価データの取得に失敗しました: {e}"),
+        ) from e
+    bars = _dataframe_to_ohlc_bars(df)
+    if not bars:
+        raise HTTPException(status_code=404, detail=f"{normalized} の株価データがありません。")
+    if len(bars) > OHLC_MAX_BARS:
+        bars = bars[-OHLC_MAX_BARS:]
+    return {"ticker": normalized, "years": years, "bars": bars}
+
+
 @router.get("/watchlist")
 def get_watchlist() -> dict:
     """Watchlist and positions for UI."""
@@ -787,7 +1008,7 @@ def get_watchlist() -> dict:
     return {"watchlist": wl, "positions": pos}
 
 
-@router.delete("/watchlist/{ticker}", dependencies=[Depends(require_api_key)])
+@router.delete("/watchlist/{ticker}", dependencies=MUTATING_DEPS)
 def remove_watchlist_ticker(ticker: str) -> dict:
     """Remove ticker from watchlist (uses core)."""
     try:

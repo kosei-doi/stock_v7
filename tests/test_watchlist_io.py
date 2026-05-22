@@ -32,6 +32,22 @@ def test_update_holdings_bulk_adds_shares_and_weighted_avg(tmp_path):
     assert holding["avg_price"] == pytest.approx(1500.0)
 
 
+def test_update_holdings_bulk_floors_weighted_avg_price(tmp_path):
+    """加重平均単価は整数円に切り捨て。"""
+    path = tmp_path / "watchlist.json"
+    save_watchlist(
+        [{"ticker": "7203.T", "status": STATUS_HOLDING, "shares": 100, "avg_price": 1000}],
+        path=str(path),
+    )
+    update_holdings_bulk(
+        {"7203.T": {"shares": 100, "avg_price": 2000.9}},
+        path=str(path),
+    )
+    holding = load_watchlist(str(path))[0]
+    assert holding["shares"] == 200
+    assert holding["avg_price"] == 1500
+
+
 def test_update_holdings_bulk_new_holding_sets_values(tmp_path):
     """新規 HOLDING は渡された shares / avg_price をそのまま設定する。"""
     path = tmp_path / "watchlist.json"

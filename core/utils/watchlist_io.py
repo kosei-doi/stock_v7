@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Optional, TypedDict
 
 from core.dvc.schema import DvcScoreOutput
+from core.utils.money import yen_floor
 
 WATCHLIST_PATH = "data/watchlist.json"
 MAX_WATCHLIST = 30
@@ -80,7 +81,7 @@ def positions_from_watchlist(
         avg = i.get("avg_price")
         if avg is not None:
             try:
-                entry["avg_price"] = float(avg)
+                entry["avg_price"] = yen_floor(avg)
             except (TypeError, ValueError):
                 pass
         out[t] = entry
@@ -118,7 +119,7 @@ def add_to_watchlist(
     if status == STATUS_HOLDING and shares is not None:
         entry["shares"] = int(shares)
         if avg_price is not None:
-            entry["avg_price"] = float(avg_price)
+            entry["avg_price"] = yen_floor(avg_price)
     items.append(entry)
     new_items, did_evict = _evict_if_over(
         items, path,
@@ -147,7 +148,7 @@ def add_or_update_holding(
             if "shares_held" in i:
                 del i["shares_held"]
             if avg_price is not None:
-                i["avg_price"] = float(avg_price)
+                i["avg_price"] = yen_floor(avg_price)
             elif "avg_price" in i:
                 del i["avg_price"]
             save_watchlist(items, path)
@@ -205,16 +206,18 @@ def update_holdings_bulk(
             old_avg = i.get("avg_price")
             if avg_price is not None and shares > 0:
                 if old_avg is not None and old_shares > 0:
-                    i["avg_price"] = (old_shares * float(old_avg) + shares * avg_price) / new_shares
+                    i["avg_price"] = yen_floor(
+                        (old_shares * float(old_avg) + shares * avg_price) / new_shares
+                    )
                 else:
-                    i["avg_price"] = avg_price
+                    i["avg_price"] = yen_floor(avg_price)
             # avg_price 未指定の追加分のみ: 既存 avg_price は維持
         else:
             items.append({
                 "ticker": ticker,
                 "status": STATUS_HOLDING,
                 "shares": shares,
-                **({"avg_price": avg_price} if avg_price is not None else {}),
+                **({"avg_price": yen_floor(avg_price)} if avg_price is not None else {}),
             })
     max_items = max_items if max_items is not None else MAX_WATCHLIST
     if len(items) > max_items:

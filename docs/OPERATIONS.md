@@ -242,6 +242,91 @@ git commit -m "Stop tracking OAuth credentials"
 
 ---
 
+## 本番セキュリティ（Issue #2）
+
+本番 VPS では **API キー認証** と **ファイアウォールで 8000 を自宅 IP のみ** に制限します。TLS（HTTPS）は後続で nginx + Let's Encrypt または Cloudflare Tunnel を検討してください（当面は `http://VPSのIP:8000`）。
+
+**注意:** `DPA_API_KEY` を有効にすると、同一オリジンの HTML にキーが埋め込まれます（`dpaFetch` が `X-API-Key` を送るため）。単一ユーザー・IP 制限前提です。キーは Git に載せず、`/etc/dpa-app/dpa.env` のみに置きます。
+
+### 1. API キーと systemd 環境変数（VPS）
+
+```bash
+# キー生成（Mac でも VPS でも可）
+openssl rand -hex 32
+
+sudo mkdir -p /etc/dpa-app
+sudo cp /opt/dpa_app/scripts/dpa.env.example /etc/dpa-app/dpa.env
+sudo chmod 600 /etc/dpa-app/dpa.env
+sudo nano /etc/dpa-app/dpa.env   # DPA_API_KEY を実値に差し替え
+```
+
+`/etc/dpa-app/dpa.env` の例:
+
+```env
+DPA_ENV=production
+DPA_API_KEY=<openssl で生成した値>
+```
+
+`scripts/dpa_web.service` は `EnvironmentFile=-/etc/dpa-app/dpa.env` を読みます（ファイルが無い場合はスキップ＝開発モード相当）。
+
+```bash
+cd /opt/dpa_app
+sudo cp scripts/dpa_web.service /etc/systemd/system/dpa_web.service
+sudo systemctl daemon-reload
+sudo systemctl restart dpa_web
+sudo systemctl status dpa_web --no-pager
+```
+
+`DPA_ENV=production` 時は `/docs` 等の OpenAPI UI は出ません（404）。
+
+### 2. ファイアウォール（UFW + ConoHa）
+
+**UFW（VPS 内）** — `YOUR_HOME_IP` を自宅のグローバル IP に置き換え:
+
+```bash
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22/tcp
+sudo ufw allow from YOUR_HOME_IP to any port 8000 proto tcp
+sudo ufw enable
+sudo ufw status
+```
+
+**ConoHa セキュリティグループ**（コントロールパネル）でも **受信 TCP 8000** を同様に自宅 IP のみに制限してください。送信 OUT 443 は [VPS が GitHub に接続できないとき](#vps-が-github-に接続できないときclone--pull-が失敗) を参照。
+
+自宅 IP が変わったとき:
+
+```bash
+sudo ufw delete allow from OLD_IP to any port 8000 proto tcp
+sudo ufw allow from NEW_IP to any port 8000 proto tcp
+```
+
+### 3. 受入確認（curl）
+
+VPS 上または自宅から（`VPS_IP`・`KEY` を置き換え）:
+
+```bash
+# キーなし → 401
+curl -s -o /dev/null -w "%{http_code}\n" -X POST "http://127.0.0.1:8000/api/trade/purchase" \
+  -H "Content-Type: application/json" \
+  -H "X-DPA-Client: 1" \
+  -d '{"ticker":"7203","shares":1,"price":1000}'
+
+# キーあり・X-DPA-Client なし → 403
+curl -s -o /dev/null -w "%{http_code}\n" -X POST "http://127.0.0.1:8000/api/trade/purchase" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: KEY" \
+  -d '{"ticker":"7203","shares":1,"price":1000}'
+```
+
+ブラウザ（自宅 IP から）で `http://VPSのIP:8000` を開き、取引・設定保存・ダッシュボードのバッチ実行が成功することを確認します。
+
+### 4. デプロイ後（git pull）
+
+本番化のコードを反映したあとは、既存の [日常の更新フロー](#日常の更新フローこれだけ覚えればよい) のとおり `git pull` → 依存更新 → `systemctl restart dpa_web` です。`/etc/dpa-app/dpa.env` は **Git で上書きされません**（手動維持）。
+
+---
+
 ## チェックリスト（デプロイ後）
 
 - `git log` で VPS と GitHub が同じコミットか確認（`git rev-parse HEAD`）
@@ -252,6 +337,9 @@ git commit -m "Stop tracking OAuth credentials"
 - `git pull` 後に `config.yaml`・`data/` などが **GitHub の最新コミットと一致**している（必要なら `git status` でクリーン）
 - Mac / VPS とも `git ls-files` に `token.json`・`credentials.json` が**含まれない**（追跡外化済みであること）
 - `token.json` 等の機密が VPS に **手動配置済み**である
+- 本番: `/etc/dpa-app/dpa.env` に `DPA_ENV=production` と `DPA_API_KEY` が設定済み
+- 本番: UFW / ConoHa で **8000 は自宅 IP のみ**（上記 [本番セキュリティ](#本番セキュリティissue-2)）
+- 本番: `curl` でキーなし POST が **401**、ブラウザから POST が成功
 
 ---
 

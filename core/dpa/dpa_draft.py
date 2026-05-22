@@ -13,6 +13,7 @@ from core.dpa.dpa_portfolio_score import compute_portfolio_total_score
 from core.dpa.dpa_schema import BuyRecommendation, DpaDraftOutput, MacroPhase, MacroState
 from core.dpa.dpa_weights import compute_target_weights
 from core.dvc.schema import DvcScoreOutput
+from core.utils.money import yen_floor
 
 
 # 着火点: モメンタムスコアがこの値以上なら「陽転」とみなす
@@ -57,12 +58,14 @@ def run_draft(
             - draft_budget_cap: 実際にシミュレーションに渡した予算上限
             - available_budget: 採用シナリオの消費額 total_spent
     """
-    raw_for_report = float(raw_available_budget) if raw_available_budget is not None else float(available_budget)
+    raw_for_report = yen_floor(
+        raw_available_budget if raw_available_budget is not None else available_budget
+    )
     # ベースPFの構成比・ターゲット重みは参照のみ（シミュレーションでは仮想PFで再計算）
     _ = (target_weights, current_weights)
 
     pos_pct = float(max_position_pct) if max_position_pct is not None else float(_DEFAULT_MAX_POSITION_PCT)
-    pos_jpy = float(max_position_jpy) if max_position_jpy is not None else float(_DEFAULT_MAX_POSITION_JPY)
+    pos_jpy = yen_floor(max_position_jpy) if max_position_jpy is not None else yen_floor(_DEFAULT_MAX_POSITION_JPY)
     cap_n = int(max_draft_candidates) if max_draft_candidates is not None else int(MAX_DRAFT_CANDIDATES)
     if cap_n < 1:
         cap_n = 1
@@ -77,7 +80,7 @@ def run_draft(
             recommendations=[],
         )
 
-    sim_budget = float(available_budget)
+    sim_budget = yen_floor(available_budget)
 
     holding_tickers = {
         h.get("ticker") or h.get("ticker_symbol")
@@ -192,7 +195,7 @@ def run_draft(
                 continue
 
             shares = shares_from_lots(lots, lot_size)
-            cost = float(shares) * float(price)
+            cost = yen_floor(float(shares) * float(price))
             if cost <= 0 or cost > scenario_budget:
                 continue
 
@@ -227,12 +230,12 @@ def run_draft(
             best_score = scenario_score
             best_buys = list(scenario_buys)
 
-    total_spent_out = sum(b.budget_used for b in best_buys) if best_buys else 0.0
+    total_spent_out = yen_floor(sum(b.budget_used for b in best_buys) if best_buys else 0)
 
     return DpaDraftOutput(
         phase=macro_state.phase,
         draft_budget_cap=sim_budget,
         raw_available_budget=raw_for_report,
-        available_budget=float(total_spent_out),
+        available_budget=total_spent_out,
         recommendations=sorted(best_buys, key=lambda b: (b.score or 0.0), reverse=True),
     )

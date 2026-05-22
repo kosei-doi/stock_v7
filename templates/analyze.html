@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}企業分析 - DPA{% endblock %}
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-8">
   <h2 class="text-2xl font-bold text-slate-100">企業分析＆自動追加</h2>
   <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-lg">
     <label class="block text-slate-400 text-sm mb-2">コード（例: 7203 日本株 / AAPL 米国株）</label>
@@ -27,41 +27,107 @@
         <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Momentum:</span> <span id="result-momentum" class="text-slate-200"></span></div>
         <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Total:</span> <span id="result-total" class="text-amber-400 font-semibold"></span></div>
       </div>
-      <div id="result-detail" class="space-y-3 text-sm hidden">
-        <div class="text-slate-400 font-medium">詳細</div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">企業名:</span> <span id="result-name" class="text-slate-200 truncate"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">セクター:</span> <span id="result-sector" class="text-slate-200 truncate"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">終値:</span> <span id="result-last-close" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">P/B:</span> <span id="result-pb" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">P/E:</span> <span id="result-pe" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">β:</span> <span id="result-beta" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">R²:</span> <span id="result-r2" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ATR%:</span> <span id="result-atr" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ピア数:</span> <span id="result-peer-count" class="text-slate-200"></span></div>
+    </div>
+  </div>
+
+  <section class="space-y-4">
+    <h3 class="text-lg font-semibold text-slate-200">登録銘柄一覧</h3>
+    <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-slate-700/80 text-slate-400">
+            <tr>
+              <th class="px-4 py-3">コード</th>
+              <th class="px-4 py-3">銘柄名</th>
+              <th class="px-4 py-3">状態</th>
+              <th class="px-4 py-3 text-right">Total</th>
+              <th class="px-4 py-3 text-right">終値</th>
+            </tr>
+          </thead>
+          <tbody id="wl-index-body" class="divide-y divide-slate-700">
+            <tr><td colspan="5" class="px-4 py-6 text-slate-500 text-center">読み込み中…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- 銘柄詳細モーダル -->
+<div id="detail-modal" class="fixed inset-0 z-50 hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+  <div id="detail-modal-backdrop" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
+  <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none">
+    <div class="pointer-events-auto w-full sm:max-w-4xl max-h-[92vh] sm:max-h-[90vh] flex flex-col bg-slate-800 border border-slate-600 rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden">
+      <div class="flex items-start justify-between gap-3 px-4 py-3 border-b border-slate-700 shrink-0">
+        <div class="min-w-0">
+          <h3 class="text-lg font-semibold text-slate-100 truncate" id="detail-title">銘柄詳細</h3>
+          <p id="detail-status-msg" class="text-sm text-slate-400 mt-0.5"></p>
         </div>
-        <div class="text-slate-400 font-medium">取得データの特徴</div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">データ期間:</span> <span id="result-date-range" class="text-slate-200 text-xs"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">トレード日数:</span> <span id="result-rows" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ベンチマーク:</span> <span id="result-benchmark" class="text-slate-200 truncate"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">時系列Z(PB):</span> <span id="result-time-z-pb" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">時系列Z(PE):</span> <span id="result-time-z-pe" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ピアZ(PB):</span> <span id="result-space-z-pb" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ピアZ(PE):</span> <span id="result-space-z-pe" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">目標P/B:</span> <span id="result-target-pb" class="text-slate-200"></span></div>
-          <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">目標P/E:</span> <span id="result-target-pe" class="text-slate-200"></span></div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" id="btn-detail-analyze" class="hidden px-3 py-1.5 text-sm bg-amber-500 hover:bg-amber-600 text-slate-900 font-medium rounded-lg">分析実行</button>
+          <button type="button" id="btn-modal-close" class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-700" aria-label="閉じる">
+            <i class="fas fa-times text-lg"></i>
+          </button>
         </div>
-        <div class="flex flex-wrap gap-3 text-slate-400">
-          <span id="result-rank-badge"></span>
-          <span id="result-stop-loss"></span>
+      </div>
+      <div class="overflow-y-auto flex-1 px-4 py-4 space-y-4">
+        <div id="detail-chart-wrap" class="bg-slate-900/50 rounded-xl border border-slate-700 p-3">
+          <p class="text-xs text-slate-500 mb-2">日足チャート（直近1年）</p>
+          <div id="detail-chart" class="w-full h-72 sm:h-80"></div>
+          <p id="chart-loading" class="text-sm text-slate-500 mt-2 hidden"><i class="fas fa-spinner fa-spin mr-1"></i>チャート読み込み中…</p>
+        </div>
+        <div id="result-detail" class="space-y-3 text-sm">
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Value:</span> <span id="detail-value" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Safety:</span> <span id="detail-safety" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Momentum:</span> <span id="detail-momentum" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">Total:</span> <span id="detail-total" class="text-amber-400 font-semibold"></span></div>
+      </div>
+      <div class="text-slate-400 font-medium">詳細</div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">企業名:</span> <span id="result-name" class="text-slate-200 truncate"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">セクター:</span> <span id="result-sector" class="text-slate-200 truncate"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">終値:</span> <span id="result-last-close" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">P/B:</span> <span id="result-pb" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">P/E:</span> <span id="result-pe" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">β:</span> <span id="result-beta" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">R²:</span> <span id="result-r2" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ATR%:</span> <span id="result-atr" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ピア数:</span> <span id="result-peer-count" class="text-slate-200"></span></div>
+      </div>
+      <div class="text-slate-400 font-medium">取得データの特徴</div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">データ期間:</span> <span id="result-date-range" class="text-slate-200 text-xs"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">トレード日数:</span> <span id="result-rows" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ベンチマーク:</span> <span id="result-benchmark" class="text-slate-200 truncate"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">時系列Z(PB):</span> <span id="result-time-z-pb" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">時系列Z(PE):</span> <span id="result-time-z-pe" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ピアZ(PB):</span> <span id="result-space-z-pb" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">ピアZ(PE):</span> <span id="result-space-z-pe" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">目標P/B:</span> <span id="result-target-pb" class="text-slate-200"></span></div>
+        <div class="bg-slate-700/50 rounded p-2"><span class="text-slate-500">目標P/E:</span> <span id="result-target-pe" class="text-slate-200"></span></div>
+      </div>
+      <div class="flex flex-wrap gap-3 text-slate-400">
+        <span id="result-rank-badge"></span>
+        <span id="result-stop-loss"></span>
+      </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<script id="analysis-index-data" type="application/json">{{ analysis_index_items | tojson }}</script>
 <script>
 (function() {
+  let INITIAL_INDEX = [];
+  try {
+    const el = document.getElementById('analysis-index-data');
+    INITIAL_INDEX = el && el.textContent ? JSON.parse(el.textContent) : [];
+  } catch (e) {
+    INITIAL_INDEX = [];
+  }
   const input = document.getElementById('ticker-input');
   const btn = document.getElementById('btn-analyze');
   const msg = document.getElementById('analyze-msg');
@@ -72,9 +138,23 @@
   const resultSafety = document.getElementById('result-safety');
   const resultMomentum = document.getElementById('result-momentum');
   const resultTotal = document.getElementById('result-total');
+  const indexBody = document.getElementById('wl-index-body');
+  const detailModal = document.getElementById('detail-modal');
+  const detailBackdrop = document.getElementById('detail-modal-backdrop');
+  const btnModalClose = document.getElementById('btn-modal-close');
+  const detailTitle = document.getElementById('detail-title');
+  const detailStatus = document.getElementById('detail-status-msg');
+  const btnDetailAnalyze = document.getElementById('btn-detail-analyze');
+  const chartEl = document.getElementById('detail-chart');
+  const chartLoading = document.getElementById('chart-loading');
+
+  let chartInstance = null;
+  let candleSeries = null;
+  let selectedTicker = null;
+  let indexItems = [];
+  let modalOpen = false;
 
   function normalizeTicker(str) {
-    // 全角英数字を半角に変換
     const toHalf = str.replace(/[０-９Ａ-Ｚａ-ｚ]/g, function(c) {
       const code = c.charCodeAt(0);
       if (code >= 0xFF10 && code <= 0xFF19) return String.fromCharCode(code - 0xFEE0);
@@ -85,20 +165,225 @@
     return toHalf.replace(/[^A-Za-z0-9.]/g, '').toUpperCase();
   }
 
-  btn.addEventListener('click', function() {
-    const raw = (input.value || '').trim();
-    const ticker = normalizeTicker(raw);
-    if (!ticker || ticker.length < 2 || ticker.length > 20) {
-      msg.textContent = 'コードは 2〜20 文字の英数字で入力してください（例: 7203, AAPL）。';
-      msg.className = 'mt-3 text-sm text-amber-400';
+  function fmt(v, d = 2) {
+    return (v != null && v !== '' && !isNaN(v)) ? (typeof v === 'number' && v % 1 !== 0 ? v.toFixed(d) : v) : '-';
+  }
+
+  function fillDetail(data) {
+    document.getElementById('detail-value').textContent = data.value_score != null ? Number(data.value_score).toFixed(1) : '-';
+    document.getElementById('detail-safety').textContent = data.safety_score != null ? Number(data.safety_score).toFixed(1) : '-';
+    document.getElementById('detail-momentum').textContent = data.momentum_score != null ? Number(data.momentum_score).toFixed(1) : '-';
+    document.getElementById('detail-total').textContent = data.total_score != null ? Number(data.total_score).toFixed(1) : '-';
+    document.getElementById('result-name').textContent = data.name || data.ticker || '-';
+    document.getElementById('result-sector').textContent = data.sector || '-';
+    document.getElementById('result-last-close').textContent = data.last_close != null && data.last_close !== '' ? Number(data.last_close).toLocaleString() + ' 円' : '-';
+    document.getElementById('result-pb').textContent = fmt(data.pb);
+    document.getElementById('result-pe').textContent = fmt(data.pe);
+    document.getElementById('result-beta').textContent = fmt(data.beta);
+    document.getElementById('result-r2').textContent = data.r_squared != null && data.r_squared !== '' ? (Number(data.r_squared) * 100).toFixed(1) + '%' : '-';
+    document.getElementById('result-atr').textContent = data.atr_percent != null && data.atr_percent !== '' ? Number(data.atr_percent).toFixed(2) + '%' : '-';
+    document.getElementById('result-peer-count').textContent = data.peer_count != null && data.peer_count !== '' ? data.peer_count : '-';
+    const dmin = data.date_min, dmax = data.date_max;
+    document.getElementById('result-date-range').textContent = (dmin && dmax) ? (String(dmin).replace(/ 00:00:00/, '') + ' 〜 ' + String(dmax).replace(/ 00:00:00/, '')) : '-';
+    document.getElementById('result-rows').textContent = data.rows != null && data.rows !== '' ? data.rows + ' 日' : '-';
+    document.getElementById('result-benchmark').textContent = data.benchmark || '-';
+    document.getElementById('result-time-z-pb').textContent = fmt(data.time_z_pb);
+    document.getElementById('result-time-z-pe').textContent = fmt(data.time_z_pe);
+    document.getElementById('result-space-z-pb').textContent = fmt(data.space_z_pb);
+    document.getElementById('result-space-z-pe').textContent = fmt(data.space_z_pe);
+    document.getElementById('result-target-pb').textContent = fmt(data.target_pb);
+    document.getElementById('result-target-pe').textContent = fmt(data.target_pe);
+    const rankBadge = document.getElementById('result-rank-badge');
+    if (data.watchlist_rank != null && data.watchlist_total != null && data.watchlist_total > 0) {
+      rankBadge.textContent = 'ウォッチリスト順位: ' + data.watchlist_rank + ' / ' + data.watchlist_total;
+      rankBadge.className = 'text-amber-400 font-medium';
+    } else {
+      rankBadge.textContent = '';
+    }
+    const stopLoss = document.getElementById('result-stop-loss');
+    if (data.stop_loss_recommendation != null && !isNaN(data.stop_loss_recommendation)) {
+      stopLoss.textContent = '推奨損切り: ' + Number(data.stop_loss_recommendation).toLocaleString() + ' 円';
+    } else {
+      stopLoss.textContent = '';
+    }
+  }
+
+  function destroyChart() {
+    if (chartInstance) {
+      chartInstance.remove();
+      chartInstance = null;
+      candleSeries = null;
+    }
+  }
+
+  function ensureChart() {
+    destroyChart();
+    const h = chartEl.clientHeight || 320;
+    chartInstance = LightweightCharts.createChart(chartEl, {
+      layout: { background: { color: '#0f172a' }, textColor: '#94a3b8' },
+      grid: { vertLines: { color: '#334155' }, horzLines: { color: '#334155' } },
+      width: chartEl.clientWidth,
+      height: h,
+    });
+    candleSeries = chartInstance.addCandlestickSeries({
+      upColor: '#ef4444',
+      downColor: '#22c55e',
+      borderVisible: false,
+      wickUpColor: '#ef4444',
+      wickDownColor: '#22c55e',
+    });
+  }
+
+  function resizeChart() {
+    if (!chartInstance || !modalOpen) return;
+    chartInstance.applyOptions({ width: chartEl.clientWidth, height: chartEl.clientHeight || 320 });
+    chartInstance.timeScale().fitContent();
+  }
+
+  function renderChart(bars) {
+    ensureChart();
+    candleSeries.setData(bars);
+    requestAnimationFrame(resizeChart);
+  }
+
+  function openModal() {
+    detailModal.classList.remove('hidden');
+    detailModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('overflow-hidden');
+    modalOpen = true;
+    requestAnimationFrame(resizeChart);
+  }
+
+  function closeModal() {
+    detailModal.classList.add('hidden');
+    detailModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('overflow-hidden');
+    modalOpen = false;
+    destroyChart();
+    const url = new URL(window.location.href);
+    url.searchParams.delete('ticker');
+    history.replaceState(null, '', url.pathname + (url.search || ''));
+  }
+
+  function selectTicker(ticker, opts) {
+    opts = opts || {};
+    selectedTicker = ticker;
+    detailTitle.textContent = (opts.name && opts.name !== '-') ? (ticker + ' — ' + opts.name) : ticker;
+    detailStatus.textContent = '';
+    btnDetailAnalyze.classList.toggle('hidden', opts.hasOutput !== false);
+    input.value = ticker.replace(/\.T$/i, '');
+    openModal();
+    const url = new URL(window.location.href);
+    url.searchParams.set('ticker', ticker);
+    history.replaceState(null, '', url);
+
+    chartLoading.classList.remove('hidden');
+    fetch('/api/ticker/' + encodeURIComponent(ticker) + '/ohlc?years=1')
+      .then(r => {
+        if (!r.ok) return r.json().then(d => { throw new Error(d.detail || r.statusText); });
+        return r.json();
+      })
+      .then(data => { renderChart(data.bars || []); })
+      .catch(e => { detailStatus.textContent = 'チャート: ' + (e.message || '取得失敗'); })
+      .finally(() => { chartLoading.classList.add('hidden'); });
+
+    if (opts.hasOutput === false) {
+      detailStatus.textContent = '未分析です。「分析実行」で DVC を実行できます。';
       return;
     }
+    fetch('/api/ticker/' + encodeURIComponent(ticker) + '/analysis')
+      .then(r => {
+        if (!r.ok) return r.json().then(d => { throw new Error(d.detail || r.statusText); });
+        return r.json();
+      })
+      .then(data => {
+        fillDetail(data);
+        if (data.message) detailStatus.textContent = data.message;
+      })
+      .catch(e => {
+        detailStatus.textContent = e.message || '分析の読み込みに失敗しました';
+        btnDetailAnalyze.classList.remove('hidden');
+      });
+  }
+
+  function renderIndex(items) {
+    indexItems = items || [];
+    if (!indexItems.length) {
+      indexBody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-slate-500 text-center">ウォッチリストが空です</td></tr>';
+      return;
+    }
+    indexBody.innerHTML = indexItems.map(function(row) {
+      const score = row.total_score != null ? Number(row.total_score).toFixed(1) : '-';
+      const close = row.last_close != null ? Number(row.last_close).toLocaleString() : '-';
+      const statusCls = row.status === 'HOLDING' ? 'text-green-400' : 'text-slate-300';
+      const unanalyzed = !row.has_output ? ' <span class="text-xs text-amber-400">未分析</span>' : '';
+      return '<tr class="hover:bg-slate-700/50 cursor-pointer wl-row" data-ticker="' + row.ticker + '" data-has-output="' + (row.has_output ? '1' : '0') + '">' +
+        '<td class="px-4 py-3 font-mono text-amber-300/90">' + row.ticker + '</td>' +
+        '<td class="px-4 py-3">' + (row.name || '-') + unanalyzed + '</td>' +
+        '<td class="px-4 py-3 ' + statusCls + '">' + (row.status || 'WATCHING') + '</td>' +
+        '<td class="px-4 py-3 text-right">' + score + '</td>' +
+        '<td class="px-4 py-3 text-right">' + close + '</td></tr>';
+    }).join('');
+    indexBody.querySelectorAll('.wl-row').forEach(function(tr) {
+      tr.addEventListener('click', function() {
+        indexBody.querySelectorAll('.wl-row').forEach(r => r.classList.remove('bg-slate-700'));
+        tr.classList.add('bg-slate-700');
+        const row = indexItems.find(function(i) { return i.ticker === tr.dataset.ticker; });
+        selectTicker(tr.dataset.ticker, {
+          hasOutput: tr.dataset.hasOutput === '1',
+          name: row ? row.name : undefined,
+        });
+      });
+    });
+  }
+
+  function loadIndex() {
+    if (Array.isArray(INITIAL_INDEX) && INITIAL_INDEX.length > 0) {
+      renderIndex(INITIAL_INDEX);
+    }
+    fetch('/api/watchlist/analysis-index')
+      .then(function(r) {
+        if (!r.ok) {
+          return r.json().then(function(d) {
+            const detail = d && d.detail;
+            const msg = typeof detail === 'string' ? detail : (Array.isArray(detail) ? JSON.stringify(detail) : ('HTTP ' + r.status));
+            throw new Error(msg);
+          });
+        }
+        return r.json();
+      })
+      .then(function(data) {
+        const items = data.items || [];
+        renderIndex(items);
+        if (!items.length) {
+          return;
+        }
+        const params = new URLSearchParams(window.location.search);
+        const t = params.get('ticker');
+        if (t) {
+          const row = items.find(function(i) { return i.ticker === t || i.ticker === normalizeTicker(t); });
+          selectTicker(row ? row.ticker : normalizeTicker(t), {
+            hasOutput: row ? row.has_output : true,
+            name: row ? row.name : undefined,
+          });
+        }
+      })
+      .catch(function(e) {
+        if (indexItems.length > 0) {
+          return;
+        }
+        const hint = (e && e.message) ? e.message : '不明なエラー';
+        indexBody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-red-400 text-center">一覧の取得に失敗しました: ' + hint + '</td></tr>';
+      });
+  }
+
+  function runAnalyze(ticker) {
     msg.textContent = '';
     result.classList.add('hidden');
     loading.classList.remove('hidden');
     loading.classList.add('flex');
     btn.disabled = true;
-    fetch('/api/analyze', {
+    return dpaFetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ticker: ticker })
@@ -108,59 +393,47 @@
     }).then(data => {
       loading.classList.add('hidden');
       result.classList.remove('hidden');
-      resultMessage.textContent = data.message || 'ウォッチリストに自動追加されました。';
-      resultValue.textContent = data.value_score != null ? data.value_score.toFixed(1) : '-';
-      resultSafety.textContent = data.safety_score != null ? data.safety_score.toFixed(1) : '-';
-      resultMomentum.textContent = data.momentum_score != null ? data.momentum_score.toFixed(1) : '-';
-      resultTotal.textContent = data.total_score != null ? data.total_score.toFixed(1) : '-';
-
-      const detail = document.getElementById('result-detail');
-      const fmt = (v, d = 2) => (v != null && v !== '' && !isNaN(v)) ? (typeof v === 'number' && v % 1 !== 0 ? v.toFixed(d) : v) : '-';
-      document.getElementById('result-name').textContent = data.name || data.ticker || '-';
-      document.getElementById('result-sector').textContent = data.sector || '-';
-      document.getElementById('result-last-close').textContent = data.last_close != null && data.last_close !== '' ? Number(data.last_close).toLocaleString() + ' 円' : '-';
-      document.getElementById('result-pb').textContent = fmt(data.pb);
-      document.getElementById('result-pe').textContent = fmt(data.pe);
-      document.getElementById('result-beta').textContent = fmt(data.beta);
-      document.getElementById('result-r2').textContent = data.r_squared != null && data.r_squared !== '' ? (Number(data.r_squared) * 100).toFixed(1) + '%' : '-';
-      document.getElementById('result-atr').textContent = data.atr_percent != null && data.atr_percent !== '' ? Number(data.atr_percent).toFixed(2) + '%' : '-';
-      document.getElementById('result-peer-count').textContent = data.peer_count != null && data.peer_count !== '' ? data.peer_count : '-';
-
-      const dmin = data.date_min, dmax = data.date_max;
-      const dateRange = (dmin && dmax) ? (dmin.replace(/ 00:00:00/, '') + ' 〜 ' + dmax.replace(/ 00:00:00/, '')) : '-';
-      document.getElementById('result-date-range').textContent = dateRange;
-      document.getElementById('result-rows').textContent = data.rows != null && data.rows !== '' ? data.rows + ' 日' : '-';
-      document.getElementById('result-benchmark').textContent = data.benchmark || '-';
-      document.getElementById('result-time-z-pb').textContent = fmt(data.time_z_pb);
-      document.getElementById('result-time-z-pe').textContent = fmt(data.time_z_pe);
-      document.getElementById('result-space-z-pb').textContent = fmt(data.space_z_pb);
-      document.getElementById('result-space-z-pe').textContent = fmt(data.space_z_pe);
-      document.getElementById('result-target-pb').textContent = fmt(data.target_pb);
-      document.getElementById('result-target-pe').textContent = fmt(data.target_pe);
-
-      const rankBadge = document.getElementById('result-rank-badge');
-      if (data.watchlist_rank != null && data.watchlist_total != null && data.watchlist_total > 0) {
-        rankBadge.textContent = 'ウォッチリスト順位: ' + data.watchlist_rank + ' / ' + data.watchlist_total;
-        rankBadge.className = 'text-amber-400 font-medium';
-      } else {
-        rankBadge.textContent = '';
-      }
-
-      const stopLoss = document.getElementById('result-stop-loss');
-      if (data.stop_loss_recommendation != null && !isNaN(data.stop_loss_recommendation)) {
-        stopLoss.textContent = '推奨損切り: ' + Number(data.stop_loss_recommendation).toLocaleString() + ' 円';
-      } else {
-        stopLoss.textContent = '';
-      }
-
-      detail.classList.remove('hidden');
-      msg.textContent = '';
+      resultMessage.textContent = data.message || '完了';
+      resultValue.textContent = data.value_score != null ? Number(data.value_score).toFixed(1) : '-';
+      resultSafety.textContent = data.safety_score != null ? Number(data.safety_score).toFixed(1) : '-';
+      resultMomentum.textContent = data.momentum_score != null ? Number(data.momentum_score).toFixed(1) : '-';
+      resultTotal.textContent = data.total_score != null ? Number(data.total_score).toFixed(1) : '-';
+      loadIndex();
+      selectTicker(data.ticker, { hasOutput: true, name: data.name });
+      fillDetail(data);
     }).catch(e => {
       loading.classList.add('hidden');
       msg.textContent = 'エラー: ' + (e.message || '分析に失敗しました');
       msg.className = 'mt-3 text-sm text-red-400';
     }).finally(() => { btn.disabled = false; });
+  }
+
+  btn.addEventListener('click', function() {
+    const ticker = normalizeTicker((input.value || '').trim());
+    if (!ticker || ticker.length < 2 || ticker.length > 20) {
+      msg.textContent = 'コードは 2〜20 文字の英数字で入力してください（例: 7203, AAPL）。';
+      msg.className = 'mt-3 text-sm text-amber-400';
+      return;
+    }
+    runAnalyze(ticker);
   });
+
+  btnDetailAnalyze.addEventListener('click', function() {
+    if (!selectedTicker) return;
+    input.value = selectedTicker.replace(/\.T$/i, '');
+    runAnalyze(normalizeTicker(selectedTicker.replace(/\.T$/i, '')));
+  });
+
+  btnModalClose.addEventListener('click', closeModal);
+  detailBackdrop.addEventListener('click', closeModal);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modalOpen) closeModal();
+  });
+  window.addEventListener('resize', function() {
+    if (modalOpen) resizeChart();
+  });
+
+  loadIndex();
 })();
 </script>
 {% endblock %}

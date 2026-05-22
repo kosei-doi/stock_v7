@@ -6,6 +6,8 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
+DPA_CLIENT_HEADERS = {"X-DPA-Client": "1"}
+
 
 @pytest.fixture
 def trade_env(tmp_path, monkeypatch):
@@ -38,13 +40,13 @@ def test_trade_purchase_requires_api_key_when_set(trade_env, monkeypatch):
     monkeypatch.setenv("DPA_API_KEY", "test-secret-key")
     body = {"ticker": "7203", "shares": 100, "avg_price": 2500.0}
 
-    resp = client.post("/api/trade/purchase", json=body)
+    resp = client.post("/api/trade/purchase", json=body, headers=DPA_CLIENT_HEADERS)
     assert resp.status_code == 401
 
     resp = client.post(
         "/api/trade/purchase",
         json=body,
-        headers={"X-API-Key": "wrong-key"},
+        headers={**DPA_CLIENT_HEADERS, "X-API-Key": "wrong-key"},
     )
     assert resp.status_code == 401
 
@@ -56,6 +58,7 @@ def test_trade_purchase_rejects_insufficient_cash(trade_env):
     resp = client.post(
         "/api/trade/purchase",
         json={"ticker": "7203", "shares": 100, "avg_price": 2500.0},
+        headers=DPA_CLIENT_HEADERS,
     )
     assert resp.status_code == 400
     assert "現金不足" in resp.json()["detail"]
@@ -72,6 +75,7 @@ def test_trade_purchase_normalizes_ticker(trade_env):
     resp = client.post(
         "/api/trade/purchase",
         json={"ticker": "7203", "shares": 100, "avg_price": 2500.0},
+        headers=DPA_CLIENT_HEADERS,
     )
     assert resp.status_code == 200
     assert resp.json()["ok"] is True
@@ -94,6 +98,7 @@ def test_trade_sale_rejects_missing_price(trade_env):
     resp = client.post(
         "/api/trade/sale",
         json={"ticker": "7203", "shares": 100},
+        headers=DPA_CLIENT_HEADERS,
     )
     assert resp.status_code == 400
     assert "株価データがありません" in resp.json()["detail"]
@@ -109,6 +114,7 @@ def test_trade_sale_rejects_not_holding(trade_env):
     resp = client.post(
         "/api/trade/sale",
         json={"ticker": "7203", "shares": 100},
+        headers=DPA_CLIENT_HEADERS,
     )
     assert resp.status_code == 400
     assert "保有銘柄ではありません" in resp.json()["detail"]
@@ -124,9 +130,33 @@ def test_trade_sale_rejects_excess_shares(trade_env):
     resp = client.post(
         "/api/trade/sale",
         json={"ticker": "7203.T", "shares": 200},
+        headers=DPA_CLIENT_HEADERS,
     )
     assert resp.status_code == 400
     assert "保有株数" in resp.json()["detail"]
+
+
+def test_trade_purchase_floors_fractional_cost(trade_env):
+    """購入額・現金残高は整数円（切り捨て）。"""
+    client, wl, portfolio, _ = trade_env
+    wl.write_text(
+        json.dumps([{"ticker": "7203.T", "status": "WATCHING"}]),
+        encoding="utf-8",
+    )
+    portfolio.write_text(json.dumps({"cash_yen": 1_000_000}), encoding="utf-8")
+
+    resp = client.post(
+        "/api/trade/purchase",
+        json={"ticker": "7203", "shares": 100, "avg_price": 2500.99},
+        headers=DPA_CLIENT_HEADERS,
+    )
+    assert resp.status_code == 200
+    assert resp.json()["cash_yen"] == 750_000
+
+    items = json.loads(wl.read_text(encoding="utf-8"))
+    holding = next(i for i in items if i.get("ticker") == "7203.T")
+    assert holding["avg_price"] == 2500
+    assert holding["shares"] == 100
 
 
 def test_trade_sale_normalizes_ticker(trade_env):
@@ -140,6 +170,7 @@ def test_trade_sale_normalizes_ticker(trade_env):
     resp = client.post(
         "/api/trade/sale",
         json={"ticker": "7203", "shares": 100},
+        headers=DPA_CLIENT_HEADERS,
     )
     assert resp.status_code == 200
     assert resp.json()["cash_yen"] == pytest.approx(250_000.0)

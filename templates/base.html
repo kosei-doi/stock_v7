@@ -75,6 +75,23 @@
 
   {% block scripts %}{% endblock %}
 
+  {% if dpa_api_key %}
+  <script>window.__DPA_API_KEY__ = {{ dpa_api_key_json }};</script>
+  {% endif %}
+  <script>
+    window.dpaFetch = function(url, options) {
+      options = options || {};
+      const method = (options.method || 'GET').toUpperCase();
+      options.headers = Object.assign({}, options.headers || {});
+      if (method !== 'GET' && method !== 'HEAD') {
+        options.headers['X-DPA-Client'] = '1';
+        if (window.__DPA_API_KEY__) {
+          options.headers['X-API-Key'] = window.__DPA_API_KEY__;
+        }
+      }
+      return fetch(url, options);
+    };
+  </script>
   <script>
     (function () {
       const btn = document.getElementById('mobile-menu-toggle');

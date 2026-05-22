@@ -41,7 +41,7 @@
     btn.addEventListener('click', function() {
       const ticker = this.getAttribute('data-ticker');
       if (!ticker || !confirm('「' + ticker + '」をウォッチリストから削除しますか？')) return;
-      fetch('/api/watchlist/' + encodeURIComponent(ticker), { method: 'DELETE' })
+      dpaFetch('/api/watchlist/' + encodeURIComponent(ticker), { method: 'DELETE' })
         .then(r => r.json())
         .then(() => { document.querySelector('tr[data-ticker="' + ticker + '"]').remove(); })
         .catch(() => alert('削除に失敗しました。'));

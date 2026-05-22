@@ -217,7 +217,7 @@
     msg.className = 'text-sm text-slate-400';
     btn.disabled = true;
 
-    fetch('/api/settings/update', {
+    dpaFetch('/api/settings/update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)

@@ -383,7 +383,7 @@
 
   btn.addEventListener('click', function() {
     msg.textContent = '';
-    fetch('/api/run_batch', { method: 'POST' }).then(r => r.json()).then(() => {
+    dpaFetch('/api/run_batch', { method: 'POST' }).then(r => r.json()).then(() => {
       progressArea.classList.remove('hidden');
       progressBar.style.width = '0%';
       progressStep.textContent = '0/7';
