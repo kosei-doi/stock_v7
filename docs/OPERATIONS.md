@@ -360,7 +360,9 @@ JSON を SoT から SQLite へ移す手順。詳細は [`docs/ADR-001-database.m
 | `data/sector_peers.json` | `sector_peers` |
 | `output/*.json` | `ticker_analyses` |
 
-**運用メモ:** `git pull` は**コードのみ**同期する。VPS 上の `data/`・`output/`・`data/dpa.db` はローカル実データのため、Mac と Git で二重管理しない。Mac で試す場合も同手順で `--data-dir` にプロジェクトルートを指定できる。
+**運用メモ:** `data/*.json`・`output/*.json`・`portfolio_state.json` は **Git 非追跡**（`.gitignore`）。`git pull` はコードのみ更新し、VPS の JSON は上書きされない。Mac で試す場合も同手順で `--data-dir` にプロジェクトルートを指定できる。
+
+**初回 `git pull`（JSON を Git から外したコミット以降）:** リポジトリからファイル削除のコミットを取り込むと、作業ツリー上の追跡済み JSON が消える場合がある。**pull 前に `data` / `output` / `portfolio_state.json` をバックアップ**し、消えたらバックアップから戻す。
 
 ### 1. バックアップ（VPS）
 

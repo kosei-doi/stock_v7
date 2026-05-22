@@ -27,6 +27,13 @@ credentials.json
 *.swp
 *~
 
+# 実行時データ（環境ごと。git pull / deploy で上書きしない）
+data/*
+!data/.gitkeep
+output/*
+!output/.gitkeep
+portfolio_state.json
+
 # SQLite（本番・開発とも Git 非追跡）
 data/dpa.db
 data/dpa.db-*
