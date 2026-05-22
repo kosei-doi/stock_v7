@@ -343,9 +343,24 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST "http://127.0.0.1:8000/api/trad
 
 ---
 
-## 本番 DB 切替（SQLite / DB-6）
+## 本番 DB 切替（SQLite / DB-6〜8）
 
 JSON を SoT から SQLite へ移す手順。詳細は [`docs/ADR-001-database.md`](ADR-001-database.md) を参照。
+
+### 移行対象（`data/dpa.db` に取り込む）
+
+| ソース | テーブル / Repository |
+|--------|------------------------|
+| `data/watchlist.json` | `watchlist_items` |
+| `portfolio_state.json` | `portfolio_state` |
+| `data/last_report.json` / `previous_report.json` | `daily_reports` |
+| `data/scores_history.json` | `score_history_entries` |
+| `data/run_status.json` | `run_jobs` |
+| `data/daily_cache.json`（任意・大） | `market_cache` |
+| `data/sector_peers.json` | `sector_peers` |
+| `output/*.json` | `ticker_analyses` |
+
+**運用メモ:** `git pull` は**コードのみ**同期する。VPS 上の `data/`・`output/`・`data/dpa.db` はローカル実データのため、Mac と Git で二重管理しない。Mac で試す場合も同手順で `--data-dir` にプロジェクトルートを指定できる。
 
 ### 1. バックアップ（VPS）
 
@@ -370,11 +385,24 @@ python scripts/migrate_json_to_db.py --data-dir /opt/dpa_app --dry-run
 
 ### 3. import
 
+一括ラッパー（推奨）:
+
+```bash
+chmod +x scripts/migrate_production.sh
+APP_DIR=/opt/dpa_app ./scripts/migrate_production.sh
+# JSON 退避まで自動: APP_DIR=/opt/dpa_app ./scripts/migrate_production.sh --archive-json
+```
+
+手動で行う場合:
+
 ```bash
 python scripts/migrate_json_to_db.py --data-dir /opt/dpa_app
+python scripts/verify_db_migration.py --data-dir /opt/dpa_app
 # JSON を退避する場合（推奨・成功後のみ）:
 # python scripts/migrate_json_to_db.py --data-dir /opt/dpa_app --archive-json
 ```
+
+`verify_db_migration.py` は import 直後・`DPA_PERSISTENCE=sqlite` 切替前に実行し、JSON と DB の件数・現金・`data_date` が一致することを確認する。不一致時は exit 1。
 
 ### 4. 切替・再起動
 

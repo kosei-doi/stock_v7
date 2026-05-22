@@ -28,7 +28,7 @@ from core.utils.config_loader import (
     load_merged_config,
     watchlist_max_items_from_raw_config,
 )
-from core.persistence import get_persistence, sync_watchlist_from_json_file_if_sqlite
+from core.persistence import get_persistence
 from core.utils.money import yen_floor
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -202,8 +202,7 @@ def _merge_report_data() -> dict[str, Any]:
         return {"report": None, "holdings_merged": [], "watchlist_merged": [], "purge": None, "draft": None}
     prev = reports.get_previous()
     positions = _get_positions_from_watchlist()
-    from core.utils.watchlist_io import load_watchlist as get_watchlist
-    current_watchlist = get_watchlist(path=str(get_persistence().paths.watchlist_path))
+    current_watchlist = get_persistence().watchlist.load_all()
     watchlist_tickers = {
         (
             item.get("ticker")
@@ -744,7 +743,6 @@ def trade_purchase(body: TradePurchaseBody) -> dict:
             portfolio_scores=portfolio_scores,
             max_items=max_items,
         )
-        sync_watchlist_from_json_file_if_sqlite()
     except ImportError as e:
         raise HTTPException(
             status_code=500,

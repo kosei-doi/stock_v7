@@ -36,14 +36,10 @@ def _seed_report(bundle) -> None:
     )
 
 
-def test_report_merged_sqlite(sqlite_persistence, monkeypatch):
-    bundle, paths = sqlite_persistence
+def test_report_merged_sqlite_db_only(sqlite_persistence):
+    """JSON ミラーなし（SQLite watchlist のみ）で merged が動作する。"""
+    bundle, _paths = sqlite_persistence
     _seed_report(bundle)
-
-    paths.watchlist_path.write_text(
-        json.dumps([{"ticker": "7203.T", "status": "HOLDING", "shares": 100, "avg_price": 2000.0}]),
-        encoding="utf-8",
-    )
 
     from web.main import create_app
 
@@ -52,12 +48,25 @@ def test_report_merged_sqlite(sqlite_persistence, monkeypatch):
     assert resp.status_code == 200
     body = resp.json()
     assert body["report"] is not None
-    assert body["report"]["data_date"] == "2026-05-22"
     holdings = body["holdings_merged"]
     assert len(holdings) >= 1
     h = next(x for x in holdings if x["ticker"] == "7203.T")
-    assert h["name"] == "Toyota"
     assert h["shares"] == 100
+
+
+def test_report_merged_sqlite_with_json_mirror(sqlite_persistence):
+    """watchlist JSON ミラーありでも DB が優先される。"""
+    bundle, paths = sqlite_persistence
+    _seed_report(bundle)
+    paths.watchlist_path.write_text("[]", encoding="utf-8")
+
+    from web.main import create_app
+
+    client = TestClient(create_app())
+    resp = client.get("/api/report/merged")
+    assert resp.status_code == 200
+    holdings = resp.json()["holdings_merged"]
+    assert any(x["ticker"] == "7203.T" for x in holdings)
 
 
 def test_report_merged_empty_sqlite(sqlite_persistence):

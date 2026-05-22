@@ -8,6 +8,12 @@ import pandas as pd
 import pytest
 
 from core.dpa.dpa_schema import MacroPhase, MacroState
+from core.persistence import (
+    PersistencePaths,
+    build_file_repositories,
+    reset_persistence,
+    set_persistence,
+)
 from core.dvc.schema import (
     AiAnalysis,
     DataOverview,
@@ -112,6 +118,19 @@ def routine_env(tmp_path, monkeypatch):
     (data_dir / "daily_cache.json").write_text("{}", encoding="utf-8")
     (data_dir / "scores_history.json").write_text("{}", encoding="utf-8")
 
+    persistence_paths = PersistencePaths(
+        project_root=tmp_path,
+        data_dir=data_dir,
+        output_dir=output_dir,
+    )
+    bundle = build_file_repositories(persistence_paths)
+    bundle.watchlist.save_all(watchlist)
+    bundle.portfolio.set_cash_yen(200_000)
+    bundle.sector_peers.save({"Technology": [HOLDING_TICKER, WATCH_TICKER]})
+    bundle.market_cache.save({})
+    reset_persistence()
+    set_persistence(bundle)
+
     import daily_routine as dr
 
     monkeypatch.setattr(dr, "run_dvc_for_watchlist", lambda **_kw: _mock_dvc_results())
@@ -125,7 +144,8 @@ def routine_env(tmp_path, monkeypatch):
         "output_dir": str(output_dir),
         "scores_history_path": str(data_dir / "scores_history.json"),
     }
-    return dr, paths
+    yield dr, paths
+    reset_persistence()
 
 
 def test_run_daily_routine_smoke(routine_env):

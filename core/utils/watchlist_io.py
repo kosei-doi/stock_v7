@@ -56,6 +56,35 @@ def save_watchlist(items: list[WatchlistItem], path: str = WATCHLIST_PATH) -> No
         raise OSError(f"ウォッチリストの書き込みに失敗しました: {p}: {e}") from e
 
 
+def _use_persistence_for_path(path: str) -> bool:
+    """パスが get_persistence().paths.watchlist_path と同一なら Repository を SoT とする。"""
+    try:
+        from core.persistence.access import get_persistence
+
+        return Path(path).resolve() == get_persistence().paths.watchlist_path.resolve()
+    except Exception:
+        return False
+
+
+def load_watchlist_items(path: str = WATCHLIST_PATH) -> list[WatchlistItem]:
+    """ウォッチリスト読込。watchlist_path 一致時は Repository、それ以外は JSON。"""
+    if _use_persistence_for_path(path):
+        from core.persistence.access import get_persistence
+
+        return get_persistence().watchlist.load_all()
+    return load_watchlist(path)
+
+
+def save_watchlist_items(items: list[WatchlistItem], path: str = WATCHLIST_PATH) -> None:
+    """ウォッチリスト保存。本番パスなら Repository（SQLite 時は DB + JSON ミラー）。"""
+    if _use_persistence_for_path(path):
+        from core.persistence.access import get_persistence
+
+        get_persistence().watchlist.save_all(items)
+        return
+    save_watchlist(items, path)
+
+
 def positions_from_watchlist(
     watchlist: Optional[list[WatchlistItem]] = None,
     path: str = WATCHLIST_PATH,
@@ -64,7 +93,7 @@ def positions_from_watchlist(
     watchlist の HOLDING 銘柄から positions 相当の dict を構築。
     { ticker: { shares, avg_price? } }。
     """
-    items = watchlist if watchlist is not None else load_watchlist(path)
+    items = watchlist if watchlist is not None else load_watchlist_items(path)
     out: dict[str, PositionEntry] = {}
     for i in items:
         if (i.get("status") or STATUS_WATCHING) != STATUS_HOLDING:
@@ -111,7 +140,7 @@ def add_to_watchlist(
         (items, was_added, did_evict): 既に同じ銘柄があれば was_added=False。
         did_evict は「WATCHING を 1 件実際に削除した」場合のみ True。
     """
-    items = load_watchlist(path)
+    items = load_watchlist_items(path)
     tickers = [_ticker(x) for x in items]
     if ticker in tickers:
         return items, False, False
@@ -140,7 +169,7 @@ def add_or_update_holding(
     銘柄を HOLDING として追加または更新する。既存なら shares/avg_price を更新。
     戻り値: (更新後の watchlist, 新規追加したかどうか)
     """
-    items = load_watchlist(path)
+    items = load_watchlist_items(path)
     for i in items:
         if _ticker(i) == ticker:
             i["status"] = STATUS_HOLDING
@@ -151,14 +180,14 @@ def add_or_update_holding(
                 i["avg_price"] = yen_floor(avg_price)
             elif "avg_price" in i:
                 del i["avg_price"]
-            save_watchlist(items, path)
+            save_watchlist_items(items, path)
             return items, False
     # 新規追加
     entry: WatchlistItem = {"ticker": ticker, "status": STATUS_HOLDING, "shares": int(shares)}
     if avg_price is not None:
         entry["avg_price"] = float(avg_price)
     items.append(entry)
-    save_watchlist(items, path)
+    save_watchlist_items(items, path)
     return items, True
 
 
@@ -177,7 +206,7 @@ def update_holdings_bulk(
 
     上限超過時は WATCHING のうちスコア最下位を自動削除（portfolio_scores で順序判定）。
     """
-    items = load_watchlist(path)
+    items = load_watchlist_items(path)
     ticker_to_idx = {_ticker(x): idx for idx, x in enumerate(items)}
     for ticker, entry in positions.items():
         if not ticker or not isinstance(entry, dict):
@@ -224,7 +253,7 @@ def update_holdings_bulk(
         while len(items) > max_items:
             items, _ = _evict_if_over(items, path, portfolio_scores=portfolio_scores, max_items=max_items)
     else:
-        save_watchlist(items, path)
+        save_watchlist_items(items, path)
     return items
 
 
@@ -239,12 +268,12 @@ def _evict_if_over(
     戻り値の bool は、WATCHING を 1 件削除したとき True。
     """
     if len(items) <= max_items:
-        save_watchlist(items, path)
+        save_watchlist_items(items, path)
         return items, False
     # WATCHING のみ削除候補
     candidates = [i for i in items if (i.get("status") or STATUS_WATCHING) == STATUS_WATCHING]
     if not candidates:
-        save_watchlist(items, path)
+        save_watchlist_items(items, path)
         return items, False
     def score_of(it: WatchlistItem | dict) -> float:
         t = _ticker(it)
@@ -258,36 +287,36 @@ def _evict_if_over(
     to_remove = candidates[0]
     ticker_remove = _ticker(to_remove)
     new_items = [i for i in items if _ticker(i) != ticker_remove]
-    save_watchlist(new_items, path)
+    save_watchlist_items(new_items, path)
     return new_items, True
 
 
 def remove_from_watchlist(ticker: str, path: str = WATCHLIST_PATH) -> list[WatchlistItem]:
     """銘柄をウォッチリストから削除する。HOLDING でも削除可能（呼び出し側で注意）。"""
-    items = load_watchlist(path)
+    items = load_watchlist_items(path)
     new_items = [i for i in items if _ticker(i) != ticker]
-    save_watchlist(new_items, path)
+    save_watchlist_items(new_items, path)
     return new_items
 
 
 def set_status(ticker: str, status: str, path: str = WATCHLIST_PATH) -> list[WatchlistItem]:
     """銘柄のステータスを HOLDING / WATCHING に更新する。"""
-    items = load_watchlist(path)
+    items = load_watchlist_items(path)
     for i in items:
         if _ticker(i) == ticker:
             i["status"] = status
             break
-    save_watchlist(items, path)
+    save_watchlist_items(items, path)
     return items
 
 
 def get_holdings(watchlist: Optional[list[WatchlistItem]] = None, path: str = WATCHLIST_PATH) -> list[WatchlistItem]:
     """ウォッチリストのうち HOLDING の銘柄一覧を返す。"""
-    items = watchlist if watchlist is not None else load_watchlist(path)
+    items = watchlist if watchlist is not None else load_watchlist_items(path)
     return [i for i in items if (i.get("status") or STATUS_WATCHING) == STATUS_HOLDING]
 
 
 def get_watching(watchlist: Optional[list[WatchlistItem]] = None, path: str = WATCHLIST_PATH) -> list[WatchlistItem]:
     """ウォッチリストのうち WATCHING の銘柄一覧を返す。"""
-    items = watchlist if watchlist is not None else load_watchlist(path)
+    items = watchlist if watchlist is not None else load_watchlist_items(path)
     return [i for i in items if (i.get("status") or STATUS_WATCHING) == STATUS_WATCHING]

@@ -321,16 +321,15 @@ def run_daily_routine(
         cache_market_tz=market_tz,
         progress_callback=lambda msg: print(f"        {msg}", file=sys.stderr),
     )
-    watchlist = load_watchlist(watchlist_path)
+    watchlist = get_persistence().watchlist.load_all()
     if len(watchlist) == 0 and len(results) == 0:
         print("        → ウォッチリスト 0 件のためスキップ", file=sys.stderr)
     else:
         print(f"        → {len(results)} 銘柄のスコア計算完了", file=sys.stderr)
 
     _progress(2, total_steps, "ウォッチリスト・ポジション・現金の読込…", verbose=verbose)
-    positions = positions_from_watchlist(path=watchlist_path)
-    state = load_portfolio_state(portfolio_path)
-    cash_current = yen_floor(state.get("cash_yen", DEFAULT_TOTAL_CAPITAL_JPY))
+    positions = get_persistence().watchlist.get_positions()
+    cash_current = yen_floor(get_persistence().portfolio.get_cash_yen() or DEFAULT_TOTAL_CAPITAL_JPY)
     current_prices = current_prices_from_dvc_results(results)
     holdings = build_holdings_list(watchlist, positions)
     holdings_val = holdings_value(holdings, positions, current_prices)

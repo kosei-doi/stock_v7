@@ -282,12 +282,14 @@ GitHub Issue 作成時は下記タイトル・本文をそのまま使えます�
 **目的:** Mac の開発環境だけでなく、**ConoHa VPS 等にデプロイ済みの実データ**を DB 移行後も継続利用できるようにする。
 
 **タスク**
-- [ ] 移行対象ファイル一覧の確定（Epic 表の全 JSON + `output/`）
-- [ ] 本番バックアップ手順（`tar` / `cp -a data data.bak` 等）
-- [ ] `migrate_json_to_db.py` を本番パスで実行する手順（#13）
-- [ ] 移行後の整合チェックリスト（現金・保有株数・最新レポート日付）
-- [ ] 失敗時ロールバック（ファイル SoT に戻す手順）
-- [ ] DB 移行完了まで Git 全同期運用との共存方針（移行中は JSON も残すか）
+- [x] 移行対象ファイル一覧の確定（Epic 表の全 JSON + `output/`）→ `OPERATIONS.md` DB-8 節
+- [x] 本番バックアップ手順（`tar` / `cp -a data data.bak` 等）→ `OPERATIONS.md`
+- [x] `migrate_json_to_db.py` / `migrate_production.sh` / `verify_db_migration.py` 本番手順
+- [x] 移行後の整合チェックリスト（§6）・`verify_db_migration.py`（import 直後）
+- [x] 失敗時ロールバック（§5）
+- [x] Git 全同期との共存方針（コードは `git pull` のみ、data/output は VPS ローカル）
+- [x] コード: `web/api.py` / `daily_routine.py` の watchlist・portfolio を `get_persistence` 経由に統一
+- [ ] **本番 VPS 実施**（ユーザー: backup → migrate → verify → `DPA_PERSISTENCE=sqlite` → §6）
 
 **受入条件**
 - 本番 VPS の移行前後で、ダッシュボードの KPI・保有・レポートが実質同じ内容で表示される
