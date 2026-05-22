@@ -17,10 +17,12 @@ from core.persistence.protocols import (
     DailyReportRepository,
     MarketCacheRepository,
     PortfolioRepository,
+    PortfolioSnapshotRepository,
     RunJobRepository,
     ScoreHistoryRepository,
     SectorPeersRepository,
     TickerAnalysisRepository,
+    TradeLogRepository,
     WatchlistRepository,
 )
 
@@ -44,4 +46,6 @@ __all__ = [
     "MarketCacheRepository",
     "SectorPeersRepository",
     "TickerAnalysisRepository",
+    "TradeLogRepository",
+    "PortfolioSnapshotRepository",
 ]

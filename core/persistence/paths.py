@@ -56,3 +56,11 @@ class PersistencePaths:
     @property
     def sector_peers_path(self) -> Path:
         return self.data_dir / "sector_peers.json"
+
+    @property
+    def trade_log_path(self) -> Path:
+        return self.data_dir / "trade_log.json"
+
+    @property
+    def portfolio_snapshots_path(self) -> Path:
+        return self.data_dir / "portfolio_snapshots.json"

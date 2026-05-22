@@ -86,3 +86,31 @@ class TickerAnalysisRow(Base):
     ticker: Mapped[str] = mapped_column(String, primary_key=True)
     updated_at: Mapped[str] = mapped_column(Text, nullable=False)
     payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class TradeLogRow(Base):
+    __tablename__ = "trade_log"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    trade_date: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    side: Mapped[str] = mapped_column(String, nullable=False)
+    ticker: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    shares: Mapped[int] = mapped_column(Integer, nullable=False)
+    price: Mapped[float] = mapped_column(Float, nullable=False)
+    amount: Mapped[int] = mapped_column(Integer, nullable=False)
+    avg_price_before: Mapped[float | None] = mapped_column(Float, nullable=True)
+    realized_pnl: Mapped[float | None] = mapped_column(Float, nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class PortfolioSnapshotRow(Base):
+    __tablename__ = "portfolio_snapshots"
+
+    snapshot_date: Mapped[str] = mapped_column(String, primary_key=True)
+    cash_yen: Mapped[int] = mapped_column(Integer, nullable=False)
+    equity_value_yen: Mapped[int] = mapped_column(Integer, nullable=False)
+    total_capital_yen: Mapped[int] = mapped_column(Integer, nullable=False)
+    holdings_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source: Mapped[str] = mapped_column(String, nullable=False, default="manual")
+    updated_at: Mapped[str] = mapped_column(Text, nullable=False)
