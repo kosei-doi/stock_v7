@@ -48,8 +48,7 @@ def analyze_client(tmp_path, monkeypatch):
         ),
         encoding="utf-8",
     )
-    last_report = tmp_path / "last_report.json"
-    last_report.write_text(
+    paths.last_report_path.write_text(
         json.dumps({"ticker_names": {"9984.T": "SoftBank"}, "last_prices": {"9984.T": 8000}}),
         encoding="utf-8",
     )
@@ -58,8 +57,6 @@ def analyze_client(tmp_path, monkeypatch):
 
     import web.api as api
 
-    monkeypatch.setattr(api, "LAST_REPORT_PATH", last_report)
-    monkeypatch.setattr(api, "DATA_DIR", tmp_path)
     monkeypatch.setattr(api, "CONFIG_PATH", config)
     monkeypatch.setattr(api, "PROJECT_ROOT", tmp_path)
     monkeypatch.chdir(tmp_path)

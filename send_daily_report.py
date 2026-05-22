@@ -62,18 +62,15 @@ def write_run_status(
     finished_at: Optional[str] = None,
 ) -> None:
     """Web バッチ（web/api.py）と同じ形式で run_status.json を更新する。"""
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    payload = {
-        "status": status,
-        "message": message,
-        "step": step,
-        "total_steps": total_steps,
-        "finished_at": finished_at,
-    }
+    from core.persistence.access import get_persistence
+
     try:
-        RUN_STATUS_PATH.write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2),
-            encoding="utf-8",
+        get_persistence().run_job.update_status(
+            status=status,
+            message=message,
+            step=step,
+            total_steps=total_steps,
+            finished_at=finished_at,
         )
     except OSError as e:
         print(f"警告: run_status.json の書き込みに失敗しました: {e}", file=sys.stderr)

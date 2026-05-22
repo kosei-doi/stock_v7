@@ -551,41 +551,11 @@ def main(argv: list[str] | None = None) -> int:
         scores_history_path=_resolve_path(cfg.get("scores_history_path", "data/scores_history.json")),
     )
 
-    last_report_path = Path("data/last_report.json")
-    previous_report_path = Path("data/previous_report.json")
-    last_report_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # 同日複数回実行を考慮: data_date が異なる場合のみ既存を previous に退避（日付なしの旧形式には補完する）
-    if last_report_path.exists():
-        try:
-            existing = json.loads(last_report_path.read_text(encoding="utf-8"))
-            existing_data_date = existing.get("data_date")
-            if existing_data_date != report.data_date:
-                # 退避用に created_at / data_date を補完（昨日のデータとして扱う）
-                prev_data_date = existing_data_date
-                prev_created_at = existing.get("created_at")
-                if not prev_data_date:
-                    try:
-                        new_d = datetime.strptime(report.data_date, "%Y-%m-%d").date()
-                        prev_data_date = (new_d - timedelta(days=1)).isoformat()
-                    except (ValueError, TypeError):
-                        prev_data_date = report.data_date
-                if not prev_created_at:
-                    prev_created_at = f"{prev_data_date} (前回実行)"
-                out = dict(existing)
-                out["created_at"] = prev_created_at
-                out["data_date"] = prev_data_date
-                previous_report_path.write_text(
-                    json.dumps(out, ensure_ascii=False, indent=2),
-                    encoding="utf-8",
-                )
-        except (json.JSONDecodeError, OSError):
-            pass
+    from core.persistence.access import get_persistence
 
     try:
-        last_report_path.write_text(
-            json.dumps(report.model_dump(mode="json"), ensure_ascii=False, indent=2),
-            encoding="utf-8",
+        get_persistence().daily_report.save_last_with_date_rotation(
+            report.model_dump(mode="json")
         )
     except OSError as e:
         print(f"警告: last_report.json の書き込みに失敗しました: {e}", file=sys.stderr)

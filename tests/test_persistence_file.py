@@ -48,6 +48,42 @@ def test_portfolio_cash_yen_integer(tmp_path):
     assert repos.portfolio.get_cash_yen() == 2_400_000
 
 
+def test_daily_report_save_last_with_date_rotation(tmp_path):
+    paths = _paths(tmp_path)
+    repos = build_file_repositories(paths)
+    repos.daily_report.save_last({"data_date": "2026-05-21", "phase": "caution"})
+    repos.daily_report.save_last_with_date_rotation(
+        {"data_date": "2026-05-22", "phase": "panic", "created_at": "2026-05-22"}
+    )
+    assert repos.daily_report.get_previous() == {
+        "data_date": "2026-05-21",
+        "phase": "caution",
+        "created_at": "2026-05-21 (前回実行)",
+    }
+    assert repos.daily_report.get_last()["data_date"] == "2026-05-22"
+
+    repos.daily_report.save_last_with_date_rotation(
+        {"data_date": "2026-05-22", "phase": "panic", "created_at": "rerun"}
+    )
+    assert repos.daily_report.get_previous()["data_date"] == "2026-05-21"
+    assert repos.daily_report.get_last()["created_at"] == "rerun"
+
+
+def test_score_history_upsert_day_merges_tickers(tmp_path):
+    paths = _paths(tmp_path)
+    repos = build_file_repositories(paths)
+    repos.score_history.upsert_day(
+        "2026-05-22",
+        {"7203.T": {"total": 70.0, "value": 60.0, "safety": 80.0, "momentum": 50.0}},
+    )
+    repos.score_history.upsert_day(
+        "2026-05-22",
+        {"9984.T": {"total": 55.0, "value": 50.0, "safety": 60.0, "momentum": 40.0}},
+    )
+    day = repos.score_history.get_day("2026-05-22")
+    assert set(day.keys()) == {"7203.T", "9984.T"}
+
+
 def test_daily_report_rotate_previous(tmp_path):
     paths = _paths(tmp_path)
     repos = build_file_repositories(paths)

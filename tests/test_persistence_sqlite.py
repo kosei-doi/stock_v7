@@ -10,6 +10,9 @@ from core.persistence import (
     reset_persistence,
     set_persistence,
 )
+from core.persistence.sqlite_daily_report import SqliteDailyReportRepository
+from core.persistence.sqlite_run_job import SqliteRunJobRepository
+from core.persistence.sqlite_score_history import SqliteScoreHistoryRepository
 from core.persistence.sqlite_watchlist import SqliteWatchlistRepository
 from core.utils.watchlist_io import STATUS_HOLDING, STATUS_WATCHING
 
@@ -50,6 +53,32 @@ def test_sqlite_portfolio_cash_yen(tmp_path):
     repos = build_sqlite_repositories(paths, database_url="sqlite:///:memory:")
     repos.portfolio.set_cash_yen(2_400_000.7)
     assert repos.portfolio.get_cash_yen() == 2_400_000
+
+
+def test_sqlite_daily_report_and_run_job(tmp_path):
+    paths = _paths(tmp_path)
+    url = "sqlite:///:memory:"
+    repos = build_sqlite_repositories(paths, database_url=url)
+    assert isinstance(repos.daily_report, SqliteDailyReportRepository)
+    assert isinstance(repos.score_history, SqliteScoreHistoryRepository)
+    assert isinstance(repos.run_job, SqliteRunJobRepository)
+
+    repos.daily_report.save_last({"data_date": "2026-05-21", "phase": "caution"})
+    repos.daily_report.save_last_with_date_rotation(
+        {"data_date": "2026-05-22", "phase": "panic"}
+    )
+    assert repos.daily_report.get_previous()["data_date"] == "2026-05-21"
+    assert repos.daily_report.get_last()["phase"] == "panic"
+
+    repos.score_history.upsert_day(
+        "2026-05-22",
+        {"7203.T": {"total": 70.0, "value": 60.0, "safety": 80.0, "momentum": 50.0}},
+    )
+    assert repos.score_history.get_day("2026-05-22")["7203.T"]["total"] == pytest.approx(70.0)
+
+    repos.run_job.update_status("running", "step 1", step=2)
+    assert repos.run_job.get_status()["status"] == "running"
+    assert repos.run_job.get_status()["step"] == 2
 
 
 def test_build_repositories_sqlite_backend(tmp_path, monkeypatch):

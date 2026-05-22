@@ -40,8 +40,6 @@ def trade_env(tmp_path, monkeypatch):
 
     import web.api as api
 
-    monkeypatch.setattr(api, "LAST_REPORT_PATH", last_report)
-    monkeypatch.setattr(api, "DATA_DIR", tmp_path)
     monkeypatch.setattr(api, "_run_dvc_for_ticker", lambda _ticker: None)
 
     from web.main import create_app

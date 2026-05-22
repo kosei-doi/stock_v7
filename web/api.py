@@ -175,15 +175,13 @@ def _load_validated_config():
 
 
 def _write_run_status(status: str, message: str, step: Optional[int] = None, total_steps: int = 7, finished_at: Optional[str] = None) -> None:
-    from datetime import datetime
-    payload = {
-        "status": status,
-        "message": message,
-        "step": step,
-        "total_steps": total_steps,
-        "finished_at": finished_at,
-    }
-    _write_json(RUN_STATUS_PATH, payload)
+    get_persistence().run_job.update_status(
+        status=status,
+        message=message,
+        step=step,
+        total_steps=total_steps,
+        finished_at=finished_at,
+    )
 
 
 def _get_cash_yen() -> int:
@@ -198,10 +196,11 @@ def _get_positions_from_watchlist() -> dict:
 
 def _merge_report_data() -> dict[str, Any]:
     """Load last_report, previous_report, positions and merge: unrealized_pnl, rank_change, price_change."""
-    last = _read_json(LAST_REPORT_PATH)
+    reports = get_persistence().daily_report
+    last = reports.get_last()
     if not last:
         return {"report": None, "holdings_merged": [], "watchlist_merged": [], "purge": None, "draft": None}
-    prev = _read_json(PREVIOUS_REPORT_PATH)
+    prev = reports.get_previous()
     positions = _get_positions_from_watchlist()
     from core.utils.watchlist_io import load_watchlist as get_watchlist
     current_watchlist = get_watchlist(path=str(get_persistence().paths.watchlist_path))
@@ -446,9 +445,7 @@ class SettingsUpdateBody(BaseModel):
 @router.get("/status")
 def get_status() -> dict:
     """Batch run status (for polling)."""
-    data = _read_json(RUN_STATUS_PATH)
-    if data is None or not isinstance(data, dict):
-        return {"status": "idle", "message": "", "step": None, "total_steps": 7, "finished_at": None}
+    data = get_persistence().run_job.get_status()
     return {
         "status": data.get("status", "idle"),
         "message": data.get("message", ""),
@@ -463,8 +460,8 @@ def get_status() -> dict:
 def run_batch(request: Request, background_tasks: BackgroundTasks) -> dict:
     """Start daily batch in background."""
     with _batch_run_lock:
-        status = _read_json(RUN_STATUS_PATH)
-        if isinstance(status, dict) and status.get("status") == "running":
+        status = get_persistence().run_job.get_status()
+        if status.get("status") == "running":
             raise HTTPException(status_code=409, detail="バッチは既に実行中です。")
         _write_run_status("running", "日次バッチを開始しています…", step=None)
         background_tasks.add_task(_run_batch_background)
@@ -594,7 +591,7 @@ def _watchlist_rank_for_ticker(ticker: str, output_dir: Path) -> tuple[int, int]
     """ウォッチリスト内の total_score 順位 (1-based) と件数。"""
     from core.utils.watchlist_io import load_watchlist
 
-    last_report = _read_json(LAST_REPORT_PATH) or {}
+    last_report = get_persistence().daily_report.get_last() or {}
     portfolio_scores = last_report.get("portfolio_scores") or {}
     wl = get_persistence().watchlist.load_all()
     wl_tickers = [
@@ -695,7 +692,6 @@ def _build_analyze_api_payload(
 def _run_dvc_for_ticker(ticker: str) -> None:
     """銘柄の DVC を実行し output/<ticker>.json に保存。scores_history も更新。"""
     from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data, _now_jst
-    from core.dpa.dpa_scores import update_scores_history_for_date
     from core.dvc.scoring import run_dvc_for_ticker
     from core.utils.io_utils import save_output_json
 
@@ -721,9 +717,19 @@ def _run_dvc_for_ticker(ticker: str) -> None:
     output_dir = _resolve_output_dir(cfg)
     output_dir.mkdir(parents=True, exist_ok=True)
     save_output_json(result, str(output_dir / f"{ticker}.json"))
-    scores_path = str(Path(cfg.get("scores_history_path", "data/scores_history.json")).resolve())
     today_key = _now_jst().date().isoformat()
-    update_scores_history_for_date(today_key, {ticker: result}, path=scores_path)
+    s = result.scores
+    get_persistence().score_history.upsert_day(
+        today_key,
+        {
+            ticker: {
+                "total": s.total_score,
+                "value": s.value_score,
+                "safety": s.safety_score,
+                "momentum": s.momentum_score,
+            }
+        },
+    )
 
 
 @router.post("/trade/purchase", dependencies=MUTATING_DEPS)
@@ -753,7 +759,7 @@ def trade_purchase(body: TradePurchaseBody) -> dict:
     wl_snapshot = copy.deepcopy(store.watchlist.load_all())
     try:
         from core.utils.watchlist_io import update_holdings_bulk
-        last_report = _read_json(LAST_REPORT_PATH) or {}
+        last_report = get_persistence().daily_report.get_last() or {}
         portfolio_scores = last_report.get("portfolio_scores") or {}
         cfg = _load_validated_config()
         max_items = int(cfg.get("watchlist_max_items", DEFAULT_WATCHLIST_MAX_ITEMS))
@@ -788,7 +794,7 @@ def trade_sale(body: TradeSaleBody) -> dict:
     ticker = _normalize_ticker(body.ticker)
     shares_to_sell = body.shares
 
-    last_report = _read_json(LAST_REPORT_PATH) or {}
+    last_report = get_persistence().daily_report.get_last() or {}
     last_prices = last_report.get("last_prices") or {}
     current_price = last_prices.get(ticker)
     try:
@@ -876,9 +882,7 @@ def build_watchlist_analysis_index() -> list[dict[str, Any]]:
     from core.utils.watchlist_io import load_watchlist
 
     wl = get_persistence().watchlist.load_all()
-    last_report = _read_json(LAST_REPORT_PATH) or {}
-    if not isinstance(last_report, dict):
-        last_report = {}
+    last_report = get_persistence().daily_report.get_last() or {}
     names = last_report.get("ticker_names") or {}
     last_prices = last_report.get("last_prices") or {}
     portfolio_scores = last_report.get("portfolio_scores") or {}

@@ -22,7 +22,12 @@ class FileScoreHistoryRepository:
         return day if isinstance(day, dict) else {}
 
     def upsert_day(self, logical_date: str, ticker_scores: dict[str, dict[str, Any]]) -> dict[str, Any]:
+        """指定日の銘柄スコアをマージして保存（既存銘柄は上書き・他銘柄は維持）。"""
         history = self.load_all()
-        history[logical_date] = ticker_scores
+        day_entry = history.get(logical_date, {})
+        if not isinstance(day_entry, dict):
+            day_entry = {}
+        day_entry.update(ticker_scores)
+        history[logical_date] = day_entry
         self.save_all(history)
         return history

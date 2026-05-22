@@ -6,30 +6,43 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
+from core.persistence import (
+    PersistencePaths,
+    build_file_repositories,
+    reset_persistence,
+    set_persistence,
+)
+
 DPA_CLIENT_HEADERS = {"X-DPA-Client": "1"}
 
 
 @pytest.fixture
 def batch_client(tmp_path, monkeypatch):
     monkeypatch.delenv("DPA_API_KEY", raising=False)
+    reset_persistence()
 
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    run_status = data_dir / "run_status.json"
-    run_status.write_text(
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    paths = PersistencePaths(
+        project_root=tmp_path,
+        data_dir=tmp_path,
+        output_dir=output_dir,
+    )
+    set_persistence(build_file_repositories(paths))
+    paths.run_status_path.write_text(
         json.dumps({"status": "idle", "message": "", "step": None, "total_steps": 7}),
         encoding="utf-8",
     )
 
     import web.api as api
 
-    monkeypatch.setattr(api, "DATA_DIR", data_dir)
-    monkeypatch.setattr(api, "RUN_STATUS_PATH", run_status)
     monkeypatch.setattr(api, "_run_batch_background", lambda: None)
 
     from web.main import create_app
 
-    return TestClient(create_app())
+    client = TestClient(create_app())
+    yield client
+    reset_persistence()
 
 
 def test_run_batch_requires_dpa_client_header(batch_client):
