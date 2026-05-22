@@ -24,8 +24,8 @@ DEBIAN_FRONTEND=noninteractive apt install -y \
 
 cd "${APP_DIR}"
 
-echo "===> Creating Python virtual environment..."
-python3 -m venv venv
+echo "===> Creating Python virtual environment (if missing)..."
+[ -d venv ] || python3 -m venv venv
 
 echo "===> Installing Python dependencies..."
 source venv/bin/activate

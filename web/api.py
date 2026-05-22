@@ -6,15 +6,20 @@ Does not modify core/ — uses existing JSON and invokes core via subprocess/imp
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
+import tempfile
+import threading
+import copy
 from pathlib import Path
 from typing import Any, Optional
 
 import yaml
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException
+from pydantic import BaseModel, Field
 
 from core.utils.config_loader import (
     DEFAULT_WATCHLIST_MAX_ITEMS,
@@ -33,20 +38,110 @@ RUN_STATUS_PATH = DATA_DIR / "run_status.json"
 DAILY_ROUTINE_SCRIPT = PROJECT_ROOT / "daily_routine.py"
 
 
+DAILY_ROUTINE_SCRIPT = PROJECT_ROOT / "daily_routine.py"
+
+_json_locks: dict[str, threading.Lock] = {}
+_json_locks_guard = threading.Lock()
+_batch_run_lock = threading.Lock()
+
+
+def _lock_for_path(path: Path) -> threading.Lock:
+    key = str(path.resolve())
+    with _json_locks_guard:
+        if key not in _json_locks:
+            _json_locks[key] = threading.Lock()
+        return _json_locks[key]
+
+
+def _is_production() -> bool:
+    return os.environ.get("DPA_ENV", "").lower() == "production"
+
+
+def _server_error_detail(message: str) -> str:
+    """本番 (DPA_ENV=production) では詳細を隠し、開発時のみ message を返す。"""
+    if _is_production():
+        return "内部エラーが発生しました。"
+    return message
+
+
+def require_api_key(x_api_key: Optional[str] = Header(None, alias="X-API-Key")) -> None:
+    """
+    状態変更 API (POST/DELETE) 用の API キー認証。
+
+    環境変数 ``DPA_API_KEY`` が**未設定**のときは開発モードとみなし、認証をスキップする。
+    設定されている場合はリクエストヘッダ ``X-API-Key`` が一致しないと 401 を返す。
+    """
+    expected = os.environ.get("DPA_API_KEY")
+    if not expected:
+        return
+    if not x_api_key or x_api_key != expected:
+        raise HTTPException(status_code=401, detail="認証に失敗しました。")
+
+
+def _normalize_ticker(raw: str) -> str:
+    """銘柄コードを正規化（英数字・ドットのみ、4 桁数字は .T 付与）。"""
+    normalized = re.sub(r"[^A-Za-z0-9.]", "", raw.strip())
+    if not normalized or len(normalized) < 2 or len(normalized) > 20:
+        raise HTTPException(
+            status_code=400,
+            detail="コードは 2〜20 文字の英数字で指定してください（例: 7203, AAPL）。",
+        )
+    if re.fullmatch(r"[0-9]{4}", normalized):
+        return f"{normalized}.T"
+    return normalized
+
+
+def _resolve_output_dir(cfg: dict) -> Path:
+    """output_dir を PROJECT_ROOT 配下に解決。それ以外は拒否。"""
+    raw = str(cfg.get("output_dir") or "output").strip() or "output"
+    candidate = Path(raw)
+    if not candidate.is_absolute():
+        candidate = PROJECT_ROOT / candidate
+    resolved = candidate.resolve()
+    try:
+        resolved.relative_to(PROJECT_ROOT.resolve())
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail="output_dir はプロジェクトルート配下を指定してください。",
+        ) from exc
+    return resolved
+
+
 def _read_json(path: Path, default: Any = None) -> Any:
     if default is None:
         default = {} if "report" not in str(path) and "portfolio" not in str(path) else None
-    if not path.exists():
-        return default
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return default
+    path = path.resolve()
+    lock = _lock_for_path(path)
+    with lock:
+        if not path.exists():
+            return default
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return default
 
 
 def _write_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    path = path.resolve()
+    lock = _lock_for_path(path)
+    with lock:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fd, tmp_path = tempfile.mkstemp(
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+        )
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            os.replace(tmp_path, path)
+        except Exception:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+            raise
 
 
 def _load_validated_config():
@@ -301,6 +396,17 @@ def _run_batch_background() -> None:
 router = APIRouter(prefix="/api", tags=["api"])
 
 
+class TradePurchaseBody(BaseModel):
+    ticker: str
+    shares: int = Field(ge=1)
+    avg_price: float = Field(gt=0)
+
+
+class TradeSaleBody(BaseModel):
+    ticker: str
+    shares: int = Field(ge=1)
+
+
 @router.get("/status")
 def get_status() -> dict:
     """Batch run status (for polling)."""
@@ -316,42 +422,39 @@ def get_status() -> dict:
     }
 
 
-@router.post("/run_batch")
+@router.post("/run_batch", dependencies=[Depends(require_api_key)])
 def run_batch(background_tasks: BackgroundTasks) -> dict:
     """Start daily batch in background."""
-    status = _read_json(RUN_STATUS_PATH)
-    if isinstance(status, dict) and status.get("status") == "running":
-        raise HTTPException(status_code=409, detail="バッチは既に実行中です。")
-    background_tasks.add_task(_run_batch_background)
+    with _batch_run_lock:
+        status = _read_json(RUN_STATUS_PATH)
+        if isinstance(status, dict) and status.get("status") == "running":
+            raise HTTPException(status_code=409, detail="バッチは既に実行中です。")
+        _write_run_status("running", "日次バッチを開始しています…", step=None)
+        background_tasks.add_task(_run_batch_background)
     return {"ok": True, "message": "日次バッチを開始しました。"}
 
 
-@router.post("/analyze")
+@router.post("/analyze", dependencies=[Depends(require_api_key)])
 def analyze_ticker(body: dict) -> dict:
     """Run DVC for one ticker and add to watchlist (using core)."""
     raw = (body.get("ticker") or "").strip()
     if not raw:
         raise HTTPException(status_code=400, detail="コードを指定してください。")
-    # 英数字とドットのみ許可（例: 7203, AAPL, 7203.T）
-    normalized = re.sub(r"[^A-Za-z0-9.]", "", raw)
-    if not normalized or len(normalized) < 2 or len(normalized) > 20:
-        raise HTTPException(status_code=400, detail="コードは 2〜20 文字の英数字で指定してください（例: 7203, AAPL）。")
-    # 4桁数字のみの場合は日本株として .T を付与
-    if re.fullmatch(r"[0-9]{4}", normalized):
-        ticker = f"{normalized}.T"
-    else:
-        ticker = normalized
+    ticker = _normalize_ticker(raw)
     try:
         from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data
         from core.dvc.scoring import run_dvc_for_ticker
         from core.utils.watchlist_io import add_to_watchlist, load_watchlist, WATCHLIST_PATH
         from core.utils.io_utils import save_output_json
     except ImportError as e:
-        raise HTTPException(status_code=500, detail=f"core の読み込みに失敗しました: {e}") from e
+        raise HTTPException(
+            status_code=500,
+            detail=_server_error_detail(f"core の読み込みに失敗しました: {e}"),
+        ) from e
     cfg = _load_validated_config()
     sector_peers_path = str(Path(cfg.get("sector_peers_path", "data/sector_peers.json")).resolve())
     if not Path(sector_peers_path).exists():
-        raise HTTPException(status_code=500, detail="sector_peers.json が見つかりません。")
+        raise HTTPException(status_code=500, detail=_server_error_detail("sector_peers.json が見つかりません。"))
     try:
         bench_df, peers_data, _ = get_macro_and_peers_data(
             benchmark_ticker=cfg.get("benchmark_ticker", "1306.T"),
@@ -361,7 +464,10 @@ def analyze_ticker(body: dict) -> dict:
             vi_ticker=cfg.get("vi_ticker"),
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"データ取得に失敗しました: {e}") from e
+        raise HTTPException(
+            status_code=500,
+            detail=_server_error_detail(f"データ取得に失敗しました: {e}"),
+        ) from e
     try:
         result = run_dvc_for_ticker(
             ticker=ticker,
@@ -374,8 +480,11 @@ def analyze_ticker(body: dict) -> dict:
             peers_data=peers_data,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"分析に失敗しました: {e}") from e
-    output_dir = Path(cfg.get("output_dir", "output")).resolve()
+        raise HTTPException(
+            status_code=500,
+            detail=_server_error_detail(f"分析に失敗しました: {e}"),
+        ) from e
+    output_dir = _resolve_output_dir(cfg)
     output_dir.mkdir(parents=True, exist_ok=True)
     saved_path = output_dir / f"{ticker}.json"
     save_output_json(result, str(saved_path))
@@ -499,7 +608,7 @@ def _run_dvc_for_ticker(ticker: str) -> None:
         bench_df=bench_df,
         peers_data=peers_data,
     )
-    output_dir = Path(cfg.get("output_dir", "output"))
+    output_dir = _resolve_output_dir(cfg)
     output_dir.mkdir(parents=True, exist_ok=True)
     save_output_json(result, str(output_dir / f"{ticker}.json"))
     scores_path = str(Path(cfg.get("scores_history_path", "data/scores_history.json")).resolve())
@@ -507,30 +616,12 @@ def _run_dvc_for_ticker(ticker: str) -> None:
     update_scores_history_for_date(today_key, {ticker: result}, path=scores_path)
 
 
-@router.post("/trade/purchase")
-def trade_purchase(body: dict) -> dict:
+@router.post("/trade/purchase", dependencies=[Depends(require_api_key)])
+def trade_purchase(body: TradePurchaseBody) -> dict:
     """購入を記録。HOLDING 追加、現金から購入額を控除。"""
-    raw = (body.get("ticker") or "").strip()
-    if not raw:
-        raise HTTPException(status_code=400, detail="コードを指定してください。")
-    normalized = re.sub(r"[^A-Za-z0-9.]", "", raw)
-    if not normalized or len(normalized) < 2 or len(normalized) > 20:
-        raise HTTPException(status_code=400, detail="コードは 2〜20 文字の英数字で指定してください。")
-    ticker = f"{normalized}.T" if re.fullmatch(r"[0-9]{4}", normalized) else normalized
-
-    try:
-        shares = int(body.get("shares", 0))
-    except (TypeError, ValueError):
-        raise HTTPException(status_code=400, detail="株数を指定してください。")
-    if shares < 1:
-        raise HTTPException(status_code=400, detail="株数は 1 以上で指定してください。")
-
-    try:
-        avg_price = float(body.get("avg_price", 0))
-    except (TypeError, ValueError):
-        raise HTTPException(status_code=400, detail="取得単価を指定してください。")
-    if avg_price <= 0:
-        raise HTTPException(status_code=400, detail="取得単価を正の数で指定してください。")
+    ticker = _normalize_ticker(body.ticker)
+    shares = body.shares
+    avg_price = body.avg_price
 
     cost = shares * avg_price
     state = _read_json(PORTFOLIO_STATE_PATH) or {}
@@ -548,8 +639,16 @@ def trade_purchase(body: dict) -> dict:
         try:
             _run_dvc_for_ticker(ticker)
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"{ticker} の企業分析に失敗しました: {e}") from e
+            raise HTTPException(
+                status_code=500,
+                detail=_server_error_detail(f"{ticker} の企業分析に失敗しました: {e}"),
+            ) from e
 
+    wl_snapshot = _read_json(WATCHLIST_PATH)
+    if not isinstance(wl_snapshot, list):
+        wl_snapshot = copy.deepcopy(wl)
+    else:
+        wl_snapshot = copy.deepcopy(wl_snapshot)
     try:
         from core.utils.watchlist_io import update_holdings_bulk
         last_report = _read_json(LAST_REPORT_PATH) or {}
@@ -563,25 +662,29 @@ def trade_purchase(body: dict) -> dict:
             max_items=max_items,
         )
     except ImportError as e:
-        raise HTTPException(status_code=500, detail=f"core の読み込みに失敗しました: {e}") from e
+        raise HTTPException(
+            status_code=500,
+            detail=_server_error_detail(f"core の読み込みに失敗しました: {e}"),
+        ) from e
 
-    state["cash_yen"] = cash - cost
-    _write_json(PORTFOLIO_STATE_PATH, state)
+    # watchlist 更新後に portfolio 書込が失敗した場合、watchlist をロールバックして不整合を防ぐ
+    try:
+        state["cash_yen"] = cash - cost
+        _write_json(PORTFOLIO_STATE_PATH, state)
+    except Exception as e:
+        _write_json(WATCHLIST_PATH, wl_snapshot)
+        raise HTTPException(
+            status_code=500,
+            detail=_server_error_detail(f"現金残高の更新に失敗しました: {e}"),
+        ) from e
     return {"ok": True, "cash_yen": state["cash_yen"]}
 
 
-@router.post("/trade/sale")
-def trade_sale(body: dict) -> dict:
+@router.post("/trade/sale", dependencies=[Depends(require_api_key)])
+def trade_sale(body: TradeSaleBody) -> dict:
     """売却を記録。HOLDING の株数を減らし（0 なら WATCHING に）、現金に売却代金を加算。"""
-    ticker = (body.get("ticker") or "").strip()
-    if not ticker:
-        raise HTTPException(status_code=400, detail="銘柄を選択してください。")
-    try:
-        shares_to_sell = int(body.get("shares", 0))
-    except (TypeError, ValueError):
-        raise HTTPException(status_code=400, detail="売却株数を指定してください。")
-    if shares_to_sell < 1:
-        raise HTTPException(status_code=400, detail="売却株数は 1 以上で指定してください。")
+    ticker = _normalize_ticker(body.ticker)
+    shares_to_sell = body.shares
 
     last_report = _read_json(LAST_REPORT_PATH) or {}
     last_prices = last_report.get("last_prices") or {}
@@ -641,7 +744,7 @@ CONFIG_KEYS = {
 }
 
 
-@router.post("/settings/update")
+@router.post("/settings/update", dependencies=[Depends(require_api_key)])
 def update_settings(body: dict) -> dict:
     """Update portfolio_state.json (cash_yen) と config.yaml。"""
     result: dict = {}
@@ -657,6 +760,8 @@ def update_settings(body: dict) -> dict:
         _write_json(PORTFOLIO_STATE_PATH, state)
         result["cash_yen"] = cash_yen
     flat = {k: v for k, v in body.items() if k in CONFIG_KEYS}
+    if "output_dir" in flat:
+        _resolve_output_dir({"output_dir": flat["output_dir"]})
     if flat:
         cfg = _flat_to_config(flat)
         _save_config(cfg)
@@ -682,15 +787,16 @@ def get_watchlist() -> dict:
     return {"watchlist": wl, "positions": pos}
 
 
-@router.delete("/watchlist/{ticker}")
+@router.delete("/watchlist/{ticker}", dependencies=[Depends(require_api_key)])
 def remove_watchlist_ticker(ticker: str) -> dict:
     """Remove ticker from watchlist (uses core)."""
     try:
         from core.utils.watchlist_io import remove_from_watchlist, WATCHLIST_PATH
     except ImportError:
-        raise HTTPException(status_code=500, detail="core の読み込みに失敗しました。")
-    remove_from_watchlist(ticker, path=str(WATCHLIST_PATH))
-    return {"ok": True, "ticker": ticker}
+        raise HTTPException(status_code=500, detail=_server_error_detail("core の読み込みに失敗しました。"))
+    normalized = _normalize_ticker(ticker)
+    remove_from_watchlist(normalized, path=str(WATCHLIST_PATH))
+    return {"ok": True, "ticker": normalized}
 
 
 def _load_config_raw() -> dict:

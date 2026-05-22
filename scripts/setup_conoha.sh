@@ -11,8 +11,8 @@ SERVICE_PATH="/etc/systemd/system/${SERVICE_NAME}.service"
 
 cd "${APP_DIR}"
 
-echo "===> Creating venv and installing dependencies..."
-python3 -m venv venv
+echo "===> Creating venv and installing dependencies (if missing)..."
+[ -d venv ] || python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt

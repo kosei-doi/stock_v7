@@ -51,9 +51,13 @@ def test_load_config_partial_yaml(tmp_path):
 
 def test_load_merged_config_none_uses_project_yaml_if_exists():
     """load_merged_config(None) が例外なく dict を返す（プロジェクトに config.yaml があればその内容）。"""
+    project_config = Path(__file__).resolve().parent.parent / "config.yaml"
     c = load_merged_config(None)
     assert isinstance(c, dict)
-    assert "benchmark_ticker" in c or len(c) >= 0
+    if project_config.exists():
+        assert "benchmark_ticker" in c
+    else:
+        assert c == {}
 
 
 def test_get_validated_config_coerces_types():

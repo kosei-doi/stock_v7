@@ -22,9 +22,11 @@ warnings.filterwarnings("ignore", module=r"urllib3(\.|$)")
 import base64
 import json
 import os
+import re
 import subprocess
 import sys
 import webbrowser
+from datetime import datetime
 from email.mime.text import MIMEText
 from typing import Optional
 from pathlib import Path
@@ -47,6 +49,34 @@ SCOPES = [
 CREDENTIALS_FILE = ROOT / "credentials.json"
 TOKEN_FILE = ROOT / "token.json"
 DATA_DIR = ROOT / "data"
+RUN_STATUS_PATH = DATA_DIR / "run_status.json"
+_STEP_RE = re.compile(r"\[\s*(\d+)\s*/\s*(\d+)\s*\]")
+
+
+def write_run_status(
+    status: str,
+    message: str,
+    *,
+    step: Optional[int] = None,
+    total_steps: int = 7,
+    finished_at: Optional[str] = None,
+) -> None:
+    """Web バッチ（web/api.py）と同じ形式で run_status.json を更新する。"""
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "status": status,
+        "message": message,
+        "step": step,
+        "total_steps": total_steps,
+        "finished_at": finished_at,
+    }
+    try:
+        RUN_STATUS_PATH.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    except OSError as e:
+        print(f"警告: run_status.json の書き込みに失敗しました: {e}", file=sys.stderr)
 
 
 def load_credentials():
@@ -369,37 +399,71 @@ def build_report_body() -> str:
 def run_daily_routine() -> tuple[bool, str]:
     """
     daily_routine（日次バッチ）を実行し、成功したかどうかとログ文字列を返す。
+    run_status.json を Web バッチと同様に更新する。
     - 戻り値 True: 正常終了（レポートメール送信）
     - 戻り値 False: 失敗（エラーレポートを送信）
     """
-    # --config 省略時も daily_routine が config.yaml（存在すれば）を読む
+    write_run_status("running", "日次バッチを開始しています…", step=None)
     cmd = [sys.executable, "-m", "daily_routine"]
+    env = {**os.environ, "PYTHONUNBUFFERED": "1"}
+    log_lines: list[str] = []
     try:
-        proc = subprocess.run(
+        proc = subprocess.Popen(
             cmd,
             cwd=str(ROOT),
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
-            timeout=60 * 30,  # 最大30分
+            encoding="utf-8",
+            errors="replace",
+            env=env,
         )
+        assert proc.stdout is not None
+        for line in iter(proc.stdout.readline, ""):
+            line_stripped = (line or "").rstrip("\n")
+            if line_stripped:
+                log_lines.append(line_stripped)
+                print(line_stripped, file=sys.stderr)
+            m = _STEP_RE.search(line_stripped)
+            if m:
+                write_run_status(
+                    "running",
+                    line_stripped or "処理中…",
+                    step=int(m.group(1)),
+                    total_steps=int(m.group(2)),
+                )
+        proc.wait(timeout=60 * 30)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        finished_at = datetime.now().isoformat()
+        write_run_status("failed", "日次バッチがタイムアウトしました。", finished_at=finished_at)
+        return False, "daily_routine timed out after 30 minutes"
     except Exception as e:
+        finished_at = datetime.now().isoformat()
+        write_run_status("failed", str(e), finished_at=finished_at)
         return False, f"Failed to start daily_routine: {e}"
 
-    stdout = proc.stdout or ""
-    stderr = proc.stderr or ""
-    log_parts: list[str] = []
-    if stdout.strip():
-        log_parts.append("=== STDOUT ===")
-        log_parts.append(stdout.strip())
-    if stderr.strip():
-        log_parts.append("=== STDERR ===")
-        log_parts.append(stderr.strip())
+    finished_at = datetime.now().isoformat()
+    log = "\n".join(log_lines)
+    if proc.returncode == 0:
+        write_run_status(
+            "completed",
+            "日次バッチが完了しました。",
+            step=7,
+            total_steps=7,
+            finished_at=finished_at,
+        )
+    else:
+        write_run_status(
+            "failed",
+            f"日次バッチが終了しました（コード: {proc.returncode}）",
+            step=None,
+            finished_at=finished_at,
+        )
+    log_parts = [log] if log.strip() else []
     log_parts.append(f"(exit_code={proc.returncode})")
-    log = "\n".join(log_parts)
-
-    # コンソールにも出しておく
-    print(log, file=sys.stderr)
-    return proc.returncode == 0, log
+    full_log = "\n".join(log_parts)
+    return proc.returncode == 0, full_log
 
 
 def build_failure_html(log: str) -> str:

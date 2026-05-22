@@ -169,7 +169,11 @@ def update_holdings_bulk(
 ) -> list[WatchlistItem]:
     """
     複数銘柄の shares / avg_price を一括更新。positions は { ticker: { shares, avg_price? } }。
-    既存の HOLDING を更新し、positions に含まれるが watchlist にない銘柄は HOLDING で追加する。
+
+    既存 HOLDING: shares は**加算**（追加購入）。avg_price は加重平均
+    ``(旧株数×旧単価 + 追加分×新単価) / 合計株数``（追加分に単価が無い場合は既存単価を維持）。
+    新規 HOLDING: 渡された shares / avg_price をそのまま設定する。
+
     上限超過時は WATCHING のうちスコア最下位を自動削除（portfolio_scores で順序判定）。
     """
     items = load_watchlist(path)
@@ -190,13 +194,21 @@ def update_holdings_bulk(
         if ticker in ticker_to_idx:
             i = items[ticker_to_idx[ticker]]
             i["status"] = STATUS_HOLDING
-            i["shares"] = shares
+            try:
+                old_shares = int(i.get("shares") or i.get("shares_held") or 0)
+            except (TypeError, ValueError):
+                old_shares = 0
+            new_shares = old_shares + shares
+            i["shares"] = new_shares
             if "shares_held" in i:
                 del i["shares_held"]
-            if avg_price is not None:
-                i["avg_price"] = avg_price
-            elif "avg_price" in i:
-                del i["avg_price"]
+            old_avg = i.get("avg_price")
+            if avg_price is not None and shares > 0:
+                if old_avg is not None and old_shares > 0:
+                    i["avg_price"] = (old_shares * float(old_avg) + shares * avg_price) / new_shares
+                else:
+                    i["avg_price"] = avg_price
+            # avg_price 未指定の追加分のみ: 既存 avg_price は維持
         else:
             items.append({
                 "ticker": ticker,

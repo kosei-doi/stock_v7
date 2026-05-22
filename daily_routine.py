@@ -7,6 +7,8 @@ import argparse
 import json
 import sys
 from datetime import datetime, timedelta
+
+import pandas as pd
 from pathlib import Path
 from typing import Optional, Set
 
@@ -18,6 +20,7 @@ from core.dpa.dpa_scores import compute_score_trend, load_scores_history
 from core.dpa.dpa_weights import compute_target_weights
 from core.dpa.dpa_purge import run_purge
 from core.dpa.dpa_schema import DpaDailyReport, MacroPhase
+from core.utils.dates import logical_date_iso
 from core.utils.daily_cache import (
     DEFAULT_CACHE_PATH,
     DEFAULT_CACHE_CUTOFF_HOUR,
@@ -297,8 +300,7 @@ def run_daily_routine(
     キャッシュの更新可否は曜日・時刻を考慮する（daily_cache のスケジュール判定）。
     """
     now = _now_jst()
-    # 論理日付: 6時区切り（現在時刻 JST から 6 時間引いた日付）
-    data_date = (now - timedelta(hours=6)).date().isoformat()
+    data_date = logical_date_iso(now)
     created_at = now.strftime("%Y-%m-%d %H:%M:%S JST")
     total_steps = 7
 
@@ -351,10 +353,17 @@ def run_daily_routine(
         cutoff_minute=cache_cutoff_minute,
         market_tz=market_tz,
     )
-    # vi_value_override があれば優先し、なければ系列からZスコアベースで評価
+    vi_for_macro = vi_series
+    if vi_value_override is not None:
+        override_val = float(vi_value_override)
+        if vi_series is not None and not vi_series.empty:
+            vi_for_macro = vi_series.copy()
+            vi_for_macro.iloc[-1] = override_val
+        else:
+            vi_for_macro = pd.Series([override_val])
     macro = get_macro_state(
         bench_df,
-        vi_series=vi_series,
+        vi_series=vi_for_macro,
         mu_cash=mu_cash,
         a_vi=a_vi,
         b_macd=b_macd,

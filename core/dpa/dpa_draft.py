@@ -84,6 +84,15 @@ def run_draft(
         for h in holdings
         if h.get("ticker") or h.get("ticker_symbol")
     }
+    holding_shares: dict[str, int] = {}
+    for h in holdings:
+        t = h.get("ticker") or h.get("ticker_symbol")
+        if not t:
+            continue
+        try:
+            holding_shares[str(t).strip()] = int(h.get("shares") or h.get("shares_held") or 0)
+        except (TypeError, ValueError):
+            holding_shares[str(t).strip()] = 0
 
     # ウォッチリスト WATCHING のスナップショットのうち、着火点を満たす銘柄を候補にする（保有・未保有を問わない）
     candidates: list[tuple[DvcScoreOutput, float]] = []
@@ -164,12 +173,19 @@ def run_draft(
             if target_jpy <= 0:
                 continue
 
+            # 既存保有分を差し引き、増分のみ購入（目標以下なら追加買いなし）
+            shares_held = holding_shares.get(ticker, 0)
+            current_holding_value = float(shares_held) * float(price)
+            incremental_jpy = max(0.0, target_jpy - current_holding_value)
+            if incremental_jpy <= 0:
+                continue
+
             lot_cost = float(price) * float(lot_size)
             if lot_cost <= 0:
                 continue
 
             # 単元株ロット計算: 1 ロットに満たない金額は切り捨て（floor_lots_from_yen）
-            max_lots_by_target = floor_lots_from_yen(target_jpy, lot_cost)
+            max_lots_by_target = floor_lots_from_yen(incremental_jpy, lot_cost)
             max_lots_by_budget = floor_lots_from_yen(scenario_budget, lot_cost)
             lots = min(max_lots_by_target, max_lots_by_budget)
             if lots <= 0:

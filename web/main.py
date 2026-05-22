@@ -4,6 +4,8 @@ Serves pages and mounts API router. Does not modify core/.
 """
 from __future__ import annotations
 
+import html
+import os
 from pathlib import Path
 
 from fastapi import Request
@@ -21,15 +23,22 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 def create_app():
     from fastapi import FastAPI
 
-    app = FastAPI(title="DPA Web")
+    is_production = os.environ.get("DPA_ENV", "").lower() == "production"
+    app = FastAPI(
+        title="DPA Web",
+        docs_url=None if is_production else "/docs",
+        redoc_url=None if is_production else "/redoc",
+        openapi_url=None if is_production else "/openapi.json",
+    )
 
     @app.exception_handler(404)
     async def custom_404(request: Request, exc: Exception):
+        safe_path = html.escape(request.url.path, quote=True)
         return HTMLResponse(
             content='<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>ページが見つかりません</title></head>'
             '<body style="font-family:sans-serif;padding:2rem;background:#0f172a;color:#e2e8f0;">'
             '<h1 style="color:#f59e0b;">404 - ページが見つかりません</h1>'
-            f'<p>リクエストした URL: <code>{request.url.path}</code></p>'
+            f'<p>リクエストした URL: <code>{safe_path}</code></p>'
             '<p><a href="/" style="color:#38bdf8;">ダッシュボードへ戻る</a> | '
             '<a href="/trade" style="color:#38bdf8;">取引</a> | '
             '<a href="/report" style="color:#38bdf8;">レポート</a></p></body></html>',

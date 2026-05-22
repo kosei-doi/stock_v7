@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from core.utils.daily_cache import DEFAULT_CACHE_PATH, get_macro_and_peers_data, _now_jst
+from core.utils.dates import logical_date_iso
 from core.dpa.dpa_scores import SCORES_HISTORY_PATH, update_scores_history_for_date
 from core.utils.io_utils import save_output_json
 from core.dvc.scoring import run_dvc_for_ticker
@@ -102,8 +103,9 @@ def run_dvc_for_watchlist(
         except Exception:
             raise
 
-    # スコア履歴を更新（date キーには JST の「今日」を用いる）
-    today_key = _now_jst().date().isoformat()
+    # スコア履歴の日付キーは daily_routine の data_date と同一（JST 6 時区切り）
+    ref_now = cache_now if cache_now is not None else _now_jst()
+    today_key = logical_date_iso(ref_now)
     update_scores_history_for_date(today_key, results, path=scores_history_path or SCORES_HISTORY_PATH)
     if progress_callback and n > 0:
         progress_callback(f"スコア履歴を更新しました ({today_key})")
