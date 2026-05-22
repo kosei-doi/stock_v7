@@ -545,8 +545,6 @@ def main(argv: list[str] | None = None) -> int:
         scores_history_path=_resolve_path(cfg.get("scores_history_path", "data/scores_history.json")),
     )
 
-    from core.persistence.access import get_persistence
-
     try:
         get_persistence().daily_report.save_last_with_date_rotation(
             report.model_dump(mode="json")
