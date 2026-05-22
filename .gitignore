@@ -27,6 +27,10 @@ credentials.json
 *.swp
 *~
 
+# SQLite（本番・開発とも Git 非追跡）
+data/dpa.db
+data/dpa.db-*
+
 # その他
 terminals/
 agent-transcripts/

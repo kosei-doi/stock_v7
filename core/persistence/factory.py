@@ -21,6 +21,8 @@ from core.persistence.protocols import (
     TickerAnalysisRepository,
     WatchlistRepository,
 )
+from core.persistence.sqlite_portfolio import SqlitePortfolioRepository
+from core.persistence.sqlite_watchlist import SqliteWatchlistRepository
 
 
 @dataclass(frozen=True)
@@ -43,6 +45,28 @@ def build_file_repositories(paths: PersistencePaths | None = None) -> Persistenc
         paths=resolved,
         watchlist=FileWatchlistRepository(resolved),
         portfolio=FilePortfolioRepository(resolved),
+        daily_report=FileDailyReportRepository(resolved),
+        score_history=FileScoreHistoryRepository(resolved),
+        run_job=FileRunJobRepository(resolved),
+        market_cache=FileMarketCacheRepository(resolved),
+        sector_peers=FileSectorPeersRepository(resolved),
+        ticker_analysis=FileTickerAnalysisRepository(resolved),
+    )
+
+
+def build_sqlite_repositories(
+    paths: PersistencePaths | None = None,
+    database_url: str | None = None,
+) -> PersistenceBundle:
+    """SQLite watchlist/portfolio + File でその他を構築する。"""
+    from core.persistence.db import resolve_database_url
+
+    resolved = paths or PersistencePaths.from_project_root()
+    url = database_url or resolve_database_url(resolved)
+    return PersistenceBundle(
+        paths=resolved,
+        watchlist=SqliteWatchlistRepository(resolved, url),
+        portfolio=SqlitePortfolioRepository(resolved, url),
         daily_report=FileDailyReportRepository(resolved),
         score_history=FileScoreHistoryRepository(resolved),
         run_job=FileRunJobRepository(resolved),

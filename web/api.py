@@ -28,7 +28,7 @@ from core.utils.config_loader import (
     load_merged_config,
     watchlist_max_items_from_raw_config,
 )
-from core.persistence import get_persistence
+from core.persistence import get_persistence, sync_watchlist_from_json_file_if_sqlite
 from core.utils.money import yen_floor
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -763,6 +763,7 @@ def trade_purchase(body: TradePurchaseBody) -> dict:
             portfolio_scores=portfolio_scores,
             max_items=max_items,
         )
+        sync_watchlist_from_json_file_if_sqlite()
     except ImportError as e:
         raise HTTPException(
             status_code=500,
