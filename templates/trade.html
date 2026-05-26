@@ -120,7 +120,7 @@
         </thead>
         <tbody class="divide-y divide-slate-700/80">
           {% for h in holdings %}
-          <tr class="hover:bg-slate-800/40 transition">
+          <tr class="hover:bg-slate-800/40 transition cursor-pointer" data-ticker="{{ h.ticker }}" data-name="{{ h.name or '' }}">
             <td class="px-4 py-3 font-mono text-slate-200 align-middle whitespace-nowrap">{{ h.ticker }}</td>
             <td class="px-4 py-3 text-slate-400 align-middle max-w-[12rem] sm:max-w-md truncate" title="{{ h.name or '' }}">{{ h.name or '—' }}</td>
             <td class="px-4 py-3 text-right tabular-nums text-slate-300 align-middle whitespace-nowrap">{{ h.shares }}<span class="text-slate-500 text-xs ml-0.5">株</span></td>

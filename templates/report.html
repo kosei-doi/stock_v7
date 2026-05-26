@@ -217,9 +217,6 @@
 </div>
 
 {% if report %}
-{% include "partials/ticker_detail_modal.html" %}
-<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
-<script src="/static/js/ticker_detail_modal.js"></script>
 <script>
 (function() {
   TickerDetailModal.init({ syncUrlOnOpen: false });
@@ -232,7 +229,9 @@
   }
 
   document.querySelectorAll('.report-ticker-row').forEach(function(tr) {
-    tr.addEventListener('click', function() {
+    tr.addEventListener('click', function(e) {
+      // base.html の [data-ticker] 委譲ハンドラが二重に開かないように
+      e.stopPropagation();
       document.querySelectorAll('.report-ticker-row').forEach(function(r) {
         r.classList.remove('bg-slate-700/50');
       });

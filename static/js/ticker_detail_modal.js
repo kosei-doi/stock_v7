@@ -188,6 +188,7 @@
   }
 
   function open(opts) {
+    wireOnce();
     opts = opts || {};
     const ticker = opts.ticker;
     if (!ticker) return;

@@ -77,6 +77,30 @@
     </main>
   </div>
 
+  {% with show_analyze_button=true %}{% include "partials/ticker_detail_modal.html" %}{% endwith %}
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="/static/js/ticker_detail_modal.js"></script>
+  <script>
+    // 任意の data-ticker 要素クリックでモーダルを開く（共通）。
+    // 入れ子の button/select/input/a 等の操作はモーダルを開かない。
+    (function () {
+      document.addEventListener('click', function (e) {
+        const interactive = e.target.closest('button, a, input, select, textarea, label');
+        if (interactive) return;
+        const el = e.target.closest('[data-ticker]');
+        if (!el) return;
+        const ticker = el.getAttribute('data-ticker');
+        if (!ticker) return;
+        const name = el.getAttribute('data-name') || '';
+        window.TickerDetailModal && window.TickerDetailModal.open({
+          ticker: ticker,
+          name: name,
+          hasOutput: el.getAttribute('data-has-output') !== '0',
+        });
+      });
+    })();
+  </script>
+
   {% block scripts %}{% endblock %}
 
   {% if dpa_api_key %}

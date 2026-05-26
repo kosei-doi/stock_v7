@@ -45,20 +45,22 @@ def report_client(file_persistence):
 
 
 def test_report_page_includes_modal_assets(report_client):
+    """日次レポートは銘柄行に data-ticker を持ち、モーダルアセットを base.html 経由で読み込む。"""
     resp = report_client.get("/report", headers=DPA_CLIENT_HEADERS)
     assert resp.status_code == 200
     html = resp.text
     assert "id=\"detail-modal\"" in html
     assert "report-ticker-row" in html
     assert "/static/js/ticker_detail_modal.js" in html
-    assert "btn-detail-analyze" not in html
 
 
 def test_report_page_without_report(file_persistence):
+    """レポート未生成時もモーダル本体は base.html 経由で全ページに含まれる。"""
     from web.main import create_app
 
     client = TestClient(create_app())
     resp = client.get("/report", headers=DPA_CLIENT_HEADERS)
     assert resp.status_code == 200
     assert "レポートがありません" in resp.text
-    assert "ticker_detail_modal.js" not in resp.text
+    # base.html がモーダルを共通注入するので任意ページで利用可能
+    assert "ticker_detail_modal.js" in resp.text

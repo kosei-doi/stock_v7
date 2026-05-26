@@ -54,9 +54,6 @@
 
 </div>
 
-{% with show_analyze_button=true %}{% include "partials/ticker_detail_modal.html" %}{% endwith %}
-<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
-<script src="/static/js/ticker_detail_modal.js"></script>
 <script id="analysis-index-data" type="application/json">{{ analysis_index_items | tojson }}</script>
 <script>
 (function() {
@@ -121,7 +118,9 @@
         '<td class="px-4 py-3 text-right">' + close + '</td></tr>';
     }).join('');
     indexBody.querySelectorAll('.wl-row').forEach(function(tr) {
-      tr.addEventListener('click', function() {
+      tr.addEventListener('click', function(e) {
+        // base.html の [data-ticker] 委譲が二重発火しないように
+        e.stopPropagation();
         indexBody.querySelectorAll('.wl-row').forEach(r => r.classList.remove('bg-slate-700'));
         tr.classList.add('bg-slate-700');
         TickerDetailModal.open({

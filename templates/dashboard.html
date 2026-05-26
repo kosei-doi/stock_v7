@@ -179,7 +179,9 @@
       const pnl = h.unrealized_pnl != null ? h.unrealized_pnl : 0;
       const pnlClass = pnl > 0 ? 'text-red-500' : pnl < 0 ? 'text-green-500' : 'text-slate-200';
       const tr = document.createElement('tr');
-      tr.className = 'border-t border-slate-700/80';
+      tr.className = 'border-t border-slate-700/80 cursor-pointer hover:bg-slate-700/30';
+      tr.setAttribute('data-ticker', h.ticker || '');
+      tr.setAttribute('data-name', (h.name || '').replace(/"/g, '&quot;'));
       tr.innerHTML =
         '<td class="px-3 py-2 font-mono">' + (h.ticker || '-') + '</td>' +
         '<td class="px-3 py-2 truncate max-w-[8rem]">' + (h.name || '-') + '</td>' +
@@ -203,7 +205,9 @@
     top.forEach((w, idx) => {
       const score = w.score != null ? Number(w.score) : null;
       const tr = document.createElement('tr');
-      tr.className = 'border-t border-slate-700/80';
+      tr.className = 'border-t border-slate-700/80 cursor-pointer hover:bg-slate-700/30';
+      tr.setAttribute('data-ticker', w.ticker || '');
+      tr.setAttribute('data-name', (w.name || '').replace(/"/g, '&quot;'));
       tr.innerHTML =
         '<td class="px-3 py-2 text-slate-400">' + (w.rank || idx + 1) + '</td>' +
         '<td class="px-3 py-2 font-mono">' + (w.ticker || '-') + '</td>' +
@@ -257,8 +261,9 @@
     html += '<table class="w-full text-left text-xs"><thead class="text-slate-400 border-b border-slate-600"><tr><th class="py-1.5 pr-2">コード</th><th class="py-1.5 pr-2 w-14 text-right">株数</th><th class="py-1.5 text-right">予算（円）</th></tr></thead><tbody>';
     recs.forEach((r) => {
       const name = (r.name || (tickerNames && tickerNames[r.ticker]) || '-').substring(0, 18);
+      const fullName = (r.name || (tickerNames && tickerNames[r.ticker]) || '').replace(/"/g, '&quot;');
       const b = (r.budget_used || 0) | 0;
-      html += '<tr class="border-b border-slate-700/60"><td class="py-1.5 pr-2"><span class="font-mono text-slate-200">' + (r.ticker || '') + '</span> <span class="text-slate-400 truncate" title="' + (r.name || '').replace(/"/g, '&quot;') + '">' + name + '</span></td><td class="py-1.5 pr-2 text-right text-slate-300">' + (r.shares || 0) + ' 株</td><td class="py-1.5 text-right font-mono text-slate-200">' + b.toLocaleString() + '</td></tr>';
+      html += '<tr class="border-b border-slate-700/60 cursor-pointer hover:bg-slate-700/30" data-ticker="' + (r.ticker || '') + '" data-name="' + fullName + '"><td class="py-1.5 pr-2"><span class="font-mono text-slate-200">' + (r.ticker || '') + '</span> <span class="text-slate-400 truncate" title="' + fullName + '">' + name + '</span></td><td class="py-1.5 pr-2 text-right text-slate-300">' + (r.shares || 0) + ' 株</td><td class="py-1.5 text-right font-mono text-slate-200">' + b.toLocaleString() + '</td></tr>';
     });
     html += '</tbody></table>';
     el.innerHTML = html;
@@ -297,7 +302,8 @@
       const shNum = (rawSh != null && rawSh !== '' && !Number.isNaN(Number(rawSh))) ? Number(rawSh) : null;
       // 0 株＝この条件では実売却なし（アラートのみ等）
       const sh = (shNum !== null && shNum > 0) ? (shNum + ' 株') : '-';
-      html += '<tr class="border-b border-slate-700/60">';
+      const fullName = tickerNames && tickerNames[t] ? String(tickerNames[t]).replace(/"/g, '&quot;') : '';
+      html += '<tr class="border-b border-slate-700/60 cursor-pointer hover:bg-slate-700/30" data-ticker="' + _escHtml(t) + '" data-name="' + fullName + '">';
       html += '<td class="py-1.5 pr-2 align-top"><span class="font-mono text-slate-200">' + _escHtml(t) + '</span></td>';
       html += '<td class="py-1.5 pr-2 align-top text-slate-400" title="' + _escHtml(tickerNames && tickerNames[t] ? tickerNames[t] : '') + '">' + _escHtml(name) + '</td>';
       html += '<td class="py-1.5 pr-2 align-top text-slate-300 leading-snug">' + _escHtml(reason) + '</td>';

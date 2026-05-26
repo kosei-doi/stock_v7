@@ -360,7 +360,9 @@
       empty.classList.add('hidden');
       for (const r of items) {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/40';
+        tr.className = 'hover:bg-slate-800/40 cursor-pointer';
+        tr.setAttribute('data-ticker', r.ticker || '');
+        tr.setAttribute('data-name', (r.name || '').replace(/"/g, '&quot;'));
         tr.innerHTML =
           `<td class="px-3 py-2 font-mono text-slate-200">${r.ticker}</td>` +
           `<td class="px-3 py-2 text-slate-400 truncate max-w-[14rem]" title="${r.name || ''}">${r.name || '-'}</td>` +
@@ -390,7 +392,9 @@
       empty.classList.add('hidden');
       for (const m of items) {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/40';
+        tr.className = 'hover:bg-slate-800/40 cursor-pointer';
+        tr.setAttribute('data-ticker', m.ticker || '');
+        tr.setAttribute('data-name', (m.name || '').replace(/"/g, '&quot;'));
         tr.innerHTML =
           `<td class="px-2 py-1 font-mono text-slate-200">${m.ticker}</td>` +
           `<td class="px-2 py-1 text-slate-400 truncate max-w-[10rem]" title="${m.name || ''}">${m.name || '-'}</td>` +
@@ -413,7 +417,9 @@
       empty.classList.add('hidden');
       for (const it of items) {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/40';
+        tr.className = 'hover:bg-slate-800/40 cursor-pointer';
+        tr.setAttribute('data-ticker', it.ticker || '');
+        tr.setAttribute('data-name', (it.name || '').replace(/"/g, '&quot;'));
         tr.innerHTML =
           `<td class="px-3 py-2 font-mono text-slate-200">${it.ticker || '-'}</td>` +
           `<td class="px-3 py-2 text-slate-400 truncate max-w-[10rem]" title="${it.name || ''}">${it.name || '-'}</td>` +
@@ -451,7 +457,9 @@
         empty.classList.add('hidden');
         for (const tr of trades) {
           const row = document.createElement('tr');
-          row.className = 'hover:bg-slate-800/40';
+          row.className = 'hover:bg-slate-800/40 cursor-pointer';
+          row.setAttribute('data-ticker', tr.ticker || '');
+          row.setAttribute('data-name', (tr.name || '').replace(/"/g, '&quot;'));
           const sideClass = tr.side === 'BUY' ? 'text-rose-400' : 'text-emerald-400';
           const sideLabel = tr.side === 'BUY' ? '購入' : '売却';
           row.innerHTML =

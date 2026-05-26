@@ -17,7 +17,7 @@
         </thead>
         <tbody class="text-slate-200">
           {% for w in watchlist %}
-          <tr class="border-t border-slate-700 hover:bg-slate-700/30" data-ticker="{{ w.ticker }}">
+          <tr class="border-t border-slate-700 hover:bg-slate-700/30 cursor-pointer" data-ticker="{{ w.ticker }}" data-name="{{ w.name }}">
             <td class="px-2 py-1 md:px-4 md:py-2 font-mono">{{ w.ticker }}</td>
             <td class="px-2 py-1 md:px-4 md:py-2 break-words">{{ w.name }}</td>
             <td class="px-2 py-1 md:px-4 md:py-2">{{ w.status }}</td>
