@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from datetime import datetime, timedelta
 
@@ -23,7 +22,6 @@ from core.dpa.dpa_purge import run_purge
 from core.dpa.dpa_schema import DpaDailyReport, MacroPhase
 from core.utils.dates import logical_date_iso
 from core.utils.daily_cache import (
-    DEFAULT_CACHE_PATH,
     DEFAULT_CACHE_CUTOFF_HOUR,
     DEFAULT_CACHE_CUTOFF_MINUTE,
     DEFAULT_MARKET_TZ,
@@ -34,20 +32,12 @@ from core.dvc.dvc_batch import run_dvc_for_watchlist
 from core.dvc.schema import DvcScoreOutput
 from core.utils.money import yen_floor
 from core.utils.watchlist_io import (
-    WATCHLIST_PATH,
     get_holdings,
     get_watching,
-    load_watchlist,
-    positions_from_watchlist,
     _ticker,
 )
 
-PORTFOLIO_STATE_PATH = "portfolio_state.json"
 DEFAULT_TOTAL_CAPITAL_JPY = 5_000_000
-
-
-def _resolve_path(path_str: str) -> str:
-    return str(Path(path_str).resolve())
 
 
 def _progress(step: int, total: int, message: str, *, verbose_msg: Optional[str] = None, verbose: bool = False) -> None:
@@ -55,17 +45,6 @@ def _progress(step: int, total: int, message: str, *, verbose_msg: Optional[str]
     print(f"  [{step}/{total}] {message}", file=sys.stderr)
     if verbose and verbose_msg:
         print(f"        {verbose_msg}", file=sys.stderr)
-
-
-def load_portfolio_state(path: str = PORTFOLIO_STATE_PATH) -> dict:
-    """現金残高などを読む。"""
-    p = Path(path)
-    if not p.exists():
-        return {"cash_yen": DEFAULT_TOTAL_CAPITAL_JPY}
-    try:
-        return json.loads(p.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return {"cash_yen": DEFAULT_TOTAL_CAPITAL_JPY}
 
 
 def current_prices_from_dvc_results(results: dict[str, DvcScoreOutput]) -> dict[str, float]:
@@ -269,13 +248,9 @@ def format_report(report: DpaDailyReport) -> str:
 
 
 def run_daily_routine(
-    watchlist_path: str = WATCHLIST_PATH,
-    sector_peers_path: str = "data/sector_peers.json",
     benchmark_ticker: str = "1306.T",
     years: int = 5,
     output_dir: str = "output",
-    cache_path: str = DEFAULT_CACHE_PATH,
-    portfolio_path: str = PORTFOLIO_STATE_PATH,
     vi_value_override: Optional[float] = None,
     vi_ticker: Optional[str] = None,
     mu_cash: float = 0.4,
@@ -295,7 +270,6 @@ def run_daily_routine(
     cache_cutoff_hour: int = DEFAULT_CACHE_CUTOFF_HOUR,
     cache_cutoff_minute: int = DEFAULT_CACHE_CUTOFF_MINUTE,
     market_tz: str = DEFAULT_MARKET_TZ,
-    scores_history_path: str = "data/scores_history.json",
 ) -> DpaDailyReport:
     """
     日次ルーチンを一括実行し、DpaDailyReport を返す。
@@ -482,7 +456,6 @@ def run_daily_routine(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="DPA 日次バッチ")
     parser.add_argument("--config", help="設定ファイル（YAML）")
-    parser.add_argument("--watchlist", default=WATCHLIST_PATH, help="ウォッチリストJSON")
     parser.add_argument("--output-dir", default="output", help="DVC 出力先")
     parser.add_argument("--vi", type=float, help="日経VI などVIの直近値（未指定時はヒストリのみで判定）")
     parser.add_argument("--no-llm", action="store_true", help="LLM を使わない")
@@ -501,28 +474,20 @@ def main(argv: list[str] | None = None) -> int:
         raw_cfg = load_merged_config(None)
     cfg = get_validated_config(raw_cfg)
 
-    get_persistence()
-    sector_peers_path = _resolve_path(cfg.get("sector_peers_path", "data/sector_peers.json"))
-    if not get_persistence().sector_peers.load() and not Path(sector_peers_path).exists():
-        print(f"sector_peers が見つかりません: {sector_peers_path}", file=sys.stderr)
+    if not get_persistence().sector_peers.load():
+        print("sector_peers が DB にありません。scripts/migrate_json_to_db.py で取り込んでください。", file=sys.stderr)
         return 1
 
     if args.verbose:
         print(
-            f"        config={cfg_path or '(config.yaml なし・get_validated_config の既定値)'} cache_path={_resolve_path(cfg.get('cache_path', 'data/daily_cache.json'))} "
-            f"sector_peers={sector_peers_path} "
-            f"portfolio={_resolve_path(cfg.get('portfolio_path', PORTFOLIO_STATE_PATH))}",
+            f"        config={cfg_path or '(config.yaml なし・get_validated_config の既定値)'}",
             file=sys.stderr,
         )
 
     report = run_daily_routine(
-        watchlist_path=args.watchlist,
-        sector_peers_path=sector_peers_path,
         benchmark_ticker=cfg.get("benchmark_ticker", "1306.T"),
         years=int(cfg.get("years", 5)),
         output_dir=str(cfg.get("output_dir", args.output_dir)),
-        cache_path=_resolve_path(cfg.get("cache_path", "data/daily_cache.json")),
-        portfolio_path=_resolve_path(cfg.get("portfolio_path", PORTFOLIO_STATE_PATH)),
         vi_value_override=args.vi,
         vi_ticker=cfg.get("vi_ticker"),
         mu_cash=float(cfg.get("mu_cash", 0.4)),
@@ -542,7 +507,6 @@ def main(argv: list[str] | None = None) -> int:
         cache_cutoff_hour=int(cfg.get("cache_cutoff_hour", DEFAULT_CACHE_CUTOFF_HOUR)),
         cache_cutoff_minute=int(cfg.get("cache_cutoff_minute", DEFAULT_CACHE_CUTOFF_MINUTE)),
         market_tz=str(cfg.get("market_tz", DEFAULT_MARKET_TZ)),
-        scores_history_path=_resolve_path(cfg.get("scores_history_path", "data/scores_history.json")),
     )
 
     try:

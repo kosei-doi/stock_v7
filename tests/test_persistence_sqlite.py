@@ -46,7 +46,9 @@ def test_sqlite_watchlist_roundtrip_and_positions(tmp_path):
     assert pos["8111.T"]["shares"] == 50
     assert pos["8111.T"]["avg_price"] == pytest.approx(2000.0)
 
-    # JSON ミラー + import_from_json_file
+    # import_from_json_file: 移行スクリプト用の JSON 取り込み
+    from core.utils.watchlist_io import save_watchlist
+    save_watchlist(items, str(paths.watchlist_path))
     repos.watchlist.import_from_json_file()
     assert len(repos.watchlist.load_all()) == 2
 

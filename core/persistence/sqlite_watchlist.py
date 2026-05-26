@@ -11,12 +11,11 @@ from core.utils.watchlist_io import (
     PositionEntry,
     WatchlistItem,
     load_watchlist,
-    save_watchlist,
 )
 
 
 class SqliteWatchlistRepository:
-    """ウォッチリストの SQLite 実装。save_all 時に JSON へミラー（update_holdings_bulk 互換）。"""
+    """ウォッチリストの SQLite 実装。DB が唯一の SoT。"""
 
     def __init__(self, paths: PersistencePaths, database_url: str | None = None) -> None:
         self._paths = paths
@@ -32,10 +31,9 @@ class SqliteWatchlistRepository:
 
     def save_all(self, items: list[WatchlistItem]) -> None:
         self._persist_db(items)
-        self._mirror_json(items)
 
     def import_from_json_file(self) -> None:
-        """watchlist.json の内容を DB に取り込む（JSON ミラーなし）。"""
+        """watchlist.json の内容を DB に取り込む（移行スクリプト用）。"""
         items = load_watchlist(str(self._paths.watchlist_path))
         self._persist_db(items)
 
@@ -91,9 +89,6 @@ class SqliteWatchlistRepository:
                     )
                 )
             session.commit()
-
-    def _mirror_json(self, items: list[WatchlistItem]) -> None:
-        save_watchlist(items, str(self._paths.watchlist_path))
 
 
 def _row_to_item(row: WatchlistItemRow) -> WatchlistItem:

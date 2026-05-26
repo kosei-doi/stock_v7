@@ -137,12 +137,7 @@ def routine_env(tmp_path, monkeypatch):
     monkeypatch.setattr(dr, "get_macro_and_peers_data", lambda **_kw: _mock_macro_data())
 
     paths = {
-        "watchlist_path": str(data_dir / "watchlist.json"),
-        "sector_peers_path": str(data_dir / "sector_peers.json"),
-        "portfolio_path": str(tmp_path / "portfolio_state.json"),
-        "cache_path": str(data_dir / "daily_cache.json"),
         "output_dir": str(output_dir),
-        "scores_history_path": str(data_dir / "scores_history.json"),
     }
     yield dr, paths
     reset_persistence()

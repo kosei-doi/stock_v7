@@ -20,7 +20,6 @@ warnings.filterwarnings("ignore", category=FutureWarning, module=r"google\.api_c
 warnings.filterwarnings("ignore", module=r"urllib3(\.|$)")
 
 import base64
-import json
 import os
 import re
 import subprocess
@@ -48,8 +47,6 @@ SCOPES = [
 ]
 CREDENTIALS_FILE = ROOT / "credentials.json"
 TOKEN_FILE = ROOT / "token.json"
-DATA_DIR = ROOT / "data"
-RUN_STATUS_PATH = DATA_DIR / "run_status.json"
 _STEP_RE = re.compile(r"\[\s*(\d+)\s*/\s*(\d+)\s*\]")
 
 
@@ -119,19 +116,6 @@ def load_credentials():
         with open(TOKEN_FILE, "w") as f:
             f.write(creds.to_json())
     return creds
-
-
-def load_json(path: Path, default=None):
-    """JSON ファイルを読み込む。存在しなければ default を返す。"""
-    if default is None:
-        default = {}
-    if not path.exists():
-        return default
-    try:
-        with open(path, encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, OSError):
-        return default
 
 
 def _esc(s: str) -> str:
@@ -224,11 +208,14 @@ def build_report_html() -> str:
     アプリと同じ内容を HTML メールで送る。保有銘柄・ウォッチリストは表で表示。
     前日比で増＝赤・減＝緑で色付け（previous_report.json がある場合）。
     """
-    run_status = load_json(DATA_DIR / "run_status.json", {})
-    last_report = load_json(DATA_DIR / "last_report.json", {})
-    previous_report = load_json(DATA_DIR / "previous_report.json", {})
-    watchlist = load_json(DATA_DIR / "watchlist.json", [])
-    portfolio = load_json(ROOT / "portfolio_state.json", {})
+    from core.persistence.access import get_persistence
+
+    store = get_persistence()
+    run_status = store.run_job.get_status() or {}
+    last_report = store.daily_report.get_last() or {}
+    previous_report = store.daily_report.get_previous() or {}
+    watchlist = store.watchlist.load_all()
+    portfolio = {"cash_yen": store.portfolio.get_cash_yen()}
 
     ticker_names = last_report.get("ticker_names") or {}
     last_prices = last_report.get("last_prices") or {}
@@ -385,8 +372,11 @@ def build_report_html() -> str:
 
 def build_report_body() -> str:
     """プレーンテキスト版（HTML 生成に失敗したときのフォールバック）。"""
-    last_report = load_json(DATA_DIR / "last_report.json", {})
-    run_status = load_json(DATA_DIR / "run_status.json", {})
+    from core.persistence.access import get_persistence
+
+    store = get_persistence()
+    last_report = store.daily_report.get_last() or {}
+    run_status = store.run_job.get_status() or {}
     report_text = (last_report.get("report_text") or "").strip()
     if report_text:
         return f"【バッチ】{run_status.get('status', '?')} … {run_status.get('finished_at', '-')}\n\n" + report_text
@@ -505,8 +495,11 @@ def send_report(service, to_email: str) -> None:
         return
 
     if ok:
+        from core.persistence.access import get_persistence
+
         body_html = build_report_html()
-        data_date = load_json(DATA_DIR / "last_report.json", {}).get("data_date", "")
+        last = get_persistence().daily_report.get_last() or {}
+        data_date = last.get("data_date", "")
         subject = f"DPA 日次レポート {data_date}" if data_date else "DPA 日次レポート"
     else:
         body_html = build_failure_html(log)
