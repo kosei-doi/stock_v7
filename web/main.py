@@ -101,6 +101,7 @@ def create_app():
     async def trade(request: Request):
         holdings = []
         cash_yen = 0
+        recommendations = []
         try:
             from core.persistence import get_persistence
             from web.api import _get_positions_from_watchlist, _get_cash_yen
@@ -121,11 +122,34 @@ def create_app():
                 for t, e in pos.items()
             ]
             cash_yen = _get_cash_yen()
+            # 日次レポートのドラフト推奨を購入フォームに渡す
+            draft = (last_report or {}).get("draft") or {}
+            raw_recs = draft.get("recommendations") or []
+            for r in raw_recs:
+                if not isinstance(r, dict):
+                    continue
+                t = r.get("ticker")
+                if not t:
+                    continue
+                recommendations.append({
+                    "ticker": t,
+                    "name": r.get("name") or names.get(t) or "-",
+                    "shares": r.get("shares") or 0,
+                    "budget_used": r.get("budget_used") or 0,
+                    "last_price": last_prices.get(t),
+                })
         except Exception:
             import traceback
             traceback.print_exc()
         return templates.TemplateResponse(
-            request, "trade.html", {"request": request, "holdings": holdings, "cash_yen": cash_yen}
+            request,
+            "trade.html",
+            {
+                "request": request,
+                "holdings": holdings,
+                "cash_yen": cash_yen,
+                "recommendations": recommendations,
+            },
         )
 
     @app.get("/watchlist", response_class=HTMLResponse)
