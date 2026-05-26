@@ -56,7 +56,11 @@
 
 <script id="analysis-index-data" type="application/json">{{ analysis_index_items | tojson }}</script>
 <script>
-(function() {
+// base.html 末尾で読み込まれる ticker_detail_modal.js を待ってから初期化する
+(function ready(fn) {
+  if (document.readyState !== 'loading') return fn();
+  document.addEventListener('DOMContentLoaded', fn);
+})(function() {
   let INITIAL_INDEX = [];
   try {
     const el = document.getElementById('analysis-index-data');
@@ -211,6 +215,6 @@
   });
 
   loadIndex();
-})();
+});
 </script>
 {% endblock %}
